@@ -16,7 +16,7 @@ describe('parseTextBodyStyle', () => {
   });
 
   test('parses paragraph with strong text', () => {
-    const input = 'This is **strong** text';
+    const input = 'This is **strong** and **long strong** text';
     const expected = [
       {
         type: 'textBody',
@@ -31,6 +31,16 @@ describe('parseTextBodyStyle', () => {
       {
         type: 'textBody',
         style: 'plain',
+        value: ' and ',
+      },
+      {
+        type: 'textBody',
+        style: 'strong',
+        value: 'long strong',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
         value: ' text',
       },
     ] satisfies TextBody[];
@@ -38,7 +48,7 @@ describe('parseTextBodyStyle', () => {
   });
 
   test('parses paragraph with italic text using asterisks', () => {
-    const input = 'This is *italic* text';
+    const input = 'This is *italic* and *long italic* text';
     const expected = [
       {
         type: 'textBody',
@@ -49,6 +59,16 @@ describe('parseTextBodyStyle', () => {
         type: 'textBody',
         style: 'italic',
         value: 'italic',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and ',
+      },
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'long italic',
       },
       {
         type: 'textBody',
@@ -60,7 +80,7 @@ describe('parseTextBodyStyle', () => {
   });
 
   test('parses paragraph with italic text using underscores', () => {
-    const input = 'This is _italic_ text';
+    const input = 'This is _italic_ and _long italic_ text';
     const expected = [
       {
         type: 'textBody',
@@ -75,6 +95,16 @@ describe('parseTextBodyStyle', () => {
       {
         type: 'textBody',
         style: 'plain',
+        value: ' and ',
+      },
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'long italic',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
         value: ' text',
       },
     ] satisfies TextBody[];
@@ -82,7 +112,7 @@ describe('parseTextBodyStyle', () => {
   });
 
   test('parses paragraph with code', () => {
-    const input = 'This is `code` text';
+    const input = 'This is `code` and `long code` text';
     const expected = [
       {
         type: 'textBody',
@@ -93,6 +123,16 @@ describe('parseTextBodyStyle', () => {
         type: 'textBody',
         style: 'code',
         value: 'code',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and ',
+      },
+      {
+        type: 'textBody',
+        style: 'code',
+        value: 'long code',
       },
       {
         type: 'textBody',
@@ -105,7 +145,7 @@ describe('parseTextBodyStyle', () => {
 
   test('parses paragraph with mixed styles', () => {
     const input =
-      'This is **strong** and *italic* and _also italic_ and `code` text';
+      'This is **strong** and **long strong** and *italic* and *long italic* and _italic_ and _long italic_ and `code` and `long code` text';
     const expected = [
       {
         type: 'textBody',
@@ -116,6 +156,16 @@ describe('parseTextBodyStyle', () => {
         type: 'textBody',
         style: 'strong',
         value: 'strong',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and ',
+      },
+      {
+        type: 'textBody',
+        style: 'strong',
+        value: 'long strong',
       },
       {
         type: 'textBody',
@@ -135,7 +185,27 @@ describe('parseTextBodyStyle', () => {
       {
         type: 'textBody',
         style: 'italic',
-        value: 'also italic',
+        value: 'long italic',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and ',
+      },
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'italic',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and ',
+      },
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'long italic',
       },
       {
         type: 'textBody',
@@ -146,6 +216,16 @@ describe('parseTextBodyStyle', () => {
         type: 'textBody',
         style: 'code',
         value: 'code',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and ',
+      },
+      {
+        type: 'textBody',
+        style: 'code',
+        value: 'long code',
       },
       {
         type: 'textBody',
