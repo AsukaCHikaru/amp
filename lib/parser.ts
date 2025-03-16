@@ -7,7 +7,7 @@ import type {
 } from './definition';
 
 export const parse = (input: string) => {
-  const lines = input.split(/\n+/);
+  const lines = input.split(/\n+/).filter((line) => line.trim() !== '');
   const blocks = lines.map(parseBlock);
   return blocks;
 };
