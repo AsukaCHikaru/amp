@@ -1,0 +1,12 @@
+## Code Style & Patterns
+
+- Use repository pattern for data access
+- Use functional programming practices
+
+# Project Context
+
+- This is a module that meant to be used in other projects
+- Runtime: bun
+- Test runner: bun test
+- Respect prettier and eslint
+- Shell: fish shell
