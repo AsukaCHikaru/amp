@@ -1,7 +1,11 @@
 import type { TextBody, TextBodyStyle } from './definition';
 
-export const parseTextBodyStyle = (input: string): TextBody[] => {
-  const { result } = parse({ text: input, progress: null, result: [] });
+export const parseTextBody = (input: string): TextBody[] => {
+  const { result } = parseTextBodyStyle({
+    text: input,
+    progress: null,
+    result: [],
+  });
 
   return result.map(({ style, text }) => ({
     type: 'textBody',
@@ -37,7 +41,11 @@ type ParseResult = {
   result: { style: TextBodyStyle; text: string }[];
 };
 
-const parse = ({ text, progress, result }: ParseResult): ParseResult => {
+const parseTextBodyStyle = ({
+  text,
+  progress,
+  result,
+}: ParseResult): ParseResult => {
   if (text.length === 0) {
     return {
       text,
@@ -53,7 +61,7 @@ const parse = ({ text, progress, result }: ParseResult): ParseResult => {
 
   switch (progressStyle) {
     case undefined:
-      return parse({
+      return parseTextBodyStyle({
         text: rest,
         progress: { style: headStyle, text: first },
         result,
@@ -61,7 +69,7 @@ const parse = ({ text, progress, result }: ParseResult): ParseResult => {
     case 'plain':
       switch (headStyle) {
         case 'plain':
-          return parse({
+          return parseTextBodyStyle({
             text: rest,
             progress: { style: 'plain', text: (progress?.text ?? '') + first },
             result,
@@ -69,7 +77,7 @@ const parse = ({ text, progress, result }: ParseResult): ParseResult => {
         case 'code':
         case 'italic':
         case 'strong':
-          return parse({
+          return parseTextBodyStyle({
             text: rest,
             progress: { style: headStyle, text: first },
             result: progress ? [...result, progress] : result,
@@ -81,7 +89,7 @@ const parse = ({ text, progress, result }: ParseResult): ParseResult => {
     case 'italic':
     case 'strong':
       if (headStyle === progressStyle) {
-        return parse({
+        return parseTextBodyStyle({
           text: headText,
           progress: null,
           result: [
@@ -90,7 +98,7 @@ const parse = ({ text, progress, result }: ParseResult): ParseResult => {
           ],
         });
       }
-      return parse({
+      return parseTextBodyStyle({
         text: rest,
         progress: {
           style: progressStyle,

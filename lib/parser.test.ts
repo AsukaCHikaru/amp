@@ -1,8 +1,8 @@
 import type { TextBody } from './definition';
-import { parseTextBodyStyle } from './parser';
+import { parseTextBody } from './parser';
 import { describe, expect, test } from 'bun:test';
 
-describe('parseTextBodyStyle', () => {
+describe('parseTextBody', () => {
   test('parses plain text paragraph', () => {
     const input = 'This is a plain text paragraph';
     const expected = [
@@ -12,7 +12,7 @@ describe('parseTextBodyStyle', () => {
         value: 'This is a plain text paragraph',
       },
     ] satisfies TextBody[];
-    expect(parseTextBodyStyle(input)).toEqual(expected);
+    expect(parseTextBody(input)).toEqual(expected);
   });
 
   test('parses paragraph with strong text', () => {
@@ -44,7 +44,7 @@ describe('parseTextBodyStyle', () => {
         value: ' text',
       },
     ] satisfies TextBody[];
-    expect(parseTextBodyStyle(input)).toEqual(expected);
+    expect(parseTextBody(input)).toEqual(expected);
   });
 
   test('parses paragraph with italic text using asterisks', () => {
@@ -76,7 +76,7 @@ describe('parseTextBodyStyle', () => {
         value: ' text',
       },
     ] satisfies TextBody[];
-    expect(parseTextBodyStyle(input)).toEqual(expected);
+    expect(parseTextBody(input)).toEqual(expected);
   });
 
   test('parses paragraph with italic text using underscores', () => {
@@ -108,7 +108,7 @@ describe('parseTextBodyStyle', () => {
         value: ' text',
       },
     ] satisfies TextBody[];
-    expect(parseTextBodyStyle(input)).toEqual(expected);
+    expect(parseTextBody(input)).toEqual(expected);
   });
 
   test('parses paragraph with code', () => {
@@ -140,7 +140,7 @@ describe('parseTextBodyStyle', () => {
         value: ' text',
       },
     ] satisfies TextBody[];
-    expect(parseTextBodyStyle(input)).toEqual(expected);
+    expect(parseTextBody(input)).toEqual(expected);
   });
 
   test('parses paragraph with mixed styles', () => {
@@ -233,6 +233,6 @@ describe('parseTextBodyStyle', () => {
         value: ' text',
       },
     ] satisfies TextBody[];
-    expect(parseTextBodyStyle(input)).toEqual(expected);
+    expect(parseTextBody(input)).toEqual(expected);
   });
 });
