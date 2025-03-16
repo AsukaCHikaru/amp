@@ -3,7 +3,9 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "eslint": "^9.22.0",
+    "prettier": "^3.5.3"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
