@@ -1,4 +1,10 @@
-import type { Block, HeadingBlock, QuoteBlock } from './definition';
+import type {
+  Block,
+  HeadingBlock,
+  ParagraphBlock,
+  QuoteBlock,
+} from './definition';
+import { parseLinkInTextBody } from './parseLinkInTextBody';
 import { parseTextBody } from './parseTextBody';
 
 export const parse = (input: string) => {
@@ -15,7 +21,7 @@ export const parseBlock = (input: string): Block => {
     return parseQuoteBlock(input);
   }
 
-  return { type: 'paragraph', body: parseTextBody(input) };
+  return parseParagraphBlock(input);
 };
 
 export const parseHeadingBlock = (input: string): HeadingBlock => {
@@ -36,3 +42,14 @@ export const parseQuoteBlock = (input: string): QuoteBlock => {
     body: parseTextBody(text),
   };
 };
+export const parseParagraphBlock = (input: string): ParagraphBlock => ({
+  type: 'paragraph',
+  body: parseTextBody(input)
+    .map((textBody) => {
+      // console.log(textBody)
+      return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
+        ? parseLinkInTextBody(textBody)
+        : textBody;
+    })
+    .flat(),
+});

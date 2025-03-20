@@ -13,7 +13,7 @@ describe('Parser Integration Test', () => {
 
     expect(result).toBeArray();
     expect(result.length).toBeGreaterThan(0);
-    // The file has 12 blocks (6 headings, 2 paragraphs, 1 heading, 1 heading, 1 quote)
+    // The file has 11 blocks (6 headings, 2 paragraphs, 1 heading, 1 heading, 1 quote)
     expect(result.length).toBe(11);
   });
   test('parses test/body.test.md correctly', () => {
@@ -169,7 +169,23 @@ describe('Parser Integration Test', () => {
         {
           type: 'textBody',
           style: 'plain',
-          value: ' and [link](https://example.com).',
+          value: ' and ',
+        },
+        {
+          type: 'link',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'link',
+            },
+          ],
+          url: 'https://example.com',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '.',
         },
       ],
     });
