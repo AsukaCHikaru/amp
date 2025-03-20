@@ -523,7 +523,6 @@ describe('parseTextBody', () => {
   });
 });
 
-
 describe('parseHeadingBlock', () => {
   test('parses H1 heading', () => {
     const input = '# Heading 1';

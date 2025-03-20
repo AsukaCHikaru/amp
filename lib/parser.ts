@@ -1,9 +1,8 @@
 import type {
   Block,
-  HeadingBlock,
-  QuoteBlock,
+  HeadingBlock, QuoteBlock,
   TextBody,
-  TextBodyStyle,
+  TextBodyStyle
 } from './definition';
 
 export const parse = (input: string) => {
