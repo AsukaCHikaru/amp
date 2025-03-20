@@ -1,10 +1,13 @@
-import type { Block, HeadingBlock, QuoteBlock, TextBody } from './definition';
+import type {
+  Block,
+  HeadingBlock, QuoteBlock,
+  TextBody
+} from './definition';
 import {
   parse,
   parseBlock,
-  parseHeadingBlock,
-  parseQuoteBlock,
-  parseTextBody,
+  parseHeadingBlock, parseQuoteBlock,
+  parseTextBody
 } from './parser';
 import { describe, expect, test } from 'bun:test';
 
@@ -391,7 +394,8 @@ describe('parseTextBody', () => {
   });
 
   test('parses complex mixed styles', () => {
-    const input = '**Strong** at start, *italic* in middle, and `code` at the end';
+    const input =
+      '**Strong** at start, *italic* in middle, and `code` at the end';
     const expected = [
       {
         type: 'textBody',
@@ -426,7 +430,99 @@ describe('parseTextBody', () => {
     ] satisfies TextBody[];
     expect(parseTextBody(input)).toEqual(expected);
   });
+
+  // 5. Link tests (parsed as plain text)
+  test('parses link only as plain text', () => {
+    const input = '[link text](https://example.com)';
+    const expected = [
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: '[link text](https://example.com)',
+      },
+    ] satisfies TextBody[];
+    expect(parseTextBody(input)).toEqual(expected);
+  });
+
+  test('parses link at start as plain text', () => {
+    const input = '[link text](https://example.com) followed by text';
+    const expected = [
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: '[link text](https://example.com) followed by text',
+      },
+    ] satisfies TextBody[];
+    expect(parseTextBody(input)).toEqual(expected);
+  });
+
+  test('parses link in middle as plain text', () => {
+    const input = 'Text before [link text](https://example.com) and after';
+    const expected = [
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: 'Text before [link text](https://example.com) and after',
+      },
+    ] satisfies TextBody[];
+    expect(parseTextBody(input)).toEqual(expected);
+  });
+
+  test('parses link at end as plain text', () => {
+    const input = 'Text ending with [link text](https://example.com)';
+    const expected = [
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: 'Text ending with [link text](https://example.com)',
+      },
+    ] satisfies TextBody[];
+    expect(parseTextBody(input)).toEqual(expected);
+  });
+
+  test('parses multiple links as plain text', () => {
+    const input =
+      '[first link](https://example.com) and [second link](https://example.org)';
+    const expected = [
+      {
+        type: 'textBody',
+        style: 'plain',
+        value:
+          '[first link](https://example.com) and [second link](https://example.org)',
+      },
+    ] satisfies TextBody[];
+    expect(parseTextBody(input)).toEqual(expected);
+  });
+
+  test('parses links with styled text as plain text', () => {
+    const input =
+      'Text with **strong** and [link text](https://example.com) and *italic*';
+    const expected = [
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: 'Text with ',
+      },
+      {
+        type: 'textBody',
+        style: 'strong',
+        value: 'strong',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and [link text](https://example.com) and ',
+      },
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'italic',
+      },
+    ] satisfies TextBody[];
+    expect(parseTextBody(input)).toEqual(expected);
+  });
 });
+
 
 describe('parseHeadingBlock', () => {
   test('parses H1 heading', () => {
