@@ -36,20 +36,36 @@ describe('splitLinkFromText', () => {
 
   test('extracts a single link with text before and after', () => {
     const input = 'text before [link text](https://example.com) text after';
-    const expected = ['text before ', '[link text](https://example.com)', ' text after'];
+    const expected = [
+      'text before ',
+      '[link text](https://example.com)',
+      ' text after',
+    ];
     expect(splitLinkFromText(input)).toEqual(expected);
   });
 
   // 3. Input with multiple links
   test('extracts multiple links', () => {
-    const input = '[first link](https://example.com) and [second link](https://example.org)';
-    const expected = ['[first link](https://example.com)', ' and ', '[second link](https://example.org)'];
+    const input =
+      '[first link](https://example.com) and [second link](https://example.org)';
+    const expected = [
+      '[first link](https://example.com)',
+      ' and ',
+      '[second link](https://example.org)',
+    ];
     expect(splitLinkFromText(input)).toEqual(expected);
   });
 
   test('extracts multiple links with text before, between, and after', () => {
-    const input = 'start [first](https://example.com) middle [second](https://example.org) end';
-    const expected = ['start ', '[first](https://example.com)', ' middle ', '[second](https://example.org)', ' end'];
+    const input =
+      'start [first](https://example.com) middle [second](https://example.org) end';
+    const expected = [
+      'start ',
+      '[first](https://example.com)',
+      ' middle ',
+      '[second](https://example.org)',
+      ' end',
+    ];
     expect(splitLinkFromText(input)).toEqual(expected);
   });
 
@@ -68,7 +84,9 @@ describe('splitLinkFromText', () => {
 
   test('handles links with special characters in URL', () => {
     const input = '[link text](https://example.com?param=value&another=true)';
-    const expected = ['[link text](https://example.com?param=value&another=true)'];
+    const expected = [
+      '[link text](https://example.com?param=value&another=true)',
+    ];
     expect(splitLinkFromText(input)).toEqual(expected);
   });
 
@@ -80,8 +98,12 @@ describe('splitLinkFromText', () => {
 
   // 5. Complex cases
   test('handles adjacent links', () => {
-    const input = '[first link](https://example.com)[second link](https://example.org)';
-    const expected = ['[first link](https://example.com)', '[second link](https://example.org)'];
+    const input =
+      '[first link](https://example.com)[second link](https://example.org)';
+    const expected = [
+      '[first link](https://example.com)',
+      '[second link](https://example.org)',
+    ];
     expect(splitLinkFromText(input)).toEqual(expected);
   });
 

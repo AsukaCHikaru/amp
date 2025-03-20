@@ -6,7 +6,6 @@ type ParseResult = {
   result: { style: TextBodyStyle; text: string }[];
 };
 
-
 export const parseTextBody = (input: string): TextBody[] => {
   const { result } = parseTextBodyStyle({
     text: input,
@@ -20,8 +19,6 @@ export const parseTextBody = (input: string): TextBody[] => {
     value: text,
   }));
 };
-
-
 
 export const parseTextBodyStyle = ({
   text,

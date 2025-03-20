@@ -1,11 +1,9 @@
-import type {
-  Block,
-  HeadingBlock, QuoteBlock
-} from './definition';
+import type { Block, HeadingBlock, QuoteBlock } from './definition';
 import {
   parse,
   parseBlock,
-  parseHeadingBlock, parseQuoteBlock
+  parseHeadingBlock,
+  parseQuoteBlock,
 } from './parser';
 import { describe, expect, test } from 'bun:test';
 

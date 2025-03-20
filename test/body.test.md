@@ -14,8 +14,8 @@ This is a fully plain paragraph. Lorem ipsum dolor sit amet, consectetur adipisc
 
 # H1
 
-This is a paragraph with **strong** and **long strong** and *italic* and *long italic* and _italic_ and _long italic_ and `code` and `long code` and [link](https://example.com).
+This is a paragraph with **strong** and **long strong** and _italic_ and _long italic_ and _italic_ and _long italic_ and `code` and `long code` and [link](https://example.com).
 
 ## H2
 
-> This is quote with **strong** and **long strong** and *italic* and *long italic* and _italic_ and _long italic_ and `code` and `long code` and [link](https://example.com).
+> This is quote with **strong** and **long strong** and _italic_ and _long italic_ and _italic_ and _long italic_ and `code` and `long code` and [link](https://example.com).
