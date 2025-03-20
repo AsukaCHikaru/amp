@@ -1,5 +1,5 @@
 import type { TextBody, Link } from './definition';
-import { parseTextBody } from './parser';
+import { parseTextBody } from './parseTextBody';
 import { splitLinkFromText } from './splitLinkFromText';
 
 export const parseLinkInTextBody = (input: TextBody): (TextBody | Link)[] => {
