@@ -26,4 +26,10 @@ export type QuoteBlock = {
   body: TextBody[];
 };
 
-export type Block = ParagraphBlock | HeadingBlock | QuoteBlock;
+export type ListBlock = {
+  type: 'list';
+  body: (TextBody | Link | ListBlock)[];
+  ordered: boolean;
+}
+
+export type Block = ParagraphBlock | HeadingBlock | QuoteBlock | ListBlock;
