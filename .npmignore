@@ -1,0 +1,23 @@
+# Source files
+lib/
+test/
+
+# Configuration files
+.eslintrc.json
+.prettierrc
+.gitignore
+.clinerules
+tsconfig.json
+
+# Test files
+*.test.ts
+*.integration.test.ts
+test/
+
+# Lock files
+bun.lockb
+package-lock.json
+
+# Editor files
+.vscode/
+.idea/
