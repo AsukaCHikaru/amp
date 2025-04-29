@@ -14,13 +14,15 @@ export const parse = (input: string) => {
   return blocks;
 };
 
+const headingRegexp = new RegExp(/^(#{1,6})\s+(.+)$/);
+const quoteRegexp = new RegExp(/^>\s+(.+)$/);
 const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)$/);
 
 export const parseBlock = (input: string): Block => {
-  if (/^#{1,6}\s+.+/.test(input)) {
+  if (headingRegexp.test(input)) {
     return parseHeadingBlock(input);
   }
-  if (/^>\s+.+/.test(input)) {
+  if (quoteRegexp.test(input)) {
     return parseQuoteBlock(input);
   }
   if (listRegexp.test(input)) {
@@ -31,9 +33,12 @@ export const parseBlock = (input: string): Block => {
 };
 
 export const parseHeadingBlock = (input: string): HeadingBlock => {
-  const level = (input.match(/^#{1,6}/)?.[0].length ??
-    1) as HeadingBlock['level'];
-  const text = input.replace(/^#{1,6}\s+/, '');
+  const match = headingRegexp.exec(input);
+  if (!match) {
+    throw new Error('Invalid heading block');
+  }
+  const level = match[1].length as HeadingBlock['level'];
+  const text = match[2];
   return {
     type: 'heading',
     level,
@@ -42,12 +47,17 @@ export const parseHeadingBlock = (input: string): HeadingBlock => {
 };
 
 export const parseQuoteBlock = (input: string): QuoteBlock => {
-  const text = input.replace(/^>\s+/, '');
+  const match = quoteRegexp.exec(input);
+  if (!match) {
+    throw new Error('Invalid quote block');
+  }
+  const text = match[1];
   return {
     type: 'quote',
     body: parseTextBody(text),
   };
 };
+
 export const parseParagraphBlock = (input: string): ParagraphBlock => ({
   type: 'paragraph',
   body: parseTextBody(input)
@@ -64,8 +74,8 @@ export const parseListBlock = (input: string): ListBlock => {
   if (!match) {
     throw new Error('Invalid list block');
   }
-  const ordered = match?.[1]?.match(/^\d{1,}\.$/) !== null;
-  const content = match?.[2] ?? '';
+  const ordered = match[1]?.match(/^\d{1,}\.$/) !== null;
+  const content = match[2] ?? '';
   const body = parseTextBody(content)
   .map((textBody) => {
     return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
