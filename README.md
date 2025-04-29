@@ -1,15 +1,19 @@
 # markdown-parser
 
-To install dependencies:
+A minimum markdown parser, written in TypeScript.
 
-```bash
-bun install
-```
+## Supported block types
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.1.18. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+- Heading
+  - h1 ~ h6
+- Styled texts
+  - italic
+  - bold
+  - code
+  - link
+- Quote
+- List
+  - ordered (asterisks unsupported)
+  - unordered
+- Code
+- Thematic break
