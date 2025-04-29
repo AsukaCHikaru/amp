@@ -26,10 +26,15 @@ export type QuoteBlock = {
   body: TextBody[];
 };
 
+type ListItem = {
+  type: 'listItem';
+  body: (TextBody | Link)[];
+};
+
 export type ListBlock = {
   type: 'list';
-  body: (TextBody | Link | ListBlock)[];
+  items: ListItem[];
   ordered: boolean;
-}
+};
 
 export type Block = ParagraphBlock | HeadingBlock | QuoteBlock | ListBlock;
