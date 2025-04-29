@@ -14,7 +14,7 @@ import { parseTextBody } from './parseTextBody';
 export const parse = (input: string) => {
   const lines = input.split(/\n{2,}?/).filter((line) => line.trim() !== '');
   const blocks = lines.map(parseBlock);
-  return blocks;
+  return { blocks };
 };
 
 const headingRegexp = new RegExp(/^(#{1,6})\s+(.+)$/);
@@ -69,12 +69,13 @@ export const parseQuoteBlock = (input: string): QuoteBlock => {
   const text = match[1];
   return {
     type: 'quote',
-    body: parseTextBody(text).map((textBody) => {
-      return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
-        ? parseLinkInTextBody(textBody)
-        : textBody;
-    })
-    .flat()
+    body: parseTextBody(text)
+      .map((textBody) => {
+        return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
+          ? parseLinkInTextBody(textBody)
+          : textBody;
+      })
+      .flat(),
   };
 };
 

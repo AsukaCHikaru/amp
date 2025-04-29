@@ -38,7 +38,7 @@ const code = "This is a code block";
 ---
 `;
 
-const blocks = parse(markdownText);
+const { blocks } = parse(markdownText);
 console.log(blocks);
 ```
 
