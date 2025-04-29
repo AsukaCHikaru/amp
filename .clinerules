@@ -10,3 +10,7 @@
 - Test runner: bun test
 - Respect prettier and eslint
 - Shell: fish shell
+
+# Meta Prompts
+
+- When prompts starts with "TDD", only implement tests with the given instructions and leave all feature implementations untouched, unless explicitly instructed
