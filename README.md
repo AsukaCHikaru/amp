@@ -1,6 +1,6 @@
-# markdown-parser
+# AMP
 
-A minimum markdown parser, written in TypeScript.
+AMP (stands for "Asuka's Markdown Parser") is a minimum markdown parser, written in TypeScript.
 
 ## Supported block types
 
@@ -17,3 +17,7 @@ A minimum markdown parser, written in TypeScript.
   - unordered
 - Code
 - Thematic break
+
+# License
+
+MIT
