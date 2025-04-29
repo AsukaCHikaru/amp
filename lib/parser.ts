@@ -6,6 +6,7 @@ import type {
   ListBlock,
   ParagraphBlock,
   QuoteBlock,
+  ThematicBreakBlock,
 } from './definition';
 import { parseLinkInTextBody } from './parseLinkInTextBody';
 import { parseTextBody } from './parseTextBody';
@@ -21,6 +22,7 @@ const quoteRegexp = new RegExp(/^>\s+(.+)$/);
 const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)$/);
 const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)$/);
 const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```$/);
+const thematicBreakRegexp = new RegExp(/^-{3,}$/);
 
 export const parseBlock = (input: string): Block => {
   if (headingRegexp.test(input)) {
@@ -37,6 +39,9 @@ export const parseBlock = (input: string): Block => {
   }
   if (codeRegexp.test(input)) {
     return parseCodeBlock(input);
+  }
+  if (thematicBreakRegexp.test(input)) {
+    return parseThematicBreakBlock();
   }
 
   return parseParagraphBlock(input);
@@ -142,3 +147,7 @@ export const parseCodeBlock = (input: string): CodeBlock => {
     body,
   };
 };
+
+export const parseThematicBreakBlock = (): ThematicBreakBlock => ({
+  type: 'thematicBreak',
+});
