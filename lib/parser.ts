@@ -77,16 +77,16 @@ export const parseListBlock = (input: string): ListBlock => {
   const ordered = match[1]?.match(/^\d{1,}\.$/) !== null;
   const content = match[2] ?? '';
   const body = parseTextBody(content)
-  .map((textBody) => {
-    return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
-      ? parseLinkInTextBody(textBody)
-      : textBody;
-  })
-  .flat();
-  
+    .map((textBody) => {
+      return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
+        ? parseLinkInTextBody(textBody)
+        : textBody;
+    })
+    .flat();
+
   return {
     type: 'list',
     ordered,
     body,
-  }
+  };
 };
