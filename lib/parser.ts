@@ -1,6 +1,7 @@
 import type {
   Block,
   HeadingBlock,
+  ImageBlock,
   ListBlock,
   ParagraphBlock,
   QuoteBlock,
@@ -17,6 +18,7 @@ export const parse = (input: string) => {
 const headingRegexp = new RegExp(/^(#{1,6})\s+(.+)$/);
 const quoteRegexp = new RegExp(/^>\s+(.+)$/);
 const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)$/);
+const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)$/);
 
 export const parseBlock = (input: string): Block => {
   if (headingRegexp.test(input)) {
@@ -27,6 +29,9 @@ export const parseBlock = (input: string): Block => {
   }
   if (input.split(/\n+/).every((line) => listRegexp.test(line))) {
     return parseListBlock(input);
+  }
+  if (imageRegexp.test(input)) {
+    return parseImageBlock(input);
   }
 
   return parseParagraphBlock(input);
@@ -98,5 +103,22 @@ const parseListItem = (line: string): ListBlock['items'][number] => {
   return {
     type: 'listItem',
     body,
+  };
+};
+
+export const parseImageBlock = (input: string): ImageBlock => {
+  const match = imageRegexp.exec(input);
+  if (!match) {
+    throw new Error('Invalid image block');
+  }
+  const altText = match[1];
+  const url = match[2];
+  const caption = match[3].replace(/^\((.+)\)$/, '$1') || '';
+
+  return {
+    type: 'image',
+    url,
+    altText,
+    caption,
   };
 };
