@@ -73,28 +73,30 @@ export const parseListBlock = (input: string): ListBlock => {
   const lines = input.split(/\n+/).filter((line) => line.trim() !== '');
   const matches = lines.map((line) => listRegexp.exec(line));
   const ordered = matches.every((match) => match && /^\d{1,}\./.test(match[1]));
-  const items = matches
-    .map((match) => {
-      const content = match?.[2] ?? '';
-      const body = parseTextBody(content)
-        .map((textBody) => {
-          return textBody.style === 'plain' &&
-            /\[.+\]\(.+\)/.test(textBody.value)
-            ? parseLinkInTextBody(textBody)
-            : textBody;
-        })
-        .flat();
-      const result = {
-        type: 'listItem',
-        body,
-      } satisfies ListBlock['items'][number];
-      return result;
-    })
-    .flat();
+  const items = lines.map((line) => parseListItem(line));
 
   return {
     type: 'list',
     ordered,
     items,
+  };
+};
+
+const parseListItem = (line: string): ListBlock['items'][number] => {
+  const match = listRegexp.exec(line);
+  if (!match) {
+    throw new Error('Invalid list item');
+  }
+  const content = match[2];
+  const body = parseTextBody(content)
+    .map((textBody) => {
+      return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
+        ? parseLinkInTextBody(textBody)
+        : textBody;
+    })
+    .flat();
+  return {
+    type: 'listItem',
+    body,
   };
 };
