@@ -722,7 +722,7 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input)).toEqual(expected);
+    expect(parse(input).blocks).toEqual(expected);
   });
 
   test('parses empty lines as empty paragraphs', () => {
@@ -750,7 +750,7 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input)).toEqual(expected);
+    expect(parse(input).blocks).toEqual(expected);
   });
 
   test('parses complex document with mixed blocks', () => {
@@ -820,7 +820,7 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input)).toEqual(expected);
+    expect(parse(input).blocks).toEqual(expected);
   });
 
   test('parses document with image block', () => {
@@ -855,7 +855,7 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input)).toEqual(expected);
+    expect(parse(input).blocks).toEqual(expected);
   });
 
   test('parses document with code block', () => {
@@ -889,7 +889,7 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input)).toEqual(expected);
+    expect(parse(input).blocks).toEqual(expected);
   });
 
   test('parses document with thematic break', () => {
@@ -919,6 +919,6 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input)).toEqual(expected);
+    expect(parse(input).blocks).toEqual(expected);
   });
 });

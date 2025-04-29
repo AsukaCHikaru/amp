@@ -9,21 +9,21 @@ describe('Parser Integration Test', () => {
       join(process.cwd(), 'test/body.test.md'),
       'utf-8',
     );
-    const result = parse(markdownContent);
+    const { blocks } = parse(markdownContent);
 
-    expect(result).toBeArray();
-    expect(result.length).toBeGreaterThan(0);
+    expect(blocks).toBeArray();
+    expect(blocks.length).toBeGreaterThan(0);
     // The file has 11 blocks (6 headings, 2 paragraphs, 1 heading, 1 heading, 1 quote)
-    expect(result.length).toBe(11);
+    expect(blocks.length).toBe(11);
   });
   test('parses test/body.test.md correctly', () => {
     const markdownContent = readFileSync(
       join(process.cwd(), 'test/body.test.md'),
       'utf-8',
     );
-    const result = parse(markdownContent);
+    const { blocks } = parse(markdownContent);
 
-    expect(result[0]).toMatchObject({
+    expect(blocks[0]).toMatchObject({
       type: 'heading',
       level: 1,
       body: [
@@ -40,7 +40,7 @@ describe('Parser Integration Test', () => {
       ],
     });
 
-    expect(result[1]).toMatchObject({
+    expect(blocks[1]).toMatchObject({
       type: 'heading',
       level: 2,
       body: [
@@ -57,7 +57,7 @@ describe('Parser Integration Test', () => {
       ],
     });
 
-    expect(result[2]).toMatchObject({
+    expect(blocks[2]).toMatchObject({
       type: 'heading',
       level: 3,
       body: [
@@ -74,7 +74,7 @@ describe('Parser Integration Test', () => {
       ],
     });
 
-    expect(result[3]).toMatchObject({
+    expect(blocks[3]).toMatchObject({
       type: 'heading',
       level: 4,
       body: [
@@ -91,7 +91,7 @@ describe('Parser Integration Test', () => {
       ],
     });
 
-    expect(result[4]).toMatchObject({
+    expect(blocks[4]).toMatchObject({
       type: 'heading',
       level: 5,
       body: [
@@ -108,7 +108,7 @@ describe('Parser Integration Test', () => {
       ],
     });
 
-    expect(result[5]).toMatchObject({
+    expect(blocks[5]).toMatchObject({
       type: 'heading',
       level: 6,
       body: [
@@ -125,7 +125,7 @@ describe('Parser Integration Test', () => {
       ],
     });
 
-    expect(result[6]).toMatchObject({
+    expect(blocks[6]).toMatchObject({
       type: 'paragraph',
       body: [
         {
@@ -137,13 +137,13 @@ describe('Parser Integration Test', () => {
       ],
     });
 
-    expect(result[7]).toMatchObject({
+    expect(blocks[7]).toMatchObject({
       type: 'heading',
       level: 1,
       body: [{ type: 'textBody', style: 'plain', value: 'H1' }],
     });
 
-    expect(result[8]).toMatchObject({
+    expect(blocks[8]).toMatchObject({
       type: 'paragraph',
       body: [
         {
@@ -190,13 +190,13 @@ describe('Parser Integration Test', () => {
       ],
     });
 
-    expect(result[9]).toMatchObject({
+    expect(blocks[9]).toMatchObject({
       type: 'heading',
       level: 2,
       body: [{ type: 'textBody', style: 'plain', value: 'H2' }],
     });
 
-    expect(result[10]).toMatchObject({
+    expect(blocks[10]).toMatchObject({
       type: 'quote',
       body: [
         {
