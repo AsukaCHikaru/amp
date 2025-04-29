@@ -44,9 +44,16 @@ export type ImageBlock = {
   caption: string;
 };
 
+export type CodeBlock = {
+  type: 'code';
+  lang?: string;
+  body: string;
+};
+
 export type Block =
   | ParagraphBlock
   | HeadingBlock
   | QuoteBlock
   | ListBlock
-  | ImageBlock;
+  | ImageBlock
+  | CodeBlock;
