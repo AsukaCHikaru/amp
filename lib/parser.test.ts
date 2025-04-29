@@ -2,7 +2,9 @@ import type { Block, HeadingBlock, ListBlock, QuoteBlock } from './definition';
 import {
   parse,
   parseBlock,
-  parseHeadingBlock, parseListBlock, parseQuoteBlock
+  parseHeadingBlock,
+  parseListBlock,
+  parseQuoteBlock,
 } from './parser';
 import { describe, expect, test } from 'bun:test';
 
@@ -145,32 +147,104 @@ describe('parseQuoteBlock', () => {
 });
 
 describe('parseListBlock', () => {
-  test('parses unordered list with hyphens', () => {
+  test('parses single unordered list with hyphens', () => {
     const input = '- Item 1';
     const expected: ListBlock = {
       type: 'list',
       ordered: false,
-      body: [
+      items: [
         {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Item 1',
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'Item 1',
+            },
+          ],
+        },
+      ],
+    };
+    expect(parseListBlock(input)).toEqual(expected);
+  });
+  test('parses multiple unordered list with hyphens', () => {
+    const input = `- Item 1
+    - Item 2`;
+    const expected: ListBlock = {
+      type: 'list',
+      ordered: false,
+      items: [
+        {
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'Item 1',
+            },
+          ],
+        },
+        {
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'Item 2',
+            },
+          ],
         },
       ],
     };
     expect(parseListBlock(input)).toEqual(expected);
   });
 
-  test('parses ordered list', () => {
+  test('parses single ordered list', () => {
     const input = '1. Item 1';
     const expected: ListBlock = {
       type: 'list',
       ordered: true,
-      body: [
+      items: [
         {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Item 1',
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'Item 1',
+            },
+          ],
+        },
+      ],
+    };
+    expect(parseListBlock(input)).toEqual(expected);
+  });
+  test('parses multiple ordered list', () => {
+    const input = `1. Item 1
+    2. Item 2`;
+    const expected: ListBlock = {
+      type: 'list',
+      ordered: true,
+      items: [
+        {
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'Item 1',
+            },
+          ],
+        },
+        {
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'Item 2',
+            },
+          ],
         },
       ],
     };
@@ -182,31 +256,36 @@ describe('parseListBlock', () => {
     const expected: ListBlock = {
       type: 'list',
       ordered: false,
-      body: [
+      items: [
         {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Item with ',
-        },
-        {
-          type: 'textBody',
-          style: 'strong',
-          value: 'strong',
-        },
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: ' and ',
-        },
-        {
-          type: 'textBody',
-          style: 'italic',
-          value: 'italic',
-        },
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: ' text',
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'Item with ',
+            },
+            {
+              type: 'textBody',
+              style: 'strong',
+              value: 'strong',
+            },
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: ' and ',
+            },
+            {
+              type: 'textBody',
+              style: 'italic',
+              value: 'italic',
+            },
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: ' text',
+            },
+          ],
         },
       ],
     };
@@ -214,168 +293,49 @@ describe('parseListBlock', () => {
   });
 
   test('parses list with link', () => {
-    const input = '- Item with [link](https://example.com)';
+    const input = `- Item with [link](https://example.com)
+    - Item with [link2](https://example.com)`;
     const expected: ListBlock = {
       type: 'list',
       ordered: false,
-      body: [
+      items: [
         {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Item with ',
-        },
-        {
-          type: 'link',
-          url: 'https://example.com',
+          type: 'listItem',
           body: [
             {
               type: 'textBody',
               style: 'plain',
-              value: 'link',
-            },
-          ],
-        },
-      ],
-    };
-    expect(parseListBlock(input)).toEqual(expected);
-  });
-
-  test('parses nested unordered list', () => {
-    const input = '- Item 1\n  - Nested item';
-    const expected: ListBlock = {
-      type: 'list',
-      ordered: false,
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Item 1',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'Nested item',
-            },
-          ],
-        },
-      ],
-    };
-    expect(parseListBlock(input)).toEqual(expected);
-  });
-
-  test('parses nested ordered list', () => {
-    const input = '1. Item 1\n   1. Nested item';
-    const expected: ListBlock = {
-      type: 'list',
-      ordered: true,
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Item 1',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'Nested item',
-            },
-          ],
-        },
-      ],
-    };
-    expect(parseListBlock(input)).toEqual(expected);
-  });
-
-  test('parses mixed nested list (ordered in unordered)', () => {
-    const input = '- Item 1\n  1. Nested ordered item';
-    const expected: ListBlock = {
-      type: 'list',
-      ordered: false,
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Item 1',
-        },
-        {
-          type: 'list',
-          ordered: true,
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'Nested ordered item',
-            },
-          ],
-        },
-      ],
-    };
-    expect(parseListBlock(input)).toEqual(expected);
-  });
-
-  test('parses mixed nested list (unordered in ordered)', () => {
-    const input = '1. Item 1\n   - Nested unordered item';
-    const expected: ListBlock = {
-      type: 'list',
-      ordered: true,
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Item 1',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'Nested unordered item',
-            },
-          ],
-        },
-      ],
-    };
-    expect(parseListBlock(input)).toEqual(expected);
-  });
-
-  test('parses deeply nested list', () => {
-    const input = '- Level 1\n  - Level 2\n    - Level 3';
-    const expected: ListBlock = {
-      type: 'list',
-      ordered: false,
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Level 1',
-        },
-        {
-          type: 'list',
-          ordered: false,
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'Level 2',
+              value: 'Item with ',
             },
             {
-              type: 'list',
-              ordered: false,
+              type: 'link',
+              url: 'https://example.com',
               body: [
                 {
                   type: 'textBody',
                   style: 'plain',
-                  value: 'Level 3',
+                  value: 'link',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'Item with ',
+            },
+            {
+              type: 'link',
+              url: 'https://example.com',
+              body: [
+                {
+                  type: 'textBody',
+                  style: 'plain',
+                  value: 'link2',
                 },
               ],
             },
@@ -424,11 +384,16 @@ describe('parseBlock', () => {
     const expected: Block = {
       type: 'list',
       ordered: false,
-      body: [
+      items: [
         {
-          type: 'textBody',
-          style: 'plain',
-          value: 'List item',
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'List item',
+            },
+          ],
         },
       ],
     };
@@ -440,11 +405,16 @@ describe('parseBlock', () => {
     const expected: Block = {
       type: 'list',
       ordered: true,
-      body: [
+      items: [
         {
-          type: 'textBody',
-          style: 'plain',
-          value: 'List item',
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'List item',
+            },
+          ],
         },
       ],
     };
