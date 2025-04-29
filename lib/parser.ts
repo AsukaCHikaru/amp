@@ -1,5 +1,6 @@
 import type {
   Block,
+  CodeBlock,
   HeadingBlock,
   ImageBlock,
   ListBlock,
@@ -10,7 +11,7 @@ import { parseLinkInTextBody } from './parseLinkInTextBody';
 import { parseTextBody } from './parseTextBody';
 
 export const parse = (input: string) => {
-  const lines = input.split(/\n+/).filter((line) => line.trim() !== '');
+  const lines = input.split(/\n{2,}?/).filter((line) => line.trim() !== '');
   const blocks = lines.map(parseBlock);
   return blocks;
 };
@@ -19,6 +20,7 @@ const headingRegexp = new RegExp(/^(#{1,6})\s+(.+)$/);
 const quoteRegexp = new RegExp(/^>\s+(.+)$/);
 const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)$/);
 const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)$/);
+const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```$/);
 
 export const parseBlock = (input: string): Block => {
   if (headingRegexp.test(input)) {
@@ -32,6 +34,9 @@ export const parseBlock = (input: string): Block => {
   }
   if (imageRegexp.test(input)) {
     return parseImageBlock(input);
+  }
+  if (codeRegexp.test(input)) {
+    return parseCodeBlock(input);
   }
 
   return parseParagraphBlock(input);
@@ -120,5 +125,20 @@ export const parseImageBlock = (input: string): ImageBlock => {
     url,
     altText,
     caption,
+  };
+};
+
+export const parseCodeBlock = (input: string): CodeBlock => {
+  const match = codeRegexp.exec(input);
+  if (!match) {
+    throw new Error('Invalid code block');
+  }
+  const lang = match[1] || undefined;
+  const body = match[2];
+
+  return {
+    type: 'code',
+    lang,
+    body,
   };
 };
