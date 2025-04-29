@@ -50,10 +50,15 @@ export type CodeBlock = {
   body: string;
 };
 
+export type ThematicBreakBlock = {
+  type: 'thematicBreak';
+};
+
 export type Block =
   | ParagraphBlock
   | HeadingBlock
   | QuoteBlock
   | ListBlock
   | ImageBlock
-  | CodeBlock;
+  | CodeBlock
+  | ThematicBreakBlock;
