@@ -37,4 +37,16 @@ export type ListBlock = {
   ordered: boolean;
 };
 
-export type Block = ParagraphBlock | HeadingBlock | QuoteBlock | ListBlock;
+export type ImageBlock = {
+  type: 'image';
+  url: string;
+  altText: string;
+  caption: string;
+};
+
+export type Block =
+  | ParagraphBlock
+  | HeadingBlock
+  | QuoteBlock
+  | ListBlock
+  | ImageBlock;
