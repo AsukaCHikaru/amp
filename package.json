@@ -1,11 +1,18 @@
 {
-  "name": "markdown-parser",
+  "name": "amp",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
     "eslint": "^9.22.0",
     "prettier": "^3.5.3"
+  },
+  "author": {
+    "name": "Asuka Wang"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AsukaCHikaru/amp"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
