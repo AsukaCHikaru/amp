@@ -4,6 +4,7 @@ import type {
   ImageBlock,
   ListBlock,
   QuoteBlock,
+  CodeBlock,
 } from './definition';
 import {
   parse,
@@ -12,6 +13,7 @@ import {
   parseImageBlock,
   parseListBlock,
   parseQuoteBlock,
+  parseCodeBlock,
 } from './parser';
 import { describe, expect, test } from 'bun:test';
 
@@ -400,6 +402,69 @@ describe('parseListBlock', () => {
   });
 });
 
+describe('parseCodeBlock', () => {
+  test('parses basic code block with language', () => {
+    const input = '```javascript\nconst x = 5;\nconsole.log(x);\n```';
+    const expected: CodeBlock = {
+      type: 'code',
+      lang: 'javascript',
+      body: 'const x = 5;\nconsole.log(x);',
+    };
+    expect(parseCodeBlock(input)).toEqual(expected);
+  });
+
+  test('parses code block without language specification', () => {
+    const input = '```\nfunction test() {\n  return true;\n}\n```';
+    const expected: CodeBlock = {
+      type: 'code',
+      lang: undefined,
+      body: 'function test() {\n  return true;\n}',
+    };
+    expect(parseCodeBlock(input)).toEqual(expected);
+  });
+
+  test('parses code block with different languages', () => {
+    const input = '```python\ndef hello():\n    print("Hello, World!")\n```';
+    const expected: CodeBlock = {
+      type: 'code',
+      lang: 'python',
+      body: 'def hello():\n    print("Hello, World!")',
+    };
+    expect(parseCodeBlock(input)).toEqual(expected);
+  });
+
+  test('parses code block with special characters', () => {
+    const input = '```\n# Special chars: !@#$%^&*()\n```';
+    const expected: CodeBlock = {
+      type: 'code',
+      lang: undefined,
+      body: '# Special chars: !@#$%^&*()',
+    };
+    expect(parseCodeBlock(input)).toEqual(expected);
+  });
+
+  test('parses code block with empty content', () => {
+    const input = '```\n\n```';
+    const expected: CodeBlock = {
+      type: 'code',
+      lang: undefined,
+      body: '',
+    };
+    expect(parseCodeBlock(input)).toEqual(expected);
+  });
+
+  test('parses code block with multiple lines and indentation', () => {
+    const input =
+      '```typescript\nfunction example() {\n  const x = 1;\n  return x + 2;\n}\n```';
+    const expected: CodeBlock = {
+      type: 'code',
+      lang: 'typescript',
+      body: 'function example() {\n  const x = 1;\n  return x + 2;\n}',
+    };
+    expect(parseCodeBlock(input)).toEqual(expected);
+  });
+});
+
 describe('parseBlock', () => {
   test('parses heading block', () => {
     const input = '# Heading 1';
@@ -556,11 +621,21 @@ describe('parseBlock', () => {
     };
     expect(parseBlock(input)).toEqual(expected);
   });
+
+  test('parses code block', () => {
+    const input = '```javascript\nconst x = 5;\nconsole.log(x);\n```';
+    const expected: Block = {
+      type: 'code',
+      lang: 'javascript',
+      body: 'const x = 5;\nconsole.log(x);',
+    };
+    expect(parseBlock(input)).toEqual(expected);
+  });
 });
 
 describe('parse', () => {
   test('parses multiple blocks', () => {
-    const input = '# Heading 1\n> This is a quote\nThis is a paragraph';
+    const input = '# Heading 1\n\n> This is a quote\n\nThis is a paragraph';
     const expected: Block[] = [
       {
         type: 'heading',
@@ -627,7 +702,7 @@ describe('parse', () => {
 
   test('parses complex document with mixed blocks', () => {
     const input =
-      '# Heading 1\n## Heading 2\n> Quote with **strong** text\nParagraph with *italic* text';
+      '# Heading 1\n\n## Heading 2\n\n> Quote with **strong** text\n\nParagraph with *italic* text';
     const expected: Block[] = [
       {
         type: 'heading',
@@ -697,7 +772,7 @@ describe('parse', () => {
 
   test('parses document with image block', () => {
     const input =
-      '# Document with Image\n![Image alt text](/path/to/image.jpg)(Image caption)\nText after image';
+      '# Document with Image\n\n![Image alt text](/path/to/image.jpg)(Image caption)\n\nText after image';
     const expected: Block[] = [
       {
         type: 'heading',
@@ -723,6 +798,40 @@ describe('parse', () => {
             type: 'textBody',
             style: 'plain',
             value: 'Text after image',
+          },
+        ],
+      },
+    ];
+    expect(parse(input)).toEqual(expected);
+  });
+
+  test('parses document with code block', () => {
+    const input =
+      '# Document with Code\n\n```javascript\nconst x = 5;\nconsole.log(x);\n```\n\nText after code';
+    const expected: Block[] = [
+      {
+        type: 'heading',
+        level: 1,
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'Document with Code',
+          },
+        ],
+      },
+      {
+        type: 'code',
+        lang: 'javascript',
+        body: 'const x = 5;\nconsole.log(x);',
+      },
+      {
+        type: 'paragraph',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'Text after code',
           },
         ],
       },
