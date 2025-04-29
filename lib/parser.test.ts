@@ -5,6 +5,8 @@ import type {
   ListBlock,
   QuoteBlock,
   CodeBlock,
+  ThematicBreakBlock,
+  ParagraphBlock,
 } from './definition';
 import {
   parse,
@@ -14,6 +16,7 @@ import {
   parseListBlock,
   parseQuoteBlock,
   parseCodeBlock,
+  parseThematicBreakBlock,
 } from './parser';
 import { describe, expect, test } from 'bun:test';
 
@@ -402,6 +405,48 @@ describe('parseListBlock', () => {
   });
 });
 
+describe('parseThematicBreakBlock', () => {
+  test('returns a thematic break block object', () => {
+    const expected: { type: 'thematicBreak' } = {
+      type: 'thematicBreak',
+    };
+    expect(parseThematicBreakBlock()).toEqual(expected);
+  });
+});
+
+describe('thematic break detection', () => {
+  test('detects thematic break with three hyphens', () => {
+    const input = '---';
+    const expected: ThematicBreakBlock = {
+      type: 'thematicBreak',
+    };
+    expect(parseBlock(input)).toEqual(expected);
+  });
+
+  test('detects thematic break with more than three hyphens', () => {
+    const input = '-----';
+    const expected: ThematicBreakBlock = {
+      type: 'thematicBreak',
+    };
+    expect(parseBlock(input)).toEqual(expected);
+  });
+
+  test('does not detect thematic break with fewer than three hyphens', () => {
+    const input = '--';
+    const expected: ParagraphBlock = {
+      type: 'paragraph',
+      body: [
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '--',
+        },
+      ],
+    };
+    expect(parseBlock(input)).toEqual(expected);
+  });
+});
+
 describe('parseCodeBlock', () => {
   test('parses basic code block with language', () => {
     const input = '```javascript\nconst x = 5;\nconsole.log(x);\n```';
@@ -468,7 +513,7 @@ describe('parseCodeBlock', () => {
 describe('parseBlock', () => {
   test('parses heading block', () => {
     const input = '# Heading 1';
-    const expected: Block = {
+    const expected: HeadingBlock = {
       type: 'heading',
       level: 1,
       body: [
@@ -484,7 +529,7 @@ describe('parseBlock', () => {
 
   test('parses quote block', () => {
     const input = '> This is a quote';
-    const expected: Block = {
+    const expected: QuoteBlock = {
       type: 'quote',
       body: [
         {
@@ -500,7 +545,7 @@ describe('parseBlock', () => {
   test('parses unordered list block', () => {
     const input = `- List item 1
 - List item 2`;
-    const expected: Block = {
+    const expected: ListBlock = {
       type: 'list',
       ordered: false,
       items: [
@@ -532,7 +577,7 @@ describe('parseBlock', () => {
   test('parses ordered list block', () => {
     const input = `1. List item 1
 2. List item 2`;
-    const expected: Block = {
+    const expected: ListBlock = {
       type: 'list',
       ordered: true,
       items: [
@@ -563,7 +608,7 @@ describe('parseBlock', () => {
 
   test('parses paragraph block by default', () => {
     const input = 'This is a paragraph';
-    const expected: Block = {
+    const expected: ParagraphBlock = {
       type: 'paragraph',
       body: [
         {
@@ -578,7 +623,7 @@ describe('parseBlock', () => {
 
   test('parses paragraph with styled text', () => {
     const input = 'Paragraph with **strong** and *italic* text';
-    const expected: Block = {
+    const expected: ParagraphBlock = {
       type: 'paragraph',
       body: [
         {
@@ -613,7 +658,7 @@ describe('parseBlock', () => {
 
   test('parses image block', () => {
     const input = '![Alt text](/path/to/image.jpg)(Image caption)';
-    const expected: Block = {
+    const expected: ImageBlock = {
       type: 'image',
       url: '/path/to/image.jpg',
       altText: 'Alt text',
@@ -624,10 +669,18 @@ describe('parseBlock', () => {
 
   test('parses code block', () => {
     const input = '```javascript\nconst x = 5;\nconsole.log(x);\n```';
-    const expected: Block = {
+    const expected: CodeBlock = {
       type: 'code',
       lang: 'javascript',
       body: 'const x = 5;\nconsole.log(x);',
+    };
+    expect(parseBlock(input)).toEqual(expected);
+  });
+
+  test('parses thematic break block', () => {
+    const input = '---';
+    const expected: ThematicBreakBlock = {
+      type: 'thematicBreak',
     };
     expect(parseBlock(input)).toEqual(expected);
   });
@@ -832,6 +885,36 @@ describe('parse', () => {
             type: 'textBody',
             style: 'plain',
             value: 'Text after code',
+          },
+        ],
+      },
+    ];
+    expect(parse(input)).toEqual(expected);
+  });
+
+  test('parses document with thematic break', () => {
+    const input = 'Text before break\n\n---\n\nText after break';
+    const expected: Block[] = [
+      {
+        type: 'paragraph',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'Text before break',
+          },
+        ],
+      },
+      {
+        type: 'thematicBreak',
+      },
+      {
+        type: 'paragraph',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'Text after break',
           },
         ],
       },
