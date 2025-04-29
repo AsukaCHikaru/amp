@@ -2,9 +2,7 @@ import type { Block, HeadingBlock, ListBlock, QuoteBlock } from './definition';
 import {
   parse,
   parseBlock,
-  parseHeadingBlock,
-  parseListBlock,
-  parseQuoteBlock,
+  parseHeadingBlock, parseListBlock, parseQuoteBlock
 } from './parser';
 import { describe, expect, test } from 'bun:test';
 
