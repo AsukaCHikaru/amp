@@ -25,7 +25,7 @@ export const parseBlock = (input: string): Block => {
   if (quoteRegexp.test(input)) {
     return parseQuoteBlock(input);
   }
-  if (listRegexp.test(input)) {
+  if (input.split(/\n+/).every((line) => listRegexp.test(line))) {
     return parseListBlock(input);
   }
 
@@ -70,23 +70,31 @@ export const parseParagraphBlock = (input: string): ParagraphBlock => ({
 });
 
 export const parseListBlock = (input: string): ListBlock => {
-  const match = listRegexp.exec(input);
-  if (!match) {
-    throw new Error('Invalid list block');
-  }
-  const ordered = match[1]?.match(/^\d{1,}\.$/) !== null;
-  const content = match[2] ?? '';
-  const body = parseTextBody(content)
-    .map((textBody) => {
-      return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
-        ? parseLinkInTextBody(textBody)
-        : textBody;
+  const lines = input.split(/\n+/).filter((line) => line.trim() !== '');
+  const matches = lines.map((line) => listRegexp.exec(line));
+  const ordered = matches.every((match) => match && /^\d{1,}\./.test(match[1]));
+  const items = matches
+    .map((match) => {
+      const content = match?.[2] ?? '';
+      const body = parseTextBody(content)
+        .map((textBody) => {
+          return textBody.style === 'plain' &&
+            /\[.+\]\(.+\)/.test(textBody.value)
+            ? parseLinkInTextBody(textBody)
+            : textBody;
+        })
+        .flat();
+      const result = {
+        type: 'listItem',
+        body,
+      } satisfies ListBlock['items'][number];
+      return result;
     })
     .flat();
 
   return {
     type: 'list',
     ordered,
-    body,
+    items,
   };
 };
