@@ -23,7 +23,7 @@ export type HeadingBlock = {
 
 export type QuoteBlock = {
   type: 'quote';
-  body: TextBody[];
+  body: (TextBody|Link)[];
 };
 
 type ListItem = {

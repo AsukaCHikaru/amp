@@ -222,7 +222,23 @@ describe('Parser Integration Test', () => {
         {
           type: 'textBody',
           style: 'plain',
-          value: ' and [link](https://example.com).',
+          value: ' and ',
+        },
+        {
+          type: 'link',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'link',
+            },
+          ],
+          url: 'https://example.com',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '.',
         },
       ],
     });

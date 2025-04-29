@@ -69,7 +69,12 @@ export const parseQuoteBlock = (input: string): QuoteBlock => {
   const text = match[1];
   return {
     type: 'quote',
-    body: parseTextBody(text),
+    body: parseTextBody(text).map((textBody) => {
+      return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
+        ? parseLinkInTextBody(textBody)
+        : textBody;
+    })
+    .flat()
   };
 };
 
