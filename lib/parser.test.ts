@@ -1,12 +1,65 @@
-import type { Block, HeadingBlock, ListBlock, QuoteBlock } from './definition';
+import type {
+  Block,
+  HeadingBlock,
+  ImageBlock,
+  ListBlock,
+  QuoteBlock,
+} from './definition';
 import {
   parse,
   parseBlock,
   parseHeadingBlock,
+  parseImageBlock,
   parseListBlock,
   parseQuoteBlock,
 } from './parser';
 import { describe, expect, test } from 'bun:test';
+
+describe('parseImageBlock', () => {
+  test('parses basic image with alt text, URL, and caption', () => {
+    const input = '![Sample Alt Text](/images/sample.jpg)(This is a caption)';
+    const expected = {
+      type: 'image',
+      url: '/images/sample.jpg',
+      altText: 'Sample Alt Text',
+      caption: 'This is a caption',
+    } satisfies ImageBlock;
+    expect(parseImageBlock(input)).toEqual(expected);
+  });
+
+  test('parses image with spaces in URL', () => {
+    const input = '![Alt text](/path/to/image with spaces.jpg)(Caption)';
+    const expected = {
+      type: 'image',
+      url: '/path/to/image with spaces.jpg',
+      altText: 'Alt text',
+      caption: 'Caption',
+    } satisfies ImageBlock;
+    expect(parseImageBlock(input)).toEqual(expected);
+  });
+
+  test('parses image with empty alt text', () => {
+    const input = '![](/images/no-alt.jpg)(Image without alt text)';
+    const expected = {
+      type: 'image',
+      url: '/images/no-alt.jpg',
+      altText: '',
+      caption: 'Image without alt text',
+    } satisfies ImageBlock;
+    expect(parseImageBlock(input)).toEqual(expected);
+  });
+
+  test('parses image without caption', () => {
+    const input = '![Alt text only](/images/no-caption.jpg)';
+    const expected = {
+      type: 'image',
+      url: '/images/no-caption.jpg',
+      altText: 'Alt text only',
+      caption: '',
+    } satisfies ImageBlock;
+    expect(parseImageBlock(input)).toEqual(expected);
+  });
+});
 
 describe('parseHeadingBlock', () => {
   test('parses H1 heading', () => {
@@ -492,6 +545,17 @@ describe('parseBlock', () => {
     };
     expect(parseBlock(input)).toEqual(expected);
   });
+
+  test('parses image block', () => {
+    const input = '![Alt text](/path/to/image.jpg)(Image caption)';
+    const expected: Block = {
+      type: 'image',
+      url: '/path/to/image.jpg',
+      altText: 'Alt text',
+      caption: 'Image caption',
+    };
+    expect(parseBlock(input)).toEqual(expected);
+  });
 });
 
 describe('parse', () => {
@@ -624,6 +688,41 @@ describe('parse', () => {
             type: 'textBody',
             style: 'plain',
             value: ' text',
+          },
+        ],
+      },
+    ];
+    expect(parse(input)).toEqual(expected);
+  });
+
+  test('parses document with image block', () => {
+    const input =
+      '# Document with Image\n![Image alt text](/path/to/image.jpg)(Image caption)\nText after image';
+    const expected: Block[] = [
+      {
+        type: 'heading',
+        level: 1,
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'Document with Image',
+          },
+        ],
+      },
+      {
+        type: 'image',
+        url: '/path/to/image.jpg',
+        altText: 'Image alt text',
+        caption: 'Image caption',
+      },
+      {
+        type: 'paragraph',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'Text after image',
           },
         ],
       },
