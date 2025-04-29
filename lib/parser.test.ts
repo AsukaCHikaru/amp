@@ -169,7 +169,7 @@ describe('parseListBlock', () => {
   });
   test('parses multiple unordered list with hyphens', () => {
     const input = `- Item 1
-    - Item 2`;
+- Item 2`;
     const expected: ListBlock = {
       type: 'list',
       ordered: false,
@@ -221,7 +221,7 @@ describe('parseListBlock', () => {
   });
   test('parses multiple ordered list', () => {
     const input = `1. Item 1
-    2. Item 2`;
+2. Item 2`;
     const expected: ListBlock = {
       type: 'list',
       ordered: true,
@@ -294,7 +294,7 @@ describe('parseListBlock', () => {
 
   test('parses list with link', () => {
     const input = `- Item with [link](https://example.com)
-    - Item with [link2](https://example.com)`;
+- Item with [link2](https://example.com)`;
     const expected: ListBlock = {
       type: 'list',
       ordered: false,
@@ -380,7 +380,8 @@ describe('parseBlock', () => {
   });
 
   test('parses unordered list block', () => {
-    const input = '* List item';
+    const input = `- List item 1
+- List item 2`;
     const expected: Block = {
       type: 'list',
       ordered: false,
@@ -391,7 +392,17 @@ describe('parseBlock', () => {
             {
               type: 'textBody',
               style: 'plain',
-              value: 'List item',
+              value: 'List item 1',
+            },
+          ],
+        },
+        {
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'List item 2',
             },
           ],
         },
@@ -401,7 +412,8 @@ describe('parseBlock', () => {
   });
 
   test('parses ordered list block', () => {
-    const input = '1. List item';
+    const input = `1. List item 1
+2. List item 2`;
     const expected: Block = {
       type: 'list',
       ordered: true,
@@ -412,7 +424,17 @@ describe('parseBlock', () => {
             {
               type: 'textBody',
               style: 'plain',
-              value: 'List item',
+              value: 'List item 1',
+            },
+          ],
+        },
+        {
+          type: 'listItem',
+          body: [
+            {
+              type: 'textBody',
+              style: 'plain',
+              value: 'List item 2',
             },
           ],
         },
