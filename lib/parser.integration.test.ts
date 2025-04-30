@@ -262,7 +262,7 @@ describe('Parser Integration Test', () => {
 
     test('result base structure', () => {
       const markdownContent = readFileSync(
-        join(process.cwd(), 'test/body.test.md'),
+        join(process.cwd(), 'test/full.test.md'),
         'utf-8',
       );
       const { blocks } = parse(markdownContent);
@@ -272,9 +272,9 @@ describe('Parser Integration Test', () => {
       // The file has 11 blocks (6 headings, 2 paragraphs, 1 heading, 1 heading, 1 quote)
       expect(blocks.length).toBe(11);
     });
-    test('parses test/body.test.md correctly', () => {
+    test('parses test/full.test.md correctly', () => {
       const markdownContent = readFileSync(
-        join(process.cwd(), 'test/body.test.md'),
+        join(process.cwd(), 'test/full.test.md'),
         'utf-8',
       );
       const { blocks } = parse(markdownContent);
