@@ -13,9 +13,45 @@ import type {
 } from './definition';
 
 export const parse = (input: string) => {
+  const frontmatter = parseFrontmatter(input);
   const lines = input.split(/\n{2,}?/).filter((line) => line.trim() !== '');
   const blocks = lines.map(parseBlock);
-  return { blocks };
+  return { frontmatter, blocks };
+};
+
+export const parseFrontmatter = (input: string): Record<
+  string,
+  string | string[] | number 
+> => {
+  const content = input.match(/---\n+((.+\n+)+)---/)?.[1]
+  if (!content) {
+    return {};
+  }
+  
+  const lines = content.split(/\n+/).filter((line) => line.trim() !== '');
+  const map = new Map();
+  for (const line of lines) {
+    const [key, value] = line.split(/:\s+/);
+    if (!key || !value) {
+      continue;
+    }
+    const trimmedKey = key.trim();
+    const trimmedValue = value.trim();
+
+    if (trimmedValue.includes(',')) {
+      map.set(trimmedKey, trimmedValue.split(',').map((v) => v.trim()));
+      continue;
+    }
+    
+    if (!isNaN(Number(trimmedValue))) {
+      map.set(trimmedKey, Number(trimmedValue));
+      continue;
+    }
+
+    map.set(trimmedKey, trimmedValue);
+  }
+
+  return Object.fromEntries(map);
 };
 
 const headingRegexp = new RegExp(/^(#{1,6})\s+(.+)$/);
