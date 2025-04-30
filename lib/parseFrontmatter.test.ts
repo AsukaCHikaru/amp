@@ -32,9 +32,9 @@ Some content`;
     const result = parseFrontmatter(input);
 
     expect(result).toEqual({
-      version: 1,
-      count: 42,
-      rating: 4.5,
+      version: "1",
+      count: "42",
+      rating: "4.5",
     });
   });
 
@@ -49,8 +49,8 @@ Content here`;
     const result = parseFrontmatter(input);
 
     expect(result).toEqual({
-      tags: ['javascript', 'typescript', 'react'],
-      categories: ['programming', 'web'],
+      tags: "javascript, typescript, react",
+      categories: "programming, web",
     });
   });
 
@@ -65,8 +65,8 @@ Content`;
     const result = parseFrontmatter(input);
 
     expect(result).toEqual({
-      scores: ['98', '87', '92'],
-      ratings: ['4.5', '3.8', '5.0'],
+      scores: "98, 87, 92",
+      ratings: "4.5, 3.8, 5.0",
     });
   });
 
@@ -84,9 +84,9 @@ counts: 1, 2, 3
 
     expect(result).toEqual({
       title: 'Mixed Types Example',
-      version: 2,
-      tags: ['test', 'example'],
-      counts: ['1', '2', '3'],
+      version: "2",
+      tags: "test, example",
+      counts: "1, 2, 3",
     });
   });
 
@@ -123,7 +123,7 @@ Content`;
 
     expect(result).toEqual({
       title: 'Spaced Content',
-      tags: ['one', 'two'],
+      tags: "one ,  two",
     });
   });
 

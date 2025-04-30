@@ -33,7 +33,7 @@ export const split = (input: string) => {
 
 export const parseFrontmatter = (
   input: string,
-): Record<string, string | string[] | number> => {
+): Record<string, string> => {
   const content = input.match(/---\n+((.+\n+)+)---/)?.[1];
   if (!content) {
     return {};
@@ -48,19 +48,6 @@ export const parseFrontmatter = (
     }
     const trimmedKey = key.trim();
     const trimmedValue = value.trim();
-
-    if (trimmedValue.includes(',')) {
-      map.set(
-        trimmedKey,
-        trimmedValue.split(',').map((v) => v.trim()),
-      );
-      continue;
-    }
-
-    if (!isNaN(Number(trimmedValue))) {
-      map.set(trimmedKey, Number(trimmedValue));
-      continue;
-    }
 
     map.set(trimmedKey, trimmedValue);
   }
