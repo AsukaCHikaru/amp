@@ -1,5 +1,5 @@
 import type { TextBody } from './definition';
-import { parseTextBody } from './parseTextBody';
+import { parseTextBody } from './parser';
 import { describe, expect, test } from 'bun:test';
 
 describe('parseTextBody', () => {

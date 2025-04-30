@@ -3,13 +3,14 @@ import type {
   CodeBlock,
   HeadingBlock,
   ImageBlock,
+  Link,
   ListBlock,
   ParagraphBlock,
   QuoteBlock,
+  TextBody,
+  TextBodyStyle,
   ThematicBreakBlock,
 } from './definition';
-import { parseLinkInTextBody } from './parseLinkInTextBody';
-import { parseTextBody } from './parseTextBody';
 
 export const parse = (input: string) => {
   const lines = input.split(/\n{2,}?/).filter((line) => line.trim() !== '');
@@ -23,6 +24,7 @@ const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)$/);
 const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)$/);
 const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```$/);
 const thematicBreakRegexp = new RegExp(/^-{3,}$/);
+const linkRegexp = new RegExp(/\[.+?\]\(.+?\)/);
 
 export const parseBlock = (input: string): Block => {
   if (headingRegexp.test(input)) {
@@ -45,6 +47,163 @@ export const parseBlock = (input: string): Block => {
   }
 
   return parseParagraphBlock(input);
+};
+
+export const parseParagraphBlock = (input: string): ParagraphBlock => ({
+  type: 'paragraph',
+  body: parseTextBody(input)
+    .map((textBody) =>
+      textBody.style === 'plain' && linkRegexp.test(textBody.value)
+        ? parseLinkInTextBody(textBody)
+        : textBody,
+    )
+    .flat(),
+});
+
+export const parseTextBody = (input: string): TextBody[] => {
+  const { result } = parseTextBodyStyle({
+    text: input,
+    progress: null,
+    result: [],
+  });
+
+  return result.map(({ style, text }) => ({
+    type: 'textBody',
+    style,
+    value: text,
+  }));
+};
+
+type TextBodyParseResult = {
+  text: string;
+  progress: { style: TextBodyStyle; text: string } | null;
+  result: { style: TextBodyStyle; text: string }[];
+};
+export const parseTextBodyStyle = ({
+  text,
+  progress,
+  result,
+}: TextBodyParseResult): TextBodyParseResult => {
+  if (text.length === 0) {
+    return {
+      text,
+      result: progress ? [...result, progress] : result,
+      progress: null,
+    };
+  }
+
+  const { style: headStyle, text: headText } = checkHeadStyle(text);
+  const progressStyle = progress?.style;
+  const first = headText[0];
+  const rest = headText.slice(1);
+
+  switch (progressStyle) {
+    case undefined:
+      return parseTextBodyStyle({
+        text: rest,
+        progress: { style: headStyle, text: first },
+        result,
+      });
+    case 'plain':
+      switch (headStyle) {
+        case 'plain':
+          return parseTextBodyStyle({
+            text: rest,
+            progress: { style: 'plain', text: (progress?.text ?? '') + first },
+            result,
+          });
+        case 'code':
+        case 'italic':
+        case 'strong':
+          return parseTextBodyStyle({
+            text: rest,
+            progress: { style: headStyle, text: first },
+            result: progress ? [...result, progress] : result,
+          });
+        default:
+          throw new Error(`Unexpected style: ${headStyle satisfies never}`);
+      }
+    case 'code':
+    case 'italic':
+    case 'strong':
+      if (headStyle === progressStyle) {
+        return parseTextBodyStyle({
+          text: headText,
+          progress: null,
+          result: [
+            ...result,
+            { style: progressStyle, text: progress?.text ?? '' },
+          ],
+        });
+      }
+      return parseTextBodyStyle({
+        text: rest,
+        progress: {
+          style: progressStyle,
+          text: (progress?.text ?? '') + first,
+        },
+        result,
+      });
+    default:
+      throw new Error(`Unexpected style: ${progressStyle satisfies never}`);
+  }
+};
+
+const checkHeadStyle = (
+  text: string,
+): {
+  style: TextBodyStyle;
+  text: string;
+} => {
+  if (/^\*{2}/.test(text)) {
+    return { style: 'strong', text: text.slice(2) };
+  }
+  if (/^\*{1}/.test(text)) {
+    return { style: 'italic', text: text.slice(1) };
+  }
+  if (/^_{1}/.test(text)) {
+    return { style: 'italic', text: text.slice(1) };
+  }
+  if (/^`{1}/.test(text)) {
+    return { style: 'code', text: text.slice(1) };
+  }
+  return { style: 'plain', text };
+};
+
+export const parseLinkInTextBody = (input: TextBody): (TextBody | Link)[] => {
+  const splittedText = splitLinkFromText(input.value);
+  return splittedText.map((text) => {
+    if (/\[.+\]\(.+\)/.test(text)) {
+      const linkText = text.match(/\[(.+)\]/)?.[1] ?? '';
+      const url = text.match(/\((.+)\)/)?.[1] ?? '';
+      return {
+        type: 'link',
+        body: parseTextBody(linkText),
+        url,
+      };
+    }
+    return {
+      type: 'textBody',
+      style: input.style,
+      value: text,
+    };
+  });
+};
+
+export const splitLinkFromText = (input: string): string[] => {
+  const linkMatch = input.match(linkRegexp);
+
+  if (!linkMatch) {
+    return [input];
+  }
+
+  const [link] = linkMatch;
+
+  const linkStartIndex = input.indexOf(link);
+  const before = input.slice(0, linkStartIndex);
+  const after = input.slice(linkStartIndex + link.length);
+
+  return [before, link, ...splitLinkFromText(after)].filter(Boolean);
 };
 
 export const parseHeadingBlock = (input: string): HeadingBlock => {
@@ -70,25 +229,14 @@ export const parseQuoteBlock = (input: string): QuoteBlock => {
   return {
     type: 'quote',
     body: parseTextBody(text)
-      .map((textBody) => {
-        return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
+      .map((textBody) =>
+        textBody.style === 'plain' && linkRegexp.test(textBody.value)
           ? parseLinkInTextBody(textBody)
-          : textBody;
-      })
+          : textBody,
+      )
       .flat(),
   };
 };
-
-export const parseParagraphBlock = (input: string): ParagraphBlock => ({
-  type: 'paragraph',
-  body: parseTextBody(input)
-    .map((textBody) => {
-      return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
-        ? parseLinkInTextBody(textBody)
-        : textBody;
-    })
-    .flat(),
-});
 
 export const parseListBlock = (input: string): ListBlock => {
   const lines = input.split(/\n+/).filter((line) => line.trim() !== '');
@@ -110,11 +258,11 @@ const parseListItem = (line: string): ListBlock['items'][number] => {
   }
   const content = match[2];
   const body = parseTextBody(content)
-    .map((textBody) => {
-      return textBody.style === 'plain' && /\[.+\]\(.+\)/.test(textBody.value)
+    .map((textBody) =>
+      textBody.style === 'plain' && linkRegexp.test(textBody.value)
         ? parseLinkInTextBody(textBody)
-        : textBody;
-    })
+        : textBody,
+    )
     .flat();
   return {
     type: 'listItem',
