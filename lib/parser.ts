@@ -31,9 +31,7 @@ export const split = (input: string) => {
   };
 };
 
-export const parseFrontmatter = (
-  input: string,
-): Record<string, string> => {
+export const parseFrontmatter = (input: string): Record<string, string> => {
   const content = input.match(/---\n+((.+\n+)+)---/)?.[1];
   if (!content) {
     return {};

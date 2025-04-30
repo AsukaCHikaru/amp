@@ -12,10 +12,10 @@ This is the body content.
 With multiple paragraphs.`;
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '---\ntitle: Test Title\ntags: tag1, tag2\n---',
-      body: 'This is the body content.\n\nWith multiple paragraphs.'
+      body: 'This is the body content.\n\nWith multiple paragraphs.',
     });
   });
 
@@ -26,10 +26,10 @@ author: Test Author
 ---`;
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '---\ntitle: Just Frontmatter\nauthor: Test Author\n---',
-      body: ''
+      body: '',
     });
   });
 
@@ -39,10 +39,10 @@ author: Test Author
 No frontmatter here.`;
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '',
-      body: 'This is just body content.\n\nNo frontmatter here.'
+      body: 'This is just body content.\n\nNo frontmatter here.',
     });
   });
 
@@ -50,10 +50,10 @@ No frontmatter here.`;
     const input = '';
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '',
-      body: ''
+      body: '',
     });
   });
 
@@ -65,10 +65,10 @@ description: This has some "quotes" and 'apostrophes'
 Body content here.`;
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '---\ntitle: Special * Characters & Symbols\ndescription: This has some "quotes" and \'apostrophes\'\n---',
-      body: 'Body content here.'
+      body: 'Body content here.',
     });
   });
 
@@ -80,10 +80,10 @@ rating: 4.5
 Numeric frontmatter test.`;
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '---\ncount: 42\nrating: 4.5\n---',
-      body: 'Numeric frontmatter test.'
+      body: 'Numeric frontmatter test.',
     });
   });
 
@@ -95,10 +95,10 @@ categories: cat1, cat2
 Array frontmatter test.`;
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '---\ntags: one, two, three\ncategories: cat1, cat2\n---',
-      body: 'Array frontmatter test.'
+      body: 'Array frontmatter test.',
     });
   });
 
@@ -110,10 +110,10 @@ frontmatter without colons
 Body content.`;
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '---\nThis is not properly formatted\nfrontmatter without colons\n---',
-      body: 'Body content.'
+      body: 'Body content.',
     });
   });
 
@@ -125,10 +125,10 @@ frontmatter without colons
 Body content.`;
 
     const result = split(input);
-    
+
     expect(result).toEqual({
       head: '',
-      body: '---\nThis is not properly formatted\nfrontmatter without colons\n--\nBody content.'
+      body: '---\nThis is not properly formatted\nfrontmatter without colons\n--\nBody content.',
     });
   });
 });
