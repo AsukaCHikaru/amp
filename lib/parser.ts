@@ -13,21 +13,32 @@ import type {
 } from './definition';
 
 export const parse = (input: string) => {
-  const frontmatter = parseFrontmatter(input);
-  const lines = input.split(/\n{2,}?/).filter((line) => line.trim() !== '');
+  const { head, body } = split(input);
+  const frontmatter = parseFrontmatter(head);
+  const lines = body.split(/\n{2,}?/).filter((line) => line.trim() !== '');
   const blocks = lines.map(parseBlock);
   return { frontmatter, blocks };
 };
 
-export const parseFrontmatter = (input: string): Record<
-  string,
-  string | string[] | number 
-> => {
-  const content = input.match(/---\n+((.+\n+)+)---/)?.[1]
+export const split = (input: string) => {
+  const match = input.match(/(---\n+(.*\n+)+---)\n*/);
+  const head = match?.[1] || '';
+  const body = input.slice(head.length).trim();
+
+  return {
+    head,
+    body,
+  };
+};
+
+export const parseFrontmatter = (
+  input: string,
+): Record<string, string | string[] | number> => {
+  const content = input.match(/---\n+((.+\n+)+)---/)?.[1];
   if (!content) {
     return {};
   }
-  
+
   const lines = content.split(/\n+/).filter((line) => line.trim() !== '');
   const map = new Map();
   for (const line of lines) {
@@ -39,10 +50,13 @@ export const parseFrontmatter = (input: string): Record<
     const trimmedValue = value.trim();
 
     if (trimmedValue.includes(',')) {
-      map.set(trimmedKey, trimmedValue.split(',').map((v) => v.trim()));
+      map.set(
+        trimmedKey,
+        trimmedValue.split(',').map((v) => v.trim()),
+      );
       continue;
     }
-    
+
     if (!isNaN(Number(trimmedValue))) {
       map.set(trimmedKey, Number(trimmedValue));
       continue;
