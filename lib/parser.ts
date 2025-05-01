@@ -21,9 +21,10 @@ export const parse = (input: string) => {
 };
 
 export const split = (input: string) => {
-  const match = input.match(/(---\n+(.*\n+)+---)\n*/);
+  const trimmed = input.trim();
+  const match = trimmed.match(/^(---\n[\s\S]*?---)\n*/);
   const head = match?.[1] || '';
-  const body = input.slice(head.length).trim();
+  const body = trimmed.slice(head.length).trim();
 
   return {
     head,
@@ -32,7 +33,7 @@ export const split = (input: string) => {
 };
 
 export const parseFrontmatter = (input: string): Record<string, string> => {
-  const content = input.match(/---\n+((.+\n+)+)---/)?.[1];
+  const content = input.match(/---\n+([\s\S]+)---/)?.[1];
   if (!content) {
     return {};
   }

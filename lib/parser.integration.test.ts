@@ -499,5 +499,24 @@ describe('Parser Integration Test', () => {
         ],
       });
     });
+
+    test('stress test', () => {
+      // parse 100 files in a row
+      const markdownContent = readFileSync(
+        join(process.cwd(), 'test/full.test.md'),
+        'utf-8',
+      );
+      for (let i = 0; i < 100; i++) {
+        const { frontmatter, blocks } = parse(markdownContent);
+        expect(blocks).toBeArray();
+        expect(blocks.length).toBeGreaterThan(0);
+        // The file has 11 blocks (6 headings, 2 paragraphs, 1 heading, 1 heading, 1 quote)
+        expect(blocks.length).toBe(11);
+        expect(frontmatter).toBeObject();
+        expect(frontmatter['title']).toBe('Full test');
+        expect(frontmatter['description']).toBe('This is, as you can see, a markdown file for the purpose of, no other than testing, which are listed in the file of `full.test.ts`.');
+        expect(frontmatter['fibonacci']).toBe('1, 1, 2, 3, 5, 8, 13, 21');
+      }
+    })
   });
 });

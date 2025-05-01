@@ -131,4 +131,49 @@ Body content.`;
       body: '---\nThis is not properly formatted\nfrontmatter without colons\n--\nBody content.',
     });
   });
+
+  it('should handle frontmatter followed by thematic break in body', () => {
+    const input = `---
+title: Document with Thematic Break
+---
+Some content before the break.
+
+---
+
+Content after the thematic break.`;
+
+    const result = split(input);
+
+    expect(result).toEqual({
+      head: '---\ntitle: Document with Thematic Break\n---',
+      body: 'Some content before the break.\n\n---\n\nContent after the thematic break.',
+    });
+  });
+
+  it('should handle spaces before first hyphens of the frontmatter', () => {
+    const input = `   ---
+title: Frontmatter with Leading Spaces
+---
+Body content here.`;
+
+    const result = split(input);
+
+    expect(result).toEqual({
+      head: '---\ntitle: Frontmatter with Leading Spaces\n---',
+      body: 'Body content here.',
+    });
+  });
+
+  it('should handle empty frontmatter with hyphens but no values', () => {
+    const input = `---
+---
+Body after empty frontmatter.`;
+
+    const result = split(input);
+
+    expect(result).toEqual({
+      head: '---\n---',
+      body: 'Body after empty frontmatter.',
+    });
+  });
 });
