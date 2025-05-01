@@ -60,7 +60,7 @@ const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)/);
 const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```/);
 const thematicBreakRegexp = new RegExp(/^-{3,}/);
 const linkRegexp = new RegExp(/\[.+?\]\(.+?\)/);
-const paragraphRegexp = new RegExp(/^([\s\S]+?)\n/);
+const paragraphRegexp = new RegExp(/^([\s\S]+?)(?:\n|$)/);
 
 export const parseParagraphBlock = (input: string): ParagraphBlock => ({
   type: 'paragraph',
@@ -355,7 +355,7 @@ const parseHeadBlock = (input: string, result: Block[] = []) => {
       }
       return parseHeadBlock(input.slice(match[0].length).trim(), [
         ...result,
-        parser(match[0]),
+        parser(match[0].trim()),
       ]);
     }
   }
