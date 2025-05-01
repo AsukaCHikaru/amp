@@ -15,8 +15,7 @@ import type {
 export const parse = (input: string) => {
   const { head, body } = split(input);
   const frontmatter = parseFrontmatter(head);
-  const lines = body.split(/\n{2,}?/).filter((line) => line.trim() !== '');
-  const blocks = lines.map(parseBlock);
+  const blocks = parseBlocks(body);
   return { frontmatter, blocks };
 };
 
@@ -54,36 +53,14 @@ export const parseFrontmatter = (input: string): Record<string, string> => {
   return Object.fromEntries(map);
 };
 
-const headingRegexp = new RegExp(/^(#{1,6})\s+(.+)$/);
-const quoteRegexp = new RegExp(/^>\s+(.+)$/);
-const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)$/);
-const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)$/);
-const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```$/);
-const thematicBreakRegexp = new RegExp(/^-{3,}$/);
+const headingRegexp = new RegExp(/^(#{1,6})\s+(.+)\n/);
+const quoteRegexp = new RegExp(/^>\s+(.+)/);
+const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)/);
+const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)/);
+const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```/);
+const thematicBreakRegexp = new RegExp(/^-{3,}/);
 const linkRegexp = new RegExp(/\[.+?\]\(.+?\)/);
-
-export const parseBlock = (input: string): Block => {
-  if (headingRegexp.test(input)) {
-    return parseHeadingBlock(input);
-  }
-  if (quoteRegexp.test(input)) {
-    return parseQuoteBlock(input);
-  }
-  if (input.split(/\n+/).every((line) => listRegexp.test(line))) {
-    return parseListBlock(input);
-  }
-  if (imageRegexp.test(input)) {
-    return parseImageBlock(input);
-  }
-  if (codeRegexp.test(input)) {
-    return parseCodeBlock(input);
-  }
-  if (thematicBreakRegexp.test(input)) {
-    return parseThematicBreakBlock();
-  }
-
-  return parseParagraphBlock(input);
-};
+const paragraphRegexp = new RegExp(/^([\s\S]+?)\n/);
 
 export const parseParagraphBlock = (input: string): ParagraphBlock => ({
   type: 'paragraph',
@@ -341,3 +318,47 @@ export const parseCodeBlock = (input: string): CodeBlock => {
 export const parseThematicBreakBlock = (): ThematicBreakBlock => ({
   type: 'thematicBreak',
 });
+
+const parseBlocks = (input: string) => {
+  if (input.trim() === '') {
+    return [];
+  }
+
+  const blocks = parseHeadBlock(input);
+
+  return blocks.result;
+};
+
+const regexpToParserPairs = [
+  [headingRegexp, parseHeadingBlock],
+  [quoteRegexp, parseQuoteBlock],
+  [listRegexp, parseListBlock],
+  [imageRegexp, parseImageBlock],
+  [codeRegexp, parseCodeBlock],
+  [thematicBreakRegexp, parseThematicBreakBlock],
+  [paragraphRegexp, parseParagraphBlock],
+] satisfies [RegExp, (input: string) => Block][];
+
+const parseHeadBlock = (input: string, result: Block[] = []) => {
+  if (input.trim() === '') {
+    return {
+      input: '',
+      result,
+    };
+  }
+
+  for (const [regexp, parser] of regexpToParserPairs) {
+    if (regexp.test(input)) {
+      const match = regexp.exec(input);
+      if (!match) {
+        throw new Error('Invalid block');
+      }
+      return parseHeadBlock(input.slice(match[0].length).trim(), [
+        ...result,
+        parser(match[0]),
+      ]);
+    }
+  }
+
+  throw new Error(`No matching block found for input: ${input}`);
+};
