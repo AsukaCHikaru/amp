@@ -53,7 +53,7 @@ export const parseFrontmatter = (input: string): Record<string, string> => {
   return Object.fromEntries(map);
 };
 
-const headingRegexp = new RegExp(/^(#{1,6})\s+(.+)\n/);
+const headingRegexp = new RegExp(/^(#{1,6})\s(.+)/);
 const quoteRegexp = new RegExp(/^>\s+(.+)/);
 const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)/);
 const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)/);
@@ -229,7 +229,13 @@ export const parseHeadingBlock = (input: string): HeadingBlock => {
   return {
     type: 'heading',
     level,
-    body: parseTextBody(text),
+    body: parseTextBody(text)
+      .map((textBody) =>
+        textBody.style === 'plain' && linkRegexp.test(textBody.value)
+          ? parseLinkInTextBody(textBody)
+          : textBody,
+      )
+      .flat(),
   };
 };
 
