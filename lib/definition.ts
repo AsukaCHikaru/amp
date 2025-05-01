@@ -17,7 +17,7 @@ export type ParagraphBlock = {
 
 export type HeadingBlock = {
   type: 'heading';
-  body: TextBody[];
+  body: (TextBody | Link)[];
   level: 1 | 2 | 3 | 4 | 5 | 6;
 };
 
