@@ -54,7 +54,7 @@ export const parseFrontmatter = (input: string): Record<string, string> => {
 };
 
 const headingRegexp = new RegExp(/^(#{1,6})\s(.+)/);
-const quoteRegexp = new RegExp(/^>\s+(.+)/);
+const quoteRegexp = new RegExp(/^(?:>\s.+\n?)+/);
 const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)/);
 const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)/);
 const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```/);
@@ -240,11 +240,11 @@ export const parseHeadingBlock = (input: string): HeadingBlock => {
 };
 
 export const parseQuoteBlock = (input: string): QuoteBlock => {
-  const match = quoteRegexp.exec(input);
+  const match = input.match(quoteRegexp)
   if (!match) {
     throw new Error('Invalid quote block');
   }
-  const text = match[1];
+  const text = match[0].replace(/\n>\s/g, '\n').replace(/^>\s/, '');
   return {
     type: 'quote',
     body: parseTextBody(text)

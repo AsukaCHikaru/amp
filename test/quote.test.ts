@@ -68,7 +68,7 @@ describe('quote', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: 'multiple line quote 1 multiple line quote 2 multiple line quote 3 multiple line quote 4 multiple line quote 5',
+            value: 'multiple line quote 1\nmultiple line quote 2\nmultiple line quote 3\nmultiple line quote 4\nmultiple line quote 5',
           },
         ],
       });
@@ -107,7 +107,7 @@ describe('quote', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: ' Lorem ',
+            value: '\nLorem ',
           },
           {
             type: 'textBody',
@@ -127,7 +127,7 @@ describe('quote', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: ' Lorem ',
+            value: '\nLorem ',
           },
           {
             type: 'textBody',
@@ -147,7 +147,7 @@ describe('quote', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: ' Lorem ',
+            value: '\nLorem ',
           },
           {
             type: 'textBody',
@@ -167,7 +167,7 @@ describe('quote', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: ' Lorem ',
+            value: '\nLorem ',
           },
           {
             type: 'link',
