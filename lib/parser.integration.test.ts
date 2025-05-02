@@ -14,7 +14,6 @@ describe('Parser Integration Test', () => {
 
       expect(blocks).toBeArray();
       expect(blocks.length).toBeGreaterThan(0);
-      // The file has 11 blocks (6 headings, 2 paragraphs, 1 heading, 1 heading, 1 quote)
       expect(blocks.length).toBe(11);
     });
     test('parses test/body.test.md correctly', () => {
@@ -32,10 +31,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -49,10 +55,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -66,10 +79,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -83,10 +103,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -100,10 +127,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -117,10 +151,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -269,8 +310,7 @@ describe('Parser Integration Test', () => {
 
       expect(blocks).toBeArray();
       expect(blocks.length).toBeGreaterThan(0);
-      // The file has 11 blocks (6 headings, 2 paragraphs, 1 heading, 1 heading, 1 quote)
-      expect(blocks.length).toBe(11);
+      expect(blocks.length).toBe(13);
     });
     test('parses test/full.test.md correctly', () => {
       const markdownContent = readFileSync(
@@ -287,10 +327,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -304,10 +351,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -321,10 +375,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -338,10 +399,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -355,10 +423,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -372,10 +447,17 @@ describe('Parser Integration Test', () => {
           { type: 'textBody', style: 'strong', value: 'strong' },
           { type: 'textBody', style: 'plain', value: ' ' },
           { type: 'textBody', style: 'italic', value: 'italic' },
+          { type: 'textBody', style: 'plain', value: ' ' },
           {
-            type: 'textBody',
-            style: 'plain',
-            value: ' [link](https://example.com)',
+            type: 'link',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'link',
+              },
+            ],
+            url: 'https://example.com',
           },
           { type: 'textBody', style: 'code', value: 'inline-code' },
         ],
@@ -510,8 +592,7 @@ describe('Parser Integration Test', () => {
         const { frontmatter, blocks } = parse(markdownContent);
         expect(blocks).toBeArray();
         expect(blocks.length).toBeGreaterThan(0);
-        // The file has 11 blocks (6 headings, 2 paragraphs, 1 heading, 1 heading, 1 quote)
-        expect(blocks.length).toBe(11);
+        expect(blocks.length).toBe(13);
         expect(frontmatter).toBeObject();
         expect(frontmatter['title']).toBe('Full test');
         expect(frontmatter['description']).toBe('This is, as you can see, a markdown file for the purpose of, no other than testing, which are listed in the file of `full.test.ts`.');

@@ -5,18 +5,16 @@ import type {
   ListBlock,
   QuoteBlock,
   CodeBlock,
-  ThematicBreakBlock,
-  ParagraphBlock,
 } from './definition';
 import {
   parse,
-  parseBlock,
   parseHeadingBlock,
   parseImageBlock,
   parseListBlock,
   parseQuoteBlock,
   parseCodeBlock,
   parseThematicBreakBlock,
+  parseBlocks,
 } from './parser';
 import { describe, expect, test } from 'bun:test';
 
@@ -417,33 +415,39 @@ describe('parseThematicBreakBlock', () => {
 describe('thematic break detection', () => {
   test('detects thematic break with three hyphens', () => {
     const input = '---';
-    const expected: ThematicBreakBlock = {
-      type: 'thematicBreak',
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'thematicBreak',
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('detects thematic break with more than three hyphens', () => {
     const input = '-----';
-    const expected: ThematicBreakBlock = {
-      type: 'thematicBreak',
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'thematicBreak',
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('does not detect thematic break with fewer than three hyphens', () => {
     const input = '--';
-    const expected: ParagraphBlock = {
-      type: 'paragraph',
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: '--',
-        },
-      ],
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'paragraph',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: '--',
+          },
+        ],
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 });
 
@@ -510,179 +514,197 @@ describe('parseCodeBlock', () => {
   });
 });
 
-describe('parseBlock', () => {
+describe('parseBlocks', () => {
   test('parses heading block', () => {
     const input = '# Heading 1';
-    const expected: HeadingBlock = {
-      type: 'heading',
-      level: 1,
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Heading 1',
-        },
-      ],
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'heading',
+        level: 1,
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'Heading 1',
+          },
+        ],
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('parses quote block', () => {
     const input = '> This is a quote';
-    const expected: QuoteBlock = {
-      type: 'quote',
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'This is a quote',
-        },
-      ],
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'quote',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'This is a quote',
+          },
+        ],
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('parses unordered list block', () => {
     const input = `- List item 1
 - List item 2`;
-    const expected: ListBlock = {
-      type: 'list',
-      ordered: false,
-      items: [
-        {
-          type: 'listItem',
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'List item 1',
-            },
-          ],
-        },
-        {
-          type: 'listItem',
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'List item 2',
-            },
-          ],
-        },
-      ],
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'list',
+        ordered: false,
+        items: [
+          {
+            type: 'listItem',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'List item 1',
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'List item 2',
+              },
+            ],
+          },
+        ],
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('parses ordered list block', () => {
     const input = `1. List item 1
 2. List item 2`;
-    const expected: ListBlock = {
-      type: 'list',
-      ordered: true,
-      items: [
-        {
-          type: 'listItem',
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'List item 1',
-            },
-          ],
-        },
-        {
-          type: 'listItem',
-          body: [
-            {
-              type: 'textBody',
-              style: 'plain',
-              value: 'List item 2',
-            },
-          ],
-        },
-      ],
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'list',
+        ordered: true,
+        items: [
+          {
+            type: 'listItem',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'List item 1',
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            body: [
+              {
+                type: 'textBody',
+                style: 'plain',
+                value: 'List item 2',
+              },
+            ],
+          },
+        ],
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('parses paragraph block by default', () => {
     const input = 'This is a paragraph';
-    const expected: ParagraphBlock = {
-      type: 'paragraph',
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'This is a paragraph',
-        },
-      ],
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'paragraph',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'This is a paragraph',
+          },
+        ],
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('parses paragraph with styled text', () => {
     const input = 'Paragraph with **strong** and *italic* text';
-    const expected: ParagraphBlock = {
-      type: 'paragraph',
-      body: [
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: 'Paragraph with ',
-        },
-        {
-          type: 'textBody',
-          style: 'strong',
-          value: 'strong',
-        },
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: ' and ',
-        },
-        {
-          type: 'textBody',
-          style: 'italic',
-          value: 'italic',
-        },
-        {
-          type: 'textBody',
-          style: 'plain',
-          value: ' text',
-        },
-      ],
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'paragraph',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'Paragraph with ',
+          },
+          {
+            type: 'textBody',
+            style: 'strong',
+            value: 'strong',
+          },
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: ' and ',
+          },
+          {
+            type: 'textBody',
+            style: 'italic',
+            value: 'italic',
+          },
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: ' text',
+          },
+        ],
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('parses image block', () => {
     const input = '![Alt text](/path/to/image.jpg)(Image caption)';
-    const expected: ImageBlock = {
-      type: 'image',
-      url: '/path/to/image.jpg',
-      altText: 'Alt text',
-      caption: 'Image caption',
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'image',
+        url: '/path/to/image.jpg',
+        altText: 'Alt text',
+        caption: 'Image caption',
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('parses code block', () => {
     const input = '```javascript\nconst x = 5;\nconsole.log(x);\n```';
-    const expected: CodeBlock = {
-      type: 'code',
-      lang: 'javascript',
-      body: 'const x = 5;\nconsole.log(x);',
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'code',
+        lang: 'javascript',
+        body: 'const x = 5;\nconsole.log(x);',
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 
   test('parses thematic break block', () => {
     const input = '---';
-    const expected: ThematicBreakBlock = {
-      type: 'thematicBreak',
-    };
-    expect(parseBlock(input)).toEqual(expected);
+    const expected = [
+      {
+        type: 'thematicBreak',
+      },
+    ] satisfies Block[];
+    expect(parseBlocks(input)).toEqual(expected);
   });
 });
 

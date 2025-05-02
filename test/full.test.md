@@ -25,3 +25,7 @@ This is a paragraph with **strong** and **long strong** and _italic_ and _long i
 ## H2
 
 > This is quote with **strong** and **long strong** and _italic_ and _long italic_ and *italic* and *long italic* and `code` and `long code` and [link](https://example.com).
+
+---
+
+[image](image.png)(caption)

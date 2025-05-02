@@ -325,7 +325,7 @@ export const parseThematicBreakBlock = (): ThematicBreakBlock => ({
   type: 'thematicBreak',
 });
 
-const parseBlocks = (input: string) => {
+export const parseBlocks = (input: string) => {
   if (input.trim() === '') {
     return [];
   }
