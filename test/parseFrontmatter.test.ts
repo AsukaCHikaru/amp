@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { parseFrontmatter } from './parser';
+import { parseFrontmatter } from '../lib/parser';
 
 describe('parseFrontmatter', () => {
   it('should parse frontmatter with string values', () => {

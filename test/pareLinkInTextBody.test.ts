@@ -1,5 +1,5 @@
-import type { TextBody, Link } from './definition';
-import { parseLinkInTextBody } from './parser';
+import type { TextBody, Link } from '../lib/definition';
+import { parseLinkInTextBody } from '../lib/parser';
 import { describe, expect, test } from 'bun:test';
 
 describe('parseLinkInTextBody', () => {

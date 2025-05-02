@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { split } from './parser';
+import { split } from '../lib/parser';
 
 describe('split', () => {
   it('should split markdown with frontmatter and body', () => {

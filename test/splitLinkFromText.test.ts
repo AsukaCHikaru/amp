@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { splitLinkFromText } from './parser';
+import { splitLinkFromText } from '../lib/parser';
 
 describe('splitLinkFromText', () => {
   // 1. Input with no links

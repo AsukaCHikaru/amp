@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { parse } from './parser';
+import { parse } from '../lib/parser';
 import { describe, expect, test } from 'bun:test';
 
 describe('Parser Integration Test', () => {

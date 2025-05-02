@@ -5,7 +5,7 @@ import type {
   ListBlock,
   QuoteBlock,
   CodeBlock,
-} from './definition';
+} from '../lib/definition';
 import {
   parse,
   parseHeadingBlock,
@@ -15,7 +15,7 @@ import {
   parseCodeBlock,
   parseThematicBreakBlock,
   parseBlocks,
-} from './parser';
+} from '../lib/parser';
 import { describe, expect, test } from 'bun:test';
 
 describe('parseImageBlock', () => {
