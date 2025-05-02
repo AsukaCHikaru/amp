@@ -297,9 +297,11 @@ describe('Parser Integration Test', () => {
 
       expect(frontmatter).toBeObject();
       expect(frontmatter['title']).toBe('Full test');
-      expect(frontmatter['description']).toBe('This is, as you can see, a markdown file for the purpose of, no other than testing, which are listed in the file of `full.test.ts`.');
+      expect(frontmatter['description']).toBe(
+        'This is, as you can see, a markdown file for the purpose of, no other than testing, which are listed in the file of `full.test.ts`.',
+      );
       expect(frontmatter['fibonacci']).toBe('1, 1, 2, 3, 5, 8, 13, 21');
-    })
+    });
 
     test('result base structure', () => {
       const markdownContent = readFileSync(
@@ -595,9 +597,11 @@ describe('Parser Integration Test', () => {
         expect(blocks.length).toBe(13);
         expect(frontmatter).toBeObject();
         expect(frontmatter['title']).toBe('Full test');
-        expect(frontmatter['description']).toBe('This is, as you can see, a markdown file for the purpose of, no other than testing, which are listed in the file of `full.test.ts`.');
+        expect(frontmatter['description']).toBe(
+          'This is, as you can see, a markdown file for the purpose of, no other than testing, which are listed in the file of `full.test.ts`.',
+        );
         expect(frontmatter['fibonacci']).toBe('1, 1, 2, 3, 5, 8, 13, 21');
       }
-    })
+    });
   });
 });

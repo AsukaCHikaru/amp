@@ -8,7 +8,6 @@ const markdownContent = readFileSync(
   'utf-8',
 );
 
-
 describe('list', () => {
   describe('frontmatter', () => {
     test('should parse frontmatter', () => {
@@ -30,62 +29,68 @@ describe('list', () => {
       const { blocks } = parse(markdownContent);
 
       // Filter only list blocks
-      const listBlocks = blocks.filter(block => block.type === 'list');
-      
+      const listBlocks = blocks.filter((block) => block.type === 'list');
+
       // We expect 5 list blocks to be parsed correctly
       expect(listBlocks).toHaveLength(5);
     });
 
     test('should identify ordered and unordered lists correctly', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access list properties
-      const listBlocks = blocks.filter(block => block.type === 'list') as import('../lib/definition').ListBlock[];
+      const listBlocks = blocks.filter(
+        (block) => block.type === 'list',
+      ) as import('../lib/definition').ListBlock[];
 
       // Single unordered list
       expect(listBlocks[0].ordered).toBe(false);
-      
+
       // Single ordered list
       expect(listBlocks[1].ordered).toBe(true);
-      
+
       // Multi-item unordered list
       expect(listBlocks[2].ordered).toBe(false);
-      
+
       // Multi-item ordered list
       expect(listBlocks[3].ordered).toBe(true);
-      
+
       // Styled text list
       expect(listBlocks[4].ordered).toBe(false);
     });
 
     test('should parse list items correctly', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access list properties
-      const listBlocks = blocks.filter(block => block.type === 'list') as import('../lib/definition').ListBlock[];
+      const listBlocks = blocks.filter(
+        (block) => block.type === 'list',
+      ) as import('../lib/definition').ListBlock[];
 
       // Single unordered list should have 1 item
       expect(listBlocks[0].items).toHaveLength(1);
-      
+
       // Single ordered list should have 1 item
       expect(listBlocks[1].items).toHaveLength(1);
-      
+
       // Multi-item unordered list should have 5 items
       expect(listBlocks[2].items).toHaveLength(5);
-      
+
       // Multi-item ordered list should have 5 items
       expect(listBlocks[3].items).toHaveLength(5);
-      
+
       // Styled text list should have 6 items
       expect(listBlocks[4].items).toHaveLength(6);
     });
 
     test('single unordered list content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access list properties
-      const listBlocks = blocks.filter(block => block.type === 'list') as import('../lib/definition').ListBlock[];
-      
+      const listBlocks = blocks.filter(
+        (block) => block.type === 'list',
+      ) as import('../lib/definition').ListBlock[];
+
       // Single unordered list item content
       expect(listBlocks[0].items[0]).toMatchObject({
         type: 'listItem',
@@ -101,10 +106,12 @@ describe('list', () => {
 
     test('single ordered list content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access list properties
-      const listBlocks = blocks.filter(block => block.type === 'list') as import('../lib/definition').ListBlock[];
-      
+      const listBlocks = blocks.filter(
+        (block) => block.type === 'list',
+      ) as import('../lib/definition').ListBlock[];
+
       // Single ordered list item content
       expect(listBlocks[1].items[0]).toMatchObject({
         type: 'listItem',
@@ -120,10 +127,12 @@ describe('list', () => {
 
     test('multi-item unordered list content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access list properties
-      const listBlocks = blocks.filter(block => block.type === 'list') as import('../lib/definition').ListBlock[];
-      
+      const listBlocks = blocks.filter(
+        (block) => block.type === 'list',
+      ) as import('../lib/definition').ListBlock[];
+
       // Multi-item unordered list content
       expect(listBlocks[2].items[0]).toMatchObject({
         type: 'listItem',
@@ -135,7 +144,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       expect(listBlocks[2].items[1]).toMatchObject({
         type: 'listItem',
         body: [
@@ -146,7 +155,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       expect(listBlocks[2].items[2]).toMatchObject({
         type: 'listItem',
         body: [
@@ -157,7 +166,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       expect(listBlocks[2].items[3]).toMatchObject({
         type: 'listItem',
         body: [
@@ -168,7 +177,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       expect(listBlocks[2].items[4]).toMatchObject({
         type: 'listItem',
         body: [
@@ -183,10 +192,12 @@ describe('list', () => {
 
     test('multi-item ordered list content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access list properties
-      const listBlocks = blocks.filter(block => block.type === 'list') as import('../lib/definition').ListBlock[];
-      
+      const listBlocks = blocks.filter(
+        (block) => block.type === 'list',
+      ) as import('../lib/definition').ListBlock[];
+
       // Multi-item ordered list content
       expect(listBlocks[3].items[0]).toMatchObject({
         type: 'listItem',
@@ -198,7 +209,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       expect(listBlocks[3].items[1]).toMatchObject({
         type: 'listItem',
         body: [
@@ -209,7 +220,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       expect(listBlocks[3].items[2]).toMatchObject({
         type: 'listItem',
         body: [
@@ -220,7 +231,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       expect(listBlocks[3].items[3]).toMatchObject({
         type: 'listItem',
         body: [
@@ -231,7 +242,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       expect(listBlocks[3].items[4]).toMatchObject({
         type: 'listItem',
         body: [
@@ -246,10 +257,12 @@ describe('list', () => {
 
     test('styled text list content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access list properties
-      const listBlocks = blocks.filter(block => block.type === 'list') as import('../lib/definition').ListBlock[];
-      
+      const listBlocks = blocks.filter(
+        (block) => block.type === 'list',
+      ) as import('../lib/definition').ListBlock[];
+
       // Plain text item
       expect(listBlocks[4].items[0]).toMatchObject({
         type: 'listItem',
@@ -261,7 +274,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       // Bold text item
       expect(listBlocks[4].items[1]).toMatchObject({
         type: 'listItem',
@@ -283,7 +296,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       // Italic text item (using underscore)
       expect(listBlocks[4].items[2]).toMatchObject({
         type: 'listItem',
@@ -305,7 +318,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       // Italic text item (using asterisk)
       expect(listBlocks[4].items[3]).toMatchObject({
         type: 'listItem',
@@ -327,7 +340,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       // Code text item
       expect(listBlocks[4].items[4]).toMatchObject({
         type: 'listItem',
@@ -349,7 +362,7 @@ describe('list', () => {
           },
         ],
       });
-      
+
       // Link item
       expect(listBlocks[4].items[5]).toMatchObject({
         type: 'listItem',

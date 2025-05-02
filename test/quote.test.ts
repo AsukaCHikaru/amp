@@ -29,8 +29,8 @@ describe('quote', () => {
       const { blocks } = parse(markdownContent);
 
       // Filter only quote blocks
-      const quoteBlocks = blocks.filter(block => block.type === 'quote');
-      
+      const quoteBlocks = blocks.filter((block) => block.type === 'quote');
+
       // We expect 3 quote blocks to be parsed correctly
       expect(quoteBlocks).toHaveLength(3);
       expect(quoteBlocks.every((block) => block.type === 'quote')).toBe(true);
@@ -38,10 +38,12 @@ describe('quote', () => {
 
     test('single line quote content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access quote properties
-      const quoteBlocks = blocks.filter(block => block.type === 'quote') as import('../lib/definition').QuoteBlock[];
-      
+      const quoteBlocks = blocks.filter(
+        (block) => block.type === 'quote',
+      ) as import('../lib/definition').QuoteBlock[];
+
       // Single line quote content
       expect(quoteBlocks[0]).toMatchObject({
         type: 'quote',
@@ -57,10 +59,12 @@ describe('quote', () => {
 
     test('multiple line quote content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access quote properties
-      const quoteBlocks = blocks.filter(block => block.type === 'quote') as import('../lib/definition').QuoteBlock[];
-      
+      const quoteBlocks = blocks.filter(
+        (block) => block.type === 'quote',
+      ) as import('../lib/definition').QuoteBlock[];
+
       // Multiple line quote content
       expect(quoteBlocks[1]).toMatchObject({
         type: 'quote',
@@ -68,7 +72,8 @@ describe('quote', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: 'multiple line quote 1\nmultiple line quote 2\nmultiple line quote 3\nmultiple line quote 4\nmultiple line quote 5',
+            value:
+              'multiple line quote 1\nmultiple line quote 2\nmultiple line quote 3\nmultiple line quote 4\nmultiple line quote 5',
           },
         ],
       });
@@ -76,10 +81,12 @@ describe('quote', () => {
 
     test('styled text quote content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       // Type assertion for blocks to access quote properties
-      const quoteBlocks = blocks.filter(block => block.type === 'quote') as import('../lib/definition').QuoteBlock[];
-      
+      const quoteBlocks = blocks.filter(
+        (block) => block.type === 'quote',
+      ) as import('../lib/definition').QuoteBlock[];
+
       // Styled text quote content
       expect(quoteBlocks[2]).toMatchObject({
         type: 'quote',

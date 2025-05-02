@@ -240,7 +240,7 @@ export const parseHeadingBlock = (input: string): HeadingBlock => {
 };
 
 export const parseQuoteBlock = (input: string): QuoteBlock => {
-  const match = input.match(quoteRegexp)
+  const match = input.match(quoteRegexp);
   if (!match) {
     throw new Error('Invalid quote block');
   }
@@ -271,7 +271,7 @@ export const parseListBlock = (input: string): ListBlock => {
 };
 
 const parseListItem = (line: string): ListBlock['items'][number] => {
-  const match = line.match(listRegexp)
+  const match = line.match(listRegexp);
   if (!match) {
     throw new Error('Invalid list item');
   }

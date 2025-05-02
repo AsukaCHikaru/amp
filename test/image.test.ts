@@ -29,15 +29,15 @@ describe('image', () => {
       const { blocks } = parse(markdownContent);
 
       // Filter only image blocks
-      const imageBlocks = blocks.filter(block => block.type === 'image');
-      
+      const imageBlocks = blocks.filter((block) => block.type === 'image');
+
       // We expect 5 image blocks to be parsed correctly
       expect(imageBlocks).toHaveLength(7);
     });
 
     test('block content', () => {
       const { blocks } = parse(markdownContent);
-      
+
       expect(blocks[0]).toMatchObject({
         type: 'image',
         url: 'empty_alt_caption.jpeg',

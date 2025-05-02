@@ -200,7 +200,8 @@ describe('paragraph', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: ', id cursus nunc. Duis vel consequat mauris. Maecenas ut nunc a lorem convallis gravida in id est.',
+            value:
+              ', id cursus nunc. Duis vel consequat mauris. Maecenas ut nunc a lorem convallis gravida in id est.',
           },
         ],
       });
