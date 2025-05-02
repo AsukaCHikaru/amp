@@ -55,7 +55,7 @@ export const parseFrontmatter = (input: string): Record<string, string> => {
 
 const headingRegexp = new RegExp(/^(#{1,6})\s(.+)/);
 const quoteRegexp = new RegExp(/^(?:>\s.+\n?)+/);
-const listRegexp = new RegExp(/^(-|\d{1,}\.)\s+(.+)/);
+const listRegexp = new RegExp(/^(?:(?:-|\d+\.)\s(.+)\n?)+/);
 const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)/);
 const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```/);
 const thematicBreakRegexp = new RegExp(/^-{3,}/);
@@ -259,8 +259,8 @@ export const parseQuoteBlock = (input: string): QuoteBlock => {
 
 export const parseListBlock = (input: string): ListBlock => {
   const lines = input.split(/\n+/).filter((line) => line.trim() !== '');
-  const matches = lines.map((line) => listRegexp.exec(line));
-  const ordered = matches.every((match) => match && /^\d{1,}\./.test(match[1]));
+  const matches = lines.map((line) => line.match(listRegexp));
+  const ordered = matches.every((match) => match && /^\d{1,}\./.test(match[0]));
   const items = lines.map((line) => parseListItem(line));
 
   return {
@@ -271,11 +271,11 @@ export const parseListBlock = (input: string): ListBlock => {
 };
 
 const parseListItem = (line: string): ListBlock['items'][number] => {
-  const match = listRegexp.exec(line);
+  const match = line.match(listRegexp)
   if (!match) {
     throw new Error('Invalid list item');
   }
-  const content = match[2];
+  const content = match[1];
   const body = parseTextBody(content)
     .map((textBody) =>
       textBody.style === 'plain' && linkRegexp.test(textBody.value)
