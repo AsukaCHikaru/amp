@@ -40,12 +40,16 @@ export const parseFrontmatter = (input: string): Record<string, string> => {
   const lines = content.split(/\n+/).filter((line) => line.trim() !== '');
   const map = new Map();
   for (const line of lines) {
-    const [key, value] = line.split(/:\s+/);
+    const match = line.match(/^(.+?):\s(.+)/)
+    if (!match) {
+      continue;
+    }
+    const [_, key, value] = match;
     if (!key || !value) {
       continue;
     }
     const trimmedKey = key.trim();
-    const trimmedValue = value.trim();
+    const trimmedValue = value.trim().replace(/^["']?(.+?)["']?$/, '$1');
 
     map.set(trimmedKey, trimmedValue);
   }

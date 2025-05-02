@@ -165,4 +165,28 @@ Content`;
 
     expect(result).toEqual({});
   });
+
+  it('should handle quotes in frontmatter values', () => {
+    const input = `---
+title: "Title with quotes"
+description: 'Description with "quotes" and \'apostrophes\''
+---`;
+    const result = parseFrontmatter(input);
+    expect(result).toEqual({
+      title: 'Title with quotes',
+      description: 'Description with "quotes" and \'apostrophes\'',
+    });
+  });
+
+  it('should handle frontmatter with colons', () => {
+    const input = `---
+title: "Title: With Colons"
+description: "Description: With Colons"
+---`;
+    const result = parseFrontmatter(input);
+    expect(result).toEqual({
+      title: 'Title: With Colons',
+      description: 'Description: With Colons',
+    });
+  });
 });
