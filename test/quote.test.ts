@@ -220,10 +220,11 @@ describe('quote', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: 'empty line in quote 1\n\nempty line in quote 2\n\nempty line in quote 3',
+            value:
+              'empty line in quote 1\n\nempty line in quote 2\n\nempty line in quote 3',
           },
         ],
       });
-    })
+    });
   });
 });
