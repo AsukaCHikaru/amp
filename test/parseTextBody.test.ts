@@ -1,4 +1,4 @@
-import type { TextBody } from '../dist';
+import type { Link, TextBody } from '../dist';
 import { parseTextBody } from '../lib/parser';
 import { describe, expect, test } from 'bun:test';
 
@@ -223,6 +223,82 @@ describe('parseTextBody', () => {
     expect(parseTextBody(input)).toEqual(expected);
   });
 
+  test('does not parse link text with underscores', () => {
+    const input = '_before_ [link_underscore](https://example.com) _after_';
+    const expected = [
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'before',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' ',
+      },
+      {
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'link_underscore',
+          },
+        ],
+        url: 'https://example.com',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' ',
+      },
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'after',
+      },
+    ] satisfies (TextBody | Link)[];
+    expect(parseTextBody(input)).toEqual(expected);
+  });
+
+  test('does not parse link url with underscores', () => {
+    const input = '_before_ [link](https://example.com/this_is_a_link) _after_';
+    const expected = [
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'before',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' ',
+      },
+      {
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'link',
+          },
+        ],
+        url: 'https://example.com/this_is_a_link',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' ',
+      },
+      {
+        type: 'textBody',
+        style: 'italic',
+        value: 'after',
+      },
+    ] satisfies (TextBody | Link)[];
+    expect(parseTextBody(input)).toEqual(expected);
+  });
+
   // 2. Code text tests
   test('parses code text only', () => {
     const input = '`code`';
@@ -422,70 +498,135 @@ describe('parseTextBody', () => {
     expect(parseTextBody(input)).toEqual(expected);
   });
 
-  // 5. Link tests (parsed as plain text)
-  test('parses link only as plain text', () => {
+  // 5. Link tests
+  test('parses link', () => {
     const input = '[link text](https://example.com)';
     const expected = [
       {
-        type: 'textBody',
-        style: 'plain',
-        value: '[link text](https://example.com)',
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'link text',
+          },
+        ],
+        url: 'https://example.com',
       },
-    ] satisfies TextBody[];
+    ] satisfies Link[];
     expect(parseTextBody(input)).toEqual(expected);
   });
 
-  test('parses link at start as plain text', () => {
+  test('parses link at start', () => {
     const input = '[link text](https://example.com) followed by text';
     const expected = [
       {
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'link text',
+          },
+        ],
+        url: 'https://example.com',
+      },
+      {
         type: 'textBody',
         style: 'plain',
-        value: '[link text](https://example.com) followed by text',
+        value: ' followed by text',
       },
-    ] satisfies TextBody[];
+    ] satisfies (TextBody | Link)[];
     expect(parseTextBody(input)).toEqual(expected);
   });
 
-  test('parses link in middle as plain text', () => {
+  test('parses link in middle', () => {
     const input = 'Text before [link text](https://example.com) and after';
     const expected = [
       {
         type: 'textBody',
         style: 'plain',
-        value: 'Text before [link text](https://example.com) and after',
+        value: 'Text before ',
       },
-    ] satisfies TextBody[];
+      {
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'link text',
+          },
+        ],
+        url: 'https://example.com',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and after',
+      },
+    ] satisfies (TextBody | Link)[];
     expect(parseTextBody(input)).toEqual(expected);
   });
 
-  test('parses link at end as plain text', () => {
+  test('parses link at end', () => {
     const input = 'Text ending with [link text](https://example.com)';
     const expected = [
       {
         type: 'textBody',
         style: 'plain',
-        value: 'Text ending with [link text](https://example.com)',
+        value: 'Text ending with ',
       },
-    ] satisfies TextBody[];
+      {
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'link text',
+          },
+        ],
+        url: 'https://example.com',
+      },
+    ] satisfies (TextBody | Link)[];
     expect(parseTextBody(input)).toEqual(expected);
   });
 
-  test('parses multiple links as plain text', () => {
+  test('parses multiple links', () => {
     const input =
       '[first link](https://example.com) and [second link](https://example.org)';
     const expected = [
       {
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'first link',
+          },
+        ],
+        url: 'https://example.com',
+      },
+      {
         type: 'textBody',
         style: 'plain',
-        value:
-          '[first link](https://example.com) and [second link](https://example.org)',
+        value: ' and ',
       },
-    ] satisfies TextBody[];
+      {
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'second link',
+          },
+        ],
+        url: 'https://example.org',
+      },
+    ] satisfies (TextBody | Link)[];
     expect(parseTextBody(input)).toEqual(expected);
   });
 
-  test('parses links with styled text as plain text', () => {
+  test('parses links with styled text', () => {
     const input =
       'Text with **strong** and [link text](https://example.com) and *italic*';
     const expected = [
@@ -499,17 +640,34 @@ describe('parseTextBody', () => {
         style: 'strong',
         value: 'strong',
       },
+
       {
         type: 'textBody',
         style: 'plain',
-        value: ' and [link text](https://example.com) and ',
+        value: ' and ',
+      },
+      {
+        type: 'link',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'link text',
+          },
+        ],
+        url: 'https://example.com',
+      },
+      {
+        type: 'textBody',
+        style: 'plain',
+        value: ' and ',
       },
       {
         type: 'textBody',
         style: 'italic',
         value: 'italic',
       },
-    ] satisfies TextBody[];
+    ] satisfies (TextBody | Link)[];
     expect(parseTextBody(input)).toEqual(expected);
   });
 });
