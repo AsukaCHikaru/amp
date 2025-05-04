@@ -28,11 +28,9 @@ describe('quote', () => {
     test('should parse blocks', () => {
       const { blocks } = parse(markdownContent);
 
-      // Filter only quote blocks
       const quoteBlocks = blocks.filter((block) => block.type === 'quote');
 
-      // We expect 3 quote blocks to be parsed correctly
-      expect(quoteBlocks).toHaveLength(3);
+      expect(quoteBlocks).toHaveLength(4);
       expect(quoteBlocks.every((block) => block.type === 'quote')).toBe(true);
     });
 
@@ -206,5 +204,26 @@ describe('quote', () => {
         ],
       });
     });
+
+    test('empty line in quote', () => {
+      const { blocks } = parse(markdownContent);
+
+      // Type assertion for blocks to access quote properties
+      const quoteBlocks = blocks.filter(
+        (block) => block.type === 'quote',
+      ) as import('../lib/definition').QuoteBlock[];
+
+      // Empty line in quote content
+      expect(quoteBlocks[3]).toMatchObject({
+        type: 'quote',
+        body: [
+          {
+            type: 'textBody',
+            style: 'plain',
+            value: 'empty line in quote 1\n\nempty line in quote 2\n\nempty line in quote 3',
+          },
+        ],
+      });
+    })
   });
 });

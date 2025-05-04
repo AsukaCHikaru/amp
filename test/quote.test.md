@@ -20,3 +20,9 @@ category: test
 > Lorem _ipsum_ dolor sit _amet, consectetur adipiscing elit._
 > Lorem `ipsum` dolor sit `amet, consectetur adipiscing elit.`
 > Lorem [ipsum](https://example.com) dolor [sit amet, consectetur adipiscing elit.](https://example.com)
+
+> empty line in quote 1
+>
+> empty line in quote 2
+> 
+> empty line in quote 3
