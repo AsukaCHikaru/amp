@@ -57,6 +57,27 @@ export const parseFrontmatter = (input: string): Record<string, string> => {
   return Object.fromEntries(map);
 };
 
+export const parseBlocks = (input: string): Block[] => {
+  if (input.trim() === '') {
+    return [];
+  }
+
+  for (const [regexp, parser] of regexpToParserPairs) {
+    if (regexp.test(input)) {
+      const match = regexp.exec(input);
+      if (!match) {
+        throw new Error('Invalid block');
+      }
+      return [
+        parser(match[0].trim()),
+        ...parseBlocks(input.slice(match[0].length).trim()),
+      ];
+    }
+  }
+
+  throw new Error(`No matching block found for input: ${input}`);
+};
+
 const headingRegexp = new RegExp(/^(#{1,6})\s(.+)/);
 const quoteRegexp = new RegExp(/^(?:>\s.*\n?)+/);
 const listRegexp = new RegExp(/^(?:(?:-|\d+\.)\s(.+)\n?)+/);
@@ -362,16 +383,6 @@ export const parseThematicBreakBlock = (): ThematicBreakBlock => ({
   type: 'thematicBreak',
 });
 
-export const parseBlocks = (input: string) => {
-  if (input.trim() === '') {
-    return [];
-  }
-
-  const blocks = parseHeadBlock(input);
-
-  return blocks.result;
-};
-
 const regexpToParserPairs = [
   [headingRegexp, parseHeadingBlock],
   [quoteRegexp, parseQuoteBlock],
@@ -381,27 +392,3 @@ const regexpToParserPairs = [
   [thematicBreakRegexp, parseThematicBreakBlock],
   [paragraphRegexp, parseParagraphBlock],
 ] satisfies [RegExp, (input: string) => Block][];
-
-const parseHeadBlock = (input: string, result: Block[] = []) => {
-  if (input.trim() === '') {
-    return {
-      input: '',
-      result,
-    };
-  }
-
-  for (const [regexp, parser] of regexpToParserPairs) {
-    if (regexp.test(input)) {
-      const match = regexp.exec(input);
-      if (!match) {
-        throw new Error('Invalid block');
-      }
-      return parseHeadBlock(input.slice(match[0].length).trim(), [
-        ...result,
-        parser(match[0].trim()),
-      ]);
-    }
-  }
-
-  throw new Error(`No matching block found for input: ${input}`);
-};
