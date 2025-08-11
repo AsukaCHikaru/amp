@@ -1,4 +1,4 @@
-export { parse } from './lib/parser';
+export { parse, Amp } from './lib/parser';
 
 export type {
   Block,

@@ -12,6 +12,58 @@ import type {
   ThematicBreakBlock,
 } from './definition';
 
+type RegexpToParserPair = [RegExp, (input: string) => Block];
+
+export class Amp {
+  #regexpToParserPairs: RegexpToParserPair[] = [];
+
+  constructor() {
+    this.extend([
+      [headingRegexp, parseHeadingBlock],
+      [quoteRegexp, parseQuoteBlock],
+      [listRegexp, parseListBlock],
+      [imageRegexp, parseImageBlock],
+      [codeRegexp, parseCodeBlock],
+      [thematicBreakRegexp, parseThematicBreakBlock],
+      [paragraphRegexp, parseParagraphBlock],
+    ]);
+  }
+  public extend = (regexpToParserPairs: RegexpToParserPair[]) => {
+    this.#regexpToParserPairs.push(...regexpToParserPairs);
+  };
+
+  public parse = (input: string) => {
+    const { head, body } = split(input);
+    const frontmatter = parseFrontmatter(head);
+    const blocks = this.#parseBlocks(body, this.#regexpToParserPairs);
+    return { frontmatter, blocks };
+  };
+
+  #parseBlocks = (
+    input: string,
+    regexpToParserPairs: RegexpToParserPair[],
+  ): Block[] => {
+    if (input.trim() === '') {
+      return [];
+    }
+
+    for (const [regexp, parser] of regexpToParserPairs) {
+      if (regexp.test(input)) {
+        const match = regexp.exec(input);
+        if (!match) {
+          throw new Error('Invalid block');
+        }
+        return [
+          parser(match[0].trim()),
+          ...parseBlocks(input.slice(match[0].length).trim()),
+        ];
+      }
+    }
+
+    throw new Error(`No matching block found for input: ${input}`);
+  };
+}
+
 export const parse = (input: string) => {
   const { head, body } = split(input);
   const frontmatter = parseFrontmatter(head);
