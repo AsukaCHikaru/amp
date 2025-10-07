@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'bun:test';
 import { join } from 'path';
-import { parse } from '../lib/parser';
+import { Amp } from '../lib/parser';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/image.test.md'),
@@ -11,7 +11,8 @@ const markdownContent = readFileSync(
 describe('image', () => {
   describe('frontmatter', () => {
     test('should parse frontmatter', () => {
-      const { frontmatter } = parse(markdownContent);
+      const amp = new Amp();
+      const { frontmatter } = amp.parse(markdownContent);
 
       expect(frontmatter['title']).toBe('Image test');
       expect(frontmatter['description']).toBe(
@@ -26,7 +27,8 @@ describe('image', () => {
 
   describe('blocks', () => {
     test('should parse blocks', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Filter only image blocks
       const imageBlocks = blocks.filter((block) => block.type === 'image');
@@ -36,7 +38,8 @@ describe('image', () => {
     });
 
     test('block content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks[0]).toMatchObject({
         type: 'image',

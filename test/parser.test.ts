@@ -7,7 +7,6 @@ import type {
   CodeBlock,
 } from '../lib/definition';
 import {
-  parse,
   parseHeadingBlock,
   parseImageBlock,
   parseListBlock,
@@ -15,6 +14,7 @@ import {
   parseCodeBlock,
   parseThematicBreakBlock,
   parseBlocks,
+  Amp,
 } from '../lib/parser';
 import { describe, expect, test } from 'bun:test';
 
@@ -744,7 +744,8 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input).blocks).toEqual(expected);
+    const amp = new Amp();
+    expect(amp.parse(input).blocks).toEqual(expected);
   });
 
   test('parses empty lines as empty paragraphs', () => {
@@ -772,7 +773,8 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input).blocks).toEqual(expected);
+    const amp = new Amp();
+    expect(amp.parse(input).blocks).toEqual(expected);
   });
 
   test('parses complex document with mixed blocks', () => {
@@ -842,7 +844,8 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input).blocks).toEqual(expected);
+    const amp = new Amp();
+    expect(amp.parse(input).blocks).toEqual(expected);
   });
 
   test('parses document with image block', () => {
@@ -877,7 +880,8 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input).blocks).toEqual(expected);
+    const amp = new Amp();
+    expect(amp.parse(input).blocks).toEqual(expected);
   });
 
   test('parses document with code block', () => {
@@ -911,7 +915,8 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input).blocks).toEqual(expected);
+    const amp = new Amp();
+    expect(amp.parse(input).blocks).toEqual(expected);
   });
 
   test('parses document with thematic break', () => {
@@ -941,6 +946,7 @@ describe('parse', () => {
         ],
       },
     ];
-    expect(parse(input).blocks).toEqual(expected);
+    const amp = new Amp();
+    expect(amp.parse(input).blocks).toEqual(expected);
   });
 });
