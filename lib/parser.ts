@@ -29,7 +29,7 @@ export class Amp {
     ]);
   }
   public extend = (regexpToParserPairs: RegexpToParserPair[]) => {
-    this.#regexpToParserPairs.push(...regexpToParserPairs);
+    this.#regexpToParserPairs.unshift(...regexpToParserPairs);
   };
 
   public parse = (input: string) => {
@@ -55,7 +55,10 @@ export class Amp {
         }
         return [
           parser(match[0].trim()),
-          ...parseBlocks(input.slice(match[0].length).trim()),
+          ...this.#parseBlocks(
+            input.slice(match[0].length).trim(),
+            regexpToParserPairs,
+          ),
         ];
       }
     }
