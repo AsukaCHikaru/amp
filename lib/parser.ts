@@ -64,13 +64,6 @@ export class Amp {
   };
 }
 
-export const parse = (input: string) => {
-  const { head, body } = split(input);
-  const frontmatter = parseFrontmatter(head);
-  const blocks = parseBlocks(body);
-  return { frontmatter, blocks };
-};
-
 export const split = (input: string) => {
   const trimmed = input.trim();
   const match = trimmed.match(/^(---\n[\s\S]*?---)\n*/);
