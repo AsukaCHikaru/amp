@@ -54,6 +54,11 @@ export type ThematicBreakBlock = {
   type: 'thematicBreak';
 };
 
+export type CustomBlock = {
+  type: string;
+  [key: string]: string | number | boolean | object;
+};
+
 export type Block =
   | ParagraphBlock
   | HeadingBlock
@@ -61,4 +66,5 @@ export type Block =
   | ListBlock
   | ImageBlock
   | CodeBlock
-  | ThematicBreakBlock;
+  | ThematicBreakBlock
+  | CustomBlock;
