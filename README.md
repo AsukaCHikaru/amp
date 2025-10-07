@@ -17,8 +17,13 @@ bun add @asukawang/amp
 
 ## Usage
 
+### Basic Usage
+
 ```typescript
-import { parse } from '@asukawang/amp';
+import { Amp } from '@asukawang/amp';
+
+// Create a new parser instance
+const amp = new Amp();
 
 // Parse markdown text into structured blocks
 const markdownText = `
@@ -29,14 +34,47 @@ title: Hello world
 # Heading 1
 `;
 
-const { frontmatter, blocks } = parse(markdownText);
-console.log(frontmatter) // { title: "Hello world" }
-console.log(blocks) // [{ type: "heading", level: 1, body: [{ type: "textBody", style: "plain", value: "Heading 1" }] }]
+const { frontmatter, blocks } = amp.parse(markdownText);
+console.log(frontmatter); // { title: "Hello world" }
+console.log(blocks); // [{ type: "heading", level: 1, body: [{ type: "textBody", style: "plain", value: "Heading 1" }] }]
 ```
 
-## Supported block types
+### Extending with Custom Blocks
+
+You can extend the parser with custom block types:
+
+```typescript
+import { Amp } from '@asukawang/amp';
+import type { CustomBlock } from '@asukawang/amp';
+
+const amp = new Amp();
+
+// Define a custom strikethrough block
+const strikeThroughRegexp = new RegExp(/^~~(.+?)~~/);
+const strikeThroughParser = (input: string): CustomBlock => {
+  const match = input.match(strikeThroughRegexp);
+  if (!match) {
+    throw new Error('No match');
+  }
+  return {
+    type: 'strikeThrough',
+    body: match[1],
+  };
+};
+
+// Extend the parser with the custom block
+amp.extend([[strikeThroughRegexp, strikeThroughParser]]);
+
+// Now you can parse custom blocks alongside built-in blocks
+const text = '~~This text is strikethrough~~';
+const { blocks } = amp.parse(text);
+console.log(blocks); // [{ type: "strikeThrough", body: "This text is strikethrough" }]
+```
+
+## Built-in Block Types
 
 ### Paragraph
+
 ```ts
 {
   type: 'paragraph';
@@ -45,6 +83,7 @@ console.log(blocks) // [{ type: "heading", level: 1, body: [{ type: "textBody", 
 ```
 
 #### TextBody
+
 ```ts
 {
   type: 'textBody';
@@ -53,12 +92,14 @@ console.log(blocks) // [{ type: "heading", level: 1, body: [{ type: "textBody", 
 }
 ```
 
-##### TextBodyStyle 
+##### TextBodyStyle
+
 - strong (\*\*text\*\*)
 - italic (\_text\_, \*text\*)
 - code (\`text\`)
 
 #### Link
+
 ```ts
 {
   type: 'link';
@@ -68,6 +109,7 @@ console.log(blocks) // [{ type: "heading", level: 1, body: [{ type: "textBody", 
 ```
 
 ### Heading
+
 ```ts
 {
   type: 'heading';
@@ -77,6 +119,7 @@ console.log(blocks) // [{ type: "heading", level: 1, body: [{ type: "textBody", 
 ```
 
 ### List
+
 ```ts
 {
   type: 'list';
@@ -88,6 +131,7 @@ console.log(blocks) // [{ type: "heading", level: 1, body: [{ type: "textBody", 
 For unordered list, only hyphen is supported (asterisks unsupported.)
 
 #### ListItem
+
 ```ts
 {
   type: 'listItem';
@@ -96,14 +140,16 @@ For unordered list, only hyphen is supported (asterisks unsupported.)
 ```
 
 ### Quote
+
 ```ts
 {
   type: 'quote';
-  body: (TextBody|Link)[];
+  body: (TextBody | Link)[];
 }
 ```
 
 ### Image
+
 ```ts
 {
   type: 'image';
@@ -114,6 +160,7 @@ For unordered list, only hyphen is supported (asterisks unsupported.)
 ```
 
 ### Code
+
 ```ts
 {
   type: 'code';
@@ -123,6 +170,7 @@ For unordered list, only hyphen is supported (asterisks unsupported.)
 ```
 
 ### Thematic break
+
 ```ts
 {
   type: 'thematicBreak';
