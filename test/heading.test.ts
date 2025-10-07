@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'bun:test';
 import { join } from 'path';
-import { parse } from '../lib/parser';
+import { Amp } from '../lib/parser';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/heading.test.md'),
@@ -11,7 +11,8 @@ const markdownContent = readFileSync(
 describe('heading', () => {
   describe('frontmatter', () => {
     test('should parse frontmatter', () => {
-      const { frontmatter } = parse(markdownContent);
+      const amp = new Amp();
+      const { frontmatter } = amp.parse(markdownContent);
 
       expect(frontmatter['title']).toBe('Heading test');
       expect(frontmatter['description']).toBe(
@@ -26,14 +27,16 @@ describe('heading', () => {
 
   describe('blocks', () => {
     test('should parse blocks', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks).toHaveLength(9);
       expect(blocks.every((block) => block.type === 'heading')).toBe(true);
     });
 
     test('should parse heading levels correctly', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access level property
       const headingBlocks =
@@ -51,7 +54,8 @@ describe('heading', () => {
     });
 
     test('block content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // H1 heading
       expect(blocks[0]).toMatchObject({

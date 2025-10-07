@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { parse } from '../lib/parser';
+import { Amp } from '../lib/parser';
 import { describe, expect, test } from 'bun:test';
 
 describe('Parser Integration Test', () => {
@@ -10,7 +10,8 @@ describe('Parser Integration Test', () => {
         join(process.cwd(), 'test/body.test.md'),
         'utf-8',
       );
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks).toBeArray();
       expect(blocks.length).toBeGreaterThan(0);
@@ -21,7 +22,8 @@ describe('Parser Integration Test', () => {
         join(process.cwd(), 'test/body.test.md'),
         'utf-8',
       );
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks[0]).toMatchObject({
         type: 'heading',
@@ -293,7 +295,8 @@ describe('Parser Integration Test', () => {
         join(process.cwd(), 'test/full.test.md'),
         'utf-8',
       );
-      const { frontmatter } = parse(markdownContent);
+      const amp = new Amp();
+      const { frontmatter } = amp.parse(markdownContent);
 
       expect(frontmatter).toBeObject();
       expect(frontmatter['title']).toBe('Full test');
@@ -308,7 +311,8 @@ describe('Parser Integration Test', () => {
         join(process.cwd(), 'test/full.test.md'),
         'utf-8',
       );
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks).toBeArray();
       expect(blocks.length).toBeGreaterThan(0);
@@ -319,7 +323,8 @@ describe('Parser Integration Test', () => {
         join(process.cwd(), 'test/full.test.md'),
         'utf-8',
       );
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks[0]).toMatchObject({
         type: 'heading',
@@ -591,7 +596,8 @@ describe('Parser Integration Test', () => {
         'utf-8',
       );
       for (let i = 0; i < 100; i++) {
-        const { frontmatter, blocks } = parse(markdownContent);
+        const amp = new Amp();
+        const { frontmatter, blocks } = amp.parse(markdownContent);
         expect(blocks).toBeArray();
         expect(blocks.length).toBeGreaterThan(0);
         expect(blocks.length).toBe(13);

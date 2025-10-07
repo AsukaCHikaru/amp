@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'bun:test';
 import { join } from 'path';
-import { parse } from '../lib/parser';
+import { Amp } from '../lib/parser';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/paragraph.test.md'),
@@ -11,7 +11,8 @@ const markdownContent = readFileSync(
 describe('paragraph', () => {
   describe('frontmatter', () => {
     test('should parse frontmatter', () => {
-      const { frontmatter } = parse(markdownContent);
+      const amp = new Amp();
+      const { frontmatter } = amp.parse(markdownContent);
 
       expect(frontmatter['title']).toBe('Paragraph test');
       expect(frontmatter['description']).toBe(
@@ -26,14 +27,16 @@ describe('paragraph', () => {
 
   describe('blocks', () => {
     test('should parse blocks', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks).toHaveLength(5);
       expect(blocks.every((block) => block.type === 'paragraph')).toBe(true);
     });
 
     test('block content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks[0]).toMatchObject({
         type: 'paragraph',

@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'bun:test';
 import { join } from 'path';
-import { parse } from '../lib/parser';
+import { Amp } from '../lib/parser';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/thematicBreak.test.md'),
@@ -11,7 +11,8 @@ const markdownContent = readFileSync(
 describe('thematicBreak', () => {
   describe('frontmatter', () => {
     test('should parse frontmatter', () => {
-      const { frontmatter } = parse(markdownContent);
+      const amp = new Amp();
+      const { frontmatter } = amp.parse(markdownContent);
 
       expect(frontmatter['title']).toBe('Thematic break test');
       expect(frontmatter['description']).toBe(
@@ -26,7 +27,8 @@ describe('thematicBreak', () => {
 
   describe('blocks', () => {
     test('should parse blocks', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       const thematicBreakBlocks = blocks.filter(
         (block) => block.type === 'thematicBreak',
@@ -36,7 +38,8 @@ describe('thematicBreak', () => {
     });
 
     test('should parse standard thematic break', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       const thematicBreakBlocks = blocks.filter(
         (block) => block.type === 'thematicBreak',
@@ -48,7 +51,8 @@ describe('thematicBreak', () => {
     });
 
     test('should parse thematic break with more than three hyphens', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       const thematicBreakBlocks = blocks.filter(
         (block) => block.type === 'thematicBreak',
@@ -60,7 +64,8 @@ describe('thematicBreak', () => {
     });
 
     test('should parse consecutive thematic breaks', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       const thematicBreakBlocks = blocks.filter(
         (block) => block.type === 'thematicBreak',
@@ -75,7 +80,8 @@ describe('thematicBreak', () => {
     });
 
     test('should not parse invalid thematic break with only two hyphens', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       expect(blocks[1]).toMatchObject({
         type: 'paragraph',

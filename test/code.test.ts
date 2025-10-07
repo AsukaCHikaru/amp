@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'bun:test';
 import { join } from 'path';
-import { parse } from '../lib/parser';
+import { Amp } from '../lib/parser';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/code.test.md'),
@@ -11,7 +11,8 @@ const markdownContent = readFileSync(
 describe('code', () => {
   describe('frontmatter', () => {
     test('should parse frontmatter', () => {
-      const { frontmatter } = parse(markdownContent);
+      const amp = new Amp();
+      const { frontmatter } = amp.parse(markdownContent);
 
       expect(frontmatter['title']).toBe('Code test');
       expect(frontmatter['description']).toBe(
@@ -26,7 +27,8 @@ describe('code', () => {
 
   describe('blocks', () => {
     test('should parse blocks', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Filter only code blocks
       const codeBlocks = blocks.filter((block) => block.type === 'code');
@@ -36,7 +38,8 @@ describe('code', () => {
     });
 
     test('should parse single line code with language', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access code properties
       const codeBlocks = blocks.filter(
@@ -52,7 +55,8 @@ describe('code', () => {
     });
 
     test('should parse code without language specification', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access code properties
       const codeBlocks = blocks.filter(
@@ -68,7 +72,8 @@ describe('code', () => {
     });
 
     test('should parse multi-line code with language', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access code properties
       const codeBlocks = blocks.filter(
@@ -84,7 +89,8 @@ describe('code', () => {
     });
 
     test('should parse code with other languages', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access code properties
       const codeBlocks = blocks.filter(
@@ -100,7 +106,8 @@ describe('code', () => {
     });
 
     test('should parse code blocks with no line between them', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access code properties
       const codeBlocks = blocks.filter(

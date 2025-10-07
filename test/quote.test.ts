@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'bun:test';
 import { join } from 'path';
-import { parse } from '../lib/parser';
+import { Amp } from '../lib/parser';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/quote.test.md'),
@@ -11,7 +11,8 @@ const markdownContent = readFileSync(
 describe('quote', () => {
   describe('frontmatter', () => {
     test('should parse frontmatter', () => {
-      const { frontmatter } = parse(markdownContent);
+      const amp = new Amp();
+      const { frontmatter } = amp.parse(markdownContent);
 
       expect(frontmatter['title']).toBe('Quote test');
       expect(frontmatter['description']).toBe(
@@ -26,7 +27,8 @@ describe('quote', () => {
 
   describe('blocks', () => {
     test('should parse blocks', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       const quoteBlocks = blocks.filter((block) => block.type === 'quote');
 
@@ -35,7 +37,8 @@ describe('quote', () => {
     });
 
     test('single line quote content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access quote properties
       const quoteBlocks = blocks.filter(
@@ -56,7 +59,8 @@ describe('quote', () => {
     });
 
     test('multiple line quote content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access quote properties
       const quoteBlocks = blocks.filter(
@@ -78,7 +82,8 @@ describe('quote', () => {
     });
 
     test('styled text quote content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access quote properties
       const quoteBlocks = blocks.filter(
@@ -206,7 +211,8 @@ describe('quote', () => {
     });
 
     test('empty line in quote', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access quote properties
       const quoteBlocks = blocks.filter(

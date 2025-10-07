@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'bun:test';
 import { join } from 'path';
-import { parse } from '../lib/parser';
+import { Amp } from '../lib/parser';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/list.test.md'),
@@ -11,7 +11,8 @@ const markdownContent = readFileSync(
 describe('list', () => {
   describe('frontmatter', () => {
     test('should parse frontmatter', () => {
-      const { frontmatter } = parse(markdownContent);
+      const amp = new Amp();
+      const { frontmatter } = amp.parse(markdownContent);
 
       expect(frontmatter['title']).toBe('List test');
       expect(frontmatter['description']).toBe(
@@ -26,7 +27,8 @@ describe('list', () => {
 
   describe('blocks', () => {
     test('should parse blocks', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Filter only list blocks
       const listBlocks = blocks.filter((block) => block.type === 'list');
@@ -36,7 +38,8 @@ describe('list', () => {
     });
 
     test('should identify ordered and unordered lists correctly', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
@@ -60,7 +63,8 @@ describe('list', () => {
     });
 
     test('should parse list items correctly', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
@@ -84,7 +88,8 @@ describe('list', () => {
     });
 
     test('single unordered list content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
@@ -105,7 +110,8 @@ describe('list', () => {
     });
 
     test('single ordered list content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
@@ -126,7 +132,8 @@ describe('list', () => {
     });
 
     test('multi-item unordered list content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
@@ -191,7 +198,8 @@ describe('list', () => {
     });
 
     test('multi-item ordered list content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
@@ -256,7 +264,8 @@ describe('list', () => {
     });
 
     test('styled text list content', () => {
-      const { blocks } = parse(markdownContent);
+      const amp = new Amp();
+      const { blocks } = amp.parse(markdownContent);
 
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
