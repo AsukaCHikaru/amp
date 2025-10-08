@@ -12,4 +12,5 @@ export type {
   ImageBlock,
   CodeBlock,
   ThematicBreakBlock,
+  CustomBlock,
 } from './lib/definition';

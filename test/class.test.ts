@@ -10,7 +10,8 @@ const strikeThroughParser = (input: string): CustomBlock => {
     throw new Error('No match');
   }
   return {
-    type: 'strikeThrough',
+    type: 'custom',
+    customType: 'strikeThrough',
     body: match[1],
   };
 };
@@ -22,7 +23,8 @@ const highlightParser = (input: string): CustomBlock => {
     throw new Error('No match');
   }
   return {
-    type: 'highlight',
+    type: 'custom',
+    customType: 'highlight',
     body: match[1],
   };
 };
@@ -77,7 +79,8 @@ describe('Amp class', () => {
       const amp = new Amp();
       amp.extend([[strikeThroughRegexp, strikeThroughParser]]);
 
-      const input = '# Heading\n\n~~strikethrough text~~\n\nThis is a paragraph';
+      const input =
+        '# Heading\n\n~~strikethrough text~~\n\nThis is a paragraph';
       const { blocks } = amp.parse(input);
 
       expect(blocks).toHaveLength(3);
@@ -154,11 +157,13 @@ This is the final paragraph before we end.
 
       // Find and verify custom blocks
       const strikeThroughBlocks = blocks.filter(
-        (block) => block.type === 'strikeThrough',
+        (block) =>
+          block.type === 'custom' && block.customType === 'strikeThrough',
       );
       expect(strikeThroughBlocks).toHaveLength(2);
       expect(strikeThroughBlocks[0]).toMatchObject({
-        type: 'strikeThrough',
+        type: 'custom',
+        customType: 'strikeThrough',
         body: 'This feature is deprecated',
       });
       expect(strikeThroughBlocks[1]).toMatchObject({
@@ -167,7 +172,7 @@ This is the final paragraph before we end.
       });
 
       const highlightBlocks = blocks.filter(
-        (block) => block.type === 'highlight',
+        (block) => block.type === 'custom' && block.customType === 'highlight',
       );
       expect(highlightBlocks).toHaveLength(2);
       expect(highlightBlocks[0]).toMatchObject({

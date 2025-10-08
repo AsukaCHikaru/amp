@@ -55,7 +55,8 @@ export type ThematicBreakBlock = {
 };
 
 export type CustomBlock = {
-  type: string;
+  type: 'custom';
+  customType: string;
   [key: string]: string | number | boolean | object;
 };
 
