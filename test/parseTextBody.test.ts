@@ -1,6 +1,6 @@
 import type { Link, TextBody } from '../dist';
 import { parseTextBody } from '../lib/parser';
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 
 describe('parseTextBody', () => {
   // 1. Parse full plain text

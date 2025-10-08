@@ -16,7 +16,7 @@ import {
   parseBlocks,
   Amp,
 } from '../lib/parser';
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 
 describe('parseImageBlock', () => {
   test('parses basic image with alt text, URL, and caption', () => {

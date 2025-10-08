@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Amp } from '../lib/parser';
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 
 describe('Parser Integration Test', () => {
   describe('body', () => {
@@ -13,7 +13,7 @@ describe('Parser Integration Test', () => {
       const amp = new Amp();
       const { blocks } = amp.parse(markdownContent);
 
-      expect(blocks).toBeArray();
+      expect(Array.isArray(blocks)).toBe(true);
       expect(blocks.length).toBeGreaterThan(0);
       expect(blocks.length).toBe(11);
     });
@@ -298,7 +298,7 @@ describe('Parser Integration Test', () => {
       const amp = new Amp();
       const { frontmatter } = amp.parse(markdownContent);
 
-      expect(frontmatter).toBeObject();
+      expect(frontmatter).toBeTypeOf('object');
       expect(frontmatter['title']).toBe('Full test');
       expect(frontmatter['description']).toBe(
         'This is, as you can see, a markdown file for the purpose of, no other than testing, which are listed in the file of `full.test.ts`.',
@@ -314,7 +314,7 @@ describe('Parser Integration Test', () => {
       const amp = new Amp();
       const { blocks } = amp.parse(markdownContent);
 
-      expect(blocks).toBeArray();
+      expect(Array.isArray(blocks)).toBe(true);
       expect(blocks.length).toBeGreaterThan(0);
       expect(blocks.length).toBe(13);
     });
@@ -598,10 +598,10 @@ describe('Parser Integration Test', () => {
       for (let i = 0; i < 100; i++) {
         const amp = new Amp();
         const { frontmatter, blocks } = amp.parse(markdownContent);
-        expect(blocks).toBeArray();
+        expect(Array.isArray(blocks)).toBe(true);
         expect(blocks.length).toBeGreaterThan(0);
         expect(blocks.length).toBe(13);
-        expect(frontmatter).toBeObject();
+        expect(frontmatter).toBeTypeOf('object');
         expect(frontmatter['title']).toBe('Full test');
         expect(frontmatter['description']).toBe(
           'This is, as you can see, a markdown file for the purpose of, no other than testing, which are listed in the file of `full.test.ts`.',

@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 import { join } from 'path';
 import { Amp } from '../lib/parser';
 
