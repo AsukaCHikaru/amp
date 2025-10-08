@@ -9,7 +9,7 @@ await Bun.build({
   entrypoints: ['index.ts'],
   outdir: 'dist',
   minify: true,
-})
+});
 
 const configPath = path.resolve('tsconfig.publish.json');
 const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -22,7 +22,7 @@ if (configFile.error) {
 const parsedCommandLine = ts.parseJsonConfigFileContent(
   configFile.config,
   ts.sys,
-  path.dirname(configPath)
+  path.dirname(configPath),
 );
 
 if (parsedCommandLine.errors.length > 0) {
