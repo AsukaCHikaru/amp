@@ -47,28 +47,40 @@ You can extend the parser with custom block types:
 import { Amp } from '@asukawang/amp';
 import type { CustomBlock } from '@asukawang/amp';
 
-const amp = new Amp();
+// Define a custom block type
+type StrikeThroughBlock = CustomBlock<'strikeThrough', { body: string }>;
 
-// Define a custom strikethrough block
 const strikeThroughRegexp = new RegExp(/^~~(.+?)~~/);
-const strikeThroughParser = (input: string): CustomBlock => {
+const strikeThroughParser = (input: string): StrikeThroughBlock => {
   const match = input.match(strikeThroughRegexp);
   if (!match) {
     throw new Error('No match');
   }
   return {
-    type: 'strikeThrough',
+    type: 'custom',
+    customType: 'strikeThrough',
     body: match[1],
   };
 };
 
 // Extend the parser with the custom block
-amp.extend([[strikeThroughRegexp, strikeThroughParser]]);
+const amp = new Amp().extend([strikeThroughRegexp, strikeThroughParser]);
+
+// Extract the extended block type
+type ExtendedBlock = ReturnType<typeof amp.parse>['blocks'][number];
+// ExtendedBlock = StrikeThroughBlock | HeadingBlock | ParagraphBlock | ...
 
 // Now you can parse custom blocks alongside built-in blocks
 const text = '~~This text is strikethrough~~';
 const { blocks } = amp.parse(text);
-console.log(blocks); // [{ type: "strikeThrough", body: "This text is strikethrough" }]
+console.log(blocks); // [{ type: "custom", customType: "strikeThrough", body: "This text is strikethrough" }]
+
+// You can chain multiple extend() calls
+const ampWithMultipleExtensions = new Amp()
+  .extend([strikeThroughRegexp, strikeThroughParser])
+  .extend([anotherRegexp, anotherParser]);
+type MultipleExtendedBlock = ReturnType<typeof amp.parse>['blocks'][number];
+// MultipleExtendedBlock = StrikeThroughBlock | AnotherBlock | HeadingBlock | ParagraphBlock | ...
 ```
 
 ## Built-in Block Types
