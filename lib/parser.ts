@@ -1,3 +1,4 @@
+import type { CustomBlock } from '../dist';
 import type {
   Block,
   CodeBlock,
@@ -12,37 +13,41 @@ import type {
   ThematicBreakBlock,
 } from './definition';
 
-type RegexpToParserPair = [RegExp, (input: string) => Block];
+type RegexpToParserPair<C extends CustomBlock<string, {}> = never> = [
+  RegExp,
+  (input: string) => Block<C>,
+];
 
-export class Amp {
-  #regexpToParserPairs: RegexpToParserPair[] = [];
+export class Amp<C extends CustomBlock<string, {}> = never> {
+  #regexpToParserPairs: RegexpToParserPair<any>[] = [];
 
   constructor() {
-    this.extend([
-      [headingRegexp, parseHeadingBlock],
-      [quoteRegexp, parseQuoteBlock],
-      [listRegexp, parseListBlock],
-      [imageRegexp, parseImageBlock],
-      [codeRegexp, parseCodeBlock],
-      [thematicBreakRegexp, parseThematicBreakBlock],
-      [paragraphRegexp, parseParagraphBlock],
-    ]);
+    this.extend([paragraphRegexp, parseParagraphBlock])
+      .extend([thematicBreakRegexp, parseThematicBreakBlock])
+      .extend([codeRegexp, parseCodeBlock])
+      .extend([imageRegexp, parseImageBlock])
+      .extend([listRegexp, parseListBlock])
+      .extend([quoteRegexp, parseQuoteBlock])
+      .extend([headingRegexp, parseHeadingBlock]);
   }
-  public extend = (regexpToParserPairs: RegexpToParserPair[]) => {
-    this.#regexpToParserPairs.unshift(...regexpToParserPairs);
-  };
+  public extend<NewC extends CustomBlock<string, {}>>(
+    regexpToParserPair: RegexpToParserPair<NewC>,
+  ): Amp<C | NewC> {
+    this.#regexpToParserPairs.unshift(regexpToParserPair);
+    return this;
+  }
 
-  public parse = (input: string) => {
+  public parse(input: string) {
     const { head, body } = split(input);
     const frontmatter = parseFrontmatter(head);
     const blocks = this.#parseBlocks(body, this.#regexpToParserPairs);
     return { frontmatter, blocks };
-  };
+  }
 
-  #parseBlocks = (
+  #parseBlocks(
     input: string,
     regexpToParserPairs: RegexpToParserPair[],
-  ): Block[] => {
+  ): Block<C>[] {
     if (input.trim() === '') {
       return [];
     }
@@ -64,7 +69,7 @@ export class Amp {
     }
 
     throw new Error(`No matching block found for input: ${input}`);
-  };
+  }
 }
 
 export const split = (input: string) => {

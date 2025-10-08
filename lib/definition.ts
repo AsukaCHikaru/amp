@@ -54,13 +54,15 @@ export type ThematicBreakBlock = {
   type: 'thematicBreak';
 };
 
-export type CustomBlock = {
+export type CustomBlock<
+  CustomType extends string,
+  Body extends Record<string, string | number | boolean | object>,
+> = {
   type: 'custom';
-  customType: string;
-  [key: string]: string | number | boolean | object;
-};
+  customType: CustomType;
+} & Body;
 
-export type Block =
+export type Block<TCustom extends CustomBlock<string, {}> = never> =
   | ParagraphBlock
   | HeadingBlock
   | QuoteBlock
@@ -68,4 +70,4 @@ export type Block =
   | ImageBlock
   | CodeBlock
   | ThematicBreakBlock
-  | CustomBlock;
+  | TCustom;

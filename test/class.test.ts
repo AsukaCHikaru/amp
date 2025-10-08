@@ -1,10 +1,11 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 import { Amp } from '../lib/parser';
 import type { CustomBlock } from '../lib/definition';
 
 // Shared test utilities
 const strikeThroughRegexp = new RegExp(/^~~(.+?)~~/);
-const strikeThroughParser = (input: string): CustomBlock => {
+type StrikeThroughBlock = CustomBlock<'strikeThrough', { body: string }>;
+const strikeThroughParser = (input: string): StrikeThroughBlock => {
   const match = input.match(strikeThroughRegexp);
   if (!match) {
     throw new Error('No match');
@@ -17,7 +18,8 @@ const strikeThroughParser = (input: string): CustomBlock => {
 };
 
 const highlightRegexp = new RegExp(/^==(.+?)==/);
-const highlightParser = (input: string): CustomBlock => {
+type HighlightBlock = CustomBlock<'highlight', { body: string }>;
+const highlightParser = (input: string): HighlightBlock => {
   const match = input.match(highlightRegexp);
   if (!match) {
     throw new Error('No match');
@@ -33,36 +35,35 @@ describe('Amp class', () => {
   test('instantiate', () => {
     const amp = new Amp();
     expect(amp).toBeDefined();
-    expect(amp.parse).toBeFunction();
-    expect(amp.extend).toBeFunction();
+    expect(amp).toBeInstanceOf(Amp);
+    expect(typeof amp.parse).toBe('function');
+    expect(typeof amp.extend).toBe('function');
   });
   describe('extend method', () => {
     test('can extend with custom block', () => {
-      const amp = new Amp();
-      amp.extend([[strikeThroughRegexp, strikeThroughParser]]);
+      const amp = new Amp().extend([strikeThroughRegexp, strikeThroughParser]);
 
       const input = '~~strikethrough text~~';
       const { blocks } = amp.parse(input);
-
       expect(blocks).toHaveLength(1);
       expect(blocks[0]).toMatchObject({
-        type: 'strikeThrough',
+        type: 'custom',
+        customType: 'strikeThrough',
         body: 'strikethrough text',
       });
     });
 
     test('can extend with multiple custom blocks', () => {
-      const amp = new Amp();
-      amp.extend([
-        [strikeThroughRegexp, strikeThroughParser],
-        [highlightRegexp, highlightParser],
-      ]);
+      const amp = new Amp()
+        .extend([strikeThroughRegexp, strikeThroughParser])
+        .extend([highlightRegexp, highlightParser]);
 
       const input1 = '~~strikethrough text~~';
       const { blocks: blocks1 } = amp.parse(input1);
       expect(blocks1).toHaveLength(1);
       expect(blocks1[0]).toMatchObject({
-        type: 'strikeThrough',
+        type: 'custom',
+        customType: 'strikeThrough',
         body: 'strikethrough text',
       });
 
@@ -70,35 +71,33 @@ describe('Amp class', () => {
       const { blocks: blocks2 } = amp.parse(input2);
       expect(blocks2).toHaveLength(1);
       expect(blocks2[0]).toMatchObject({
-        type: 'highlight',
+        type: 'custom',
+        customType: 'highlight',
         body: 'highlighted text',
       });
     });
 
     test('custom blocks work alongside built-in blocks', () => {
       const amp = new Amp();
-      amp.extend([[strikeThroughRegexp, strikeThroughParser]]);
+      amp.extend([strikeThroughRegexp, strikeThroughParser]);
 
       const input =
         '# Heading\n\n~~strikethrough text~~\n\nThis is a paragraph';
       const { blocks } = amp.parse(input);
-
       expect(blocks).toHaveLength(3);
       expect(blocks[0].type).toBe('heading');
       expect(blocks[1]).toMatchObject({
-        type: 'strikeThrough',
+        type: 'custom',
+        customType: 'strikeThrough',
         body: 'strikethrough text',
       });
       expect(blocks[2].type).toBe('paragraph');
     });
 
     test('custom blocks work with complex markdown document', () => {
-      const amp = new Amp();
-      amp.extend([
-        [strikeThroughRegexp, strikeThroughParser],
-        [highlightRegexp, highlightParser],
-      ]);
-
+      const amp = new Amp()
+        .extend([strikeThroughRegexp, strikeThroughParser])
+        .extend([highlightRegexp, highlightParser]);
       const input = `---
 title: Test Document
 author: Test Author
@@ -167,7 +166,8 @@ This is the final paragraph before we end.
         body: 'This feature is deprecated',
       });
       expect(strikeThroughBlocks[1]).toMatchObject({
-        type: 'strikeThrough',
+        type: 'custom',
+        customType: 'strikeThrough',
         body: 'Another deprecated feature',
       });
 
@@ -176,11 +176,13 @@ This is the final paragraph before we end.
       );
       expect(highlightBlocks).toHaveLength(2);
       expect(highlightBlocks[0]).toMatchObject({
-        type: 'highlight',
+        type: 'custom',
+        customType: 'highlight',
         body: 'This is highlighted text',
       });
       expect(highlightBlocks[1]).toMatchObject({
-        type: 'highlight',
+        type: 'custom',
+        customType: 'highlight',
         body: 'Important note at the end',
       });
 
