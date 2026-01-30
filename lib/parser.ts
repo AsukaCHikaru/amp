@@ -160,9 +160,31 @@ export const parseTextBody = (input: string): (TextBody | Link)[] => {
     .flat();
 };
 
+type RawStyle =
+  | 'plain'
+  | 'strong'
+  | 'code'
+  | 'asteriskItalic'
+  | 'underscoreItalic';
+const mergeItalic = (style: RawStyle): TextBodyStyle => {
+  switch (style) {
+    case 'asteriskItalic':
+    case 'underscoreItalic':
+      return 'italic';
+    case 'code':
+    case 'plain':
+    case 'strong':
+      return style;
+    default:
+      throw new Error(`Unknown style ${style satisfies never}`);
+  }
+};
 type TextBodyParseResult = {
   text: string;
-  progress: { style: TextBodyStyle; text: string } | null;
+  progress: {
+    style: RawStyle;
+    text: string;
+  } | null;
   result: TextBody[];
 };
 export const parseTextBodyStyle = ({
@@ -204,7 +226,7 @@ export const parseTextBodyStyle = ({
             ...result,
             {
               type: 'textBody',
-              style: progress.style,
+              style: mergeItalic(progress.style),
               value: progress.text,
             },
           ]
@@ -233,8 +255,9 @@ export const parseTextBodyStyle = ({
             progress: { style: 'plain', text: (progress?.text ?? '') + first },
             result,
           });
+        case 'asteriskItalic':
+        case 'underscoreItalic':
         case 'code':
-        case 'italic':
         case 'strong':
           return parseTextBodyStyle({
             text: rest,
@@ -244,7 +267,7 @@ export const parseTextBodyStyle = ({
                   ...result,
                   {
                     type: 'textBody',
-                    style: progressStyle,
+                    style: 'plain',
                     value: progress.text,
                   },
                 ]
@@ -253,8 +276,31 @@ export const parseTextBodyStyle = ({
         default:
           throw new Error(`Unexpected style: ${headStyle satisfies never}`);
       }
+    case 'asteriskItalic':
+    case 'underscoreItalic':
+      if (headStyle === progressStyle) {
+        return parseTextBodyStyle({
+          text: headText,
+          progress: null,
+          result: [
+            ...result,
+            {
+              type: 'textBody',
+              style: mergeItalic(progressStyle),
+              value: progress?.text ?? '',
+            },
+          ],
+        });
+      }
+      return parseTextBodyStyle({
+        text: rest,
+        progress: {
+          style: progressStyle,
+          text: (progress?.text ?? '') + first,
+        },
+        result,
+      });
     case 'code':
-    case 'italic':
     case 'strong':
       if (headStyle === progressStyle) {
         return parseTextBodyStyle({
@@ -286,17 +332,17 @@ export const parseTextBodyStyle = ({
 const checkHeadStyle = (
   text: string,
 ): {
-  style: TextBodyStyle;
+  style: RawStyle;
   text: string;
 } => {
   if (/^\*{2}/.test(text)) {
     return { style: 'strong', text: text.slice(2) };
   }
   if (/^\*{1}/.test(text)) {
-    return { style: 'italic', text: text.slice(1) };
+    return { style: 'asteriskItalic', text: text.slice(1) };
   }
   if (/^_{1}/.test(text)) {
-    return { style: 'italic', text: text.slice(1) };
+    return { style: 'underscoreItalic', text: text.slice(1) };
   }
   if (/^`{1}/.test(text)) {
     return { style: 'code', text: text.slice(1) };
