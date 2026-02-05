@@ -187,7 +187,137 @@ type TextBodyParseResult = {
   } | null;
   result: TextBody[];
 };
-export const parseTextBodyStyle = ({
+export const parseTextBodyStyleV2 = (input: string): TextBody[] => {
+  if (!input) {
+    return [];
+  }
+  const headSymbol = checkHeadSymbol(input);
+  switch (headSymbol) {
+    case 'asteriskItalic': {
+      const match = input.match(/^\*{1}([^\*]+)\*{1}([\s\S]*)/);
+      if (!match) {
+        const unclosedMatch = input.match(/^\*{1}([^*]+)$/);
+        if (!unclosedMatch) {
+          throw new Error();
+        }
+        const [value] = unclosedMatch;
+        const result = {
+          type: 'textBody',
+          value,
+          style: 'plain',
+        } satisfies TextBody;
+        return [result];
+      }
+      const [, value, rest] = match;
+      const result = {
+        type: 'textBody',
+        value,
+        style: 'italic',
+      } satisfies TextBody;
+      return [result, ...parseTextBodyStyleV2(rest)];
+    }
+    case 'underscoreItalic': {
+      const match = input.match(/^_{1}([^_]+)_{1}([\s\S]*)/);
+      if (!match) {
+        const unclosedMatch = input.match(/^_{1}([^_]+)$/);
+        if (!unclosedMatch) {
+          throw new Error();
+        }
+        const [value] = unclosedMatch;
+        const result = {
+          type: 'textBody',
+          value,
+          style: 'plain',
+        } satisfies TextBody;
+        return [result];
+      }
+      const [, value, rest] = match;
+      const result = {
+        type: 'textBody',
+        value,
+        style: 'italic',
+      } satisfies TextBody;
+      return [result, ...parseTextBodyStyleV2(rest)];
+    }
+    case 'code': {
+      const match = input.match(/^`([^`]+)`([\s\S]*)/);
+      if (!match) {
+        const unclosedMatch = input.match(/^`([^`]+)$/);
+        if (!unclosedMatch) {
+          throw new Error();
+        }
+        const [value] = unclosedMatch;
+        const result = {
+          type: 'textBody',
+          value,
+          style: 'plain',
+        } satisfies TextBody;
+        return [result];
+      }
+      const [, value, rest] = match;
+      const result = {
+        type: 'textBody',
+        value,
+        style: 'code',
+      } satisfies TextBody;
+      return [result, ...parseTextBodyStyleV2(rest)];
+    }
+    case 'strong': {
+      const match = input.match(/^\*{2}([^*]+)\*{2}([\s\S]*)/);
+      if (!match) {
+        const unclosedMatch = input.match(/^\*\*((?:(?!\*\*).)*?)$/);
+        if (!unclosedMatch) {
+          throw new Error();
+        }
+        const [value] = unclosedMatch;
+        const result = {
+          type: 'textBody',
+          value,
+          style: 'plain',
+        } satisfies TextBody;
+        return [result];
+      }
+      const [, value, rest] = match;
+      const result = {
+        type: 'textBody',
+        value,
+        style: 'strong',
+      } satisfies TextBody;
+      return [result, ...parseTextBodyStyleV2(rest)];
+    }
+    case 'plain': {
+      const match = input.match(/^([^*_`]+)([\s\S]*)$/);
+      if (!match) {
+        throw new Error();
+      }
+      const [, value, rest] = match;
+      const result = {
+        type: 'textBody',
+        value,
+        style: 'plain',
+      } satisfies TextBody;
+      return [result, ...parseTextBodyStyleV2(rest)];
+    }
+    default:
+      throw new Error(`Unexpected head symbol ${headSymbol satisfies never}`);
+  }
+};
+export const checkHeadSymbol = (input: string): RawStyle => {
+  if (/^\*{2}/.test(input)) {
+    return 'strong';
+  }
+  if (/^\*{1}/.test(input)) {
+    return 'asteriskItalic';
+  }
+  if (/^_{1}/.test(input)) {
+    return 'underscoreItalic';
+  }
+  if (/^`{1}/.test(input)) {
+    return 'code';
+  }
+  return 'plain';
+};
+const parseTextBodyStyle = ({
   text,
   progress,
   result,
