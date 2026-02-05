@@ -242,23 +242,13 @@ export const parseTextBodyStyleV2 = (input: string | undefined): TextBody[] => {
     return [];
   }
   const headSymbol = checkHeadSymbol(input);
-  switch (headSymbol) {
-    case 'asteriskItalic':
-    case 'underscoreItalic':
-    case 'code':
-    case 'strong':
-    case 'plain': {
-      const { result, rest } = lookupUntilClose(
-        input,
-        regularPattern[headSymbol],
-        unclosedPattern[headSymbol],
-        convertRawStyleToTextBodyStyle(headSymbol),
-      );
-      return [result, ...parseTextBodyStyleV2(rest)];
-    }
-    default:
-      throw new Error(`Unexpected head symbol ${headSymbol satisfies never}`);
-  }
+  const { result, rest } = lookupUntilClose(
+    input,
+    regularPattern[headSymbol],
+    unclosedPattern[headSymbol],
+    convertRawStyleToTextBodyStyle(headSymbol),
+  );
+  return [result, ...parseTextBodyStyleV2(rest)];
 };
 export const checkHeadSymbol = (input: string): RawStyle => {
   if (/^\*{2}/.test(input)) {
