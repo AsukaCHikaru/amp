@@ -196,11 +196,15 @@ const lookupUntilClose = (
   const match = input.match(regularPattern);
   if (!match) {
     if (!unclosedPattern) {
-      throw new Error();
+      throw new Error(
+        `Regular pattern not matched for style ${style} and unclosed pattern unknown`,
+      );
     }
     const unclosedMatch = input.match(unclosedPattern);
     if (!unclosedMatch) {
-      throw new Error();
+      throw new Error(
+        `Regular pattern and unclosed pattern not matched for style ${style}`,
+      );
     }
     const [value] = unclosedMatch;
     const result = {
