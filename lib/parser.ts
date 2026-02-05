@@ -206,13 +206,13 @@ const lookupUntilClose = (
         `Regular pattern and unclosed pattern not matched for style ${style}`,
       );
     }
-    const [value] = unclosedMatch;
+    const [, value, rest] = unclosedMatch;
     const result = {
       type: 'textBody',
       value,
       style: 'plain',
     } satisfies TextBody;
-    return { result };
+    return { result, rest };
   }
   const [, value, rest] = match;
   const result = {
@@ -223,17 +223,17 @@ const lookupUntilClose = (
   return { result, rest };
 };
 const regularPattern = {
-  asteriskItalic: /^\*{1}([^\*]+)\*{1}([\s\S]*)/,
-  underscoreItalic: /^_{1}([^_]+)_{1}([\s\S]*)/,
+  asteriskItalic: /^\*{1}([^\*_`]+)\*{1}([\s\S]*)/,
+  underscoreItalic: /^_{1}([^\*_`]+)_{1}([\s\S]*)/,
   code: /^`([^`]+)`([\s\S]*)/,
-  strong: /^\*{2}([^*]+)\*{2}([\s\S]*)/,
+  strong: /^\*{2}([^\*_`]+)\*{2}([\s\S]*)/,
   plain: /^([^*_`]+)([\s\S]*)$/,
 } as const satisfies Record<RawStyle, RegExp>;
 const unclosedPattern = {
-  asteriskItalic: /^\*{1}([^*]+)$/,
-  underscoreItalic: /^_{1}([^_]+)$/,
-  code: /^`([^`]+)$/,
-  strong: /^\*\*((?:(?!\*\*).)*?)$/,
+  asteriskItalic: /^(\*{1}[^\*_`]+?)([\*_`][\s\S]+)*$/,
+  underscoreItalic: /^(_{1}[^\*_`]+?)([\*_`][\s\S]+)*$/,
+  code: /^(`[^`]+)$/,
+  strong: /^(\*{2}[^\*_`]+?)([\*_`][\s\S]+)*$/,
   plain: null,
 } as const satisfies Record<RawStyle, RegExp | null>;
 
