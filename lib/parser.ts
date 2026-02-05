@@ -166,7 +166,7 @@ type RawStyle =
   | 'code'
   | 'asteriskItalic'
   | 'underscoreItalic';
-const mergeItalic = (style: RawStyle): TextBodyStyle => {
+const convertRawStyleToTextBodyStyle = (style: RawStyle): TextBodyStyle => {
   switch (style) {
     case 'asteriskItalic':
     case 'underscoreItalic':
@@ -243,7 +243,7 @@ export const parseTextBodyStyleV2 = (input: string | undefined): TextBody[] => {
         input,
         regularPattern[headSymbol],
         unclosedPattern[headSymbol],
-        mergeItalic(headSymbol),
+        convertRawStyleToTextBodyStyle(headSymbol),
       );
       return [result, ...parseTextBodyStyleV2(rest)];
     case 'plain': {
@@ -317,7 +317,7 @@ const parseTextBodyStyle = ({
             ...result,
             {
               type: 'textBody',
-              style: mergeItalic(progress.style),
+              style: convertRawStyleToTextBodyStyle(progress.style),
               value: progress.text,
             },
           ]
@@ -377,7 +377,7 @@ const parseTextBodyStyle = ({
             ...result,
             {
               type: 'textBody',
-              style: mergeItalic(progressStyle),
+              style: convertRawStyleToTextBodyStyle(progressStyle),
               value: progress?.text ?? '',
             },
           ],
