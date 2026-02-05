@@ -215,56 +215,37 @@ const lookupUntilClose = (
   } satisfies TextBody;
   return { result, rest };
 };
+const regularPattern = {
+  asteriskItalic: /^\*{1}([^\*]+)\*{1}([\s\S]*)/,
+  underscoreItalic: /^_{1}([^_]+)_{1}([\s\S]*)/,
+  code: /^`([^`]+)`([\s\S]*)/,
+  strong: /^\*{2}([^*]+)\*{2}([\s\S]*)/,
+  plain: /^([^*_`]+)([\s\S]*)$/,
+} as const satisfies Record<RawStyle, RegExp>;
+const unclosedPattern = {
+  asteriskItalic: /^\*{1}([^*]+)$/,
+  underscoreItalic: /^_{1}([^_]+)$/,
+  code: /^`([^`]+)$/,
+  strong: /^\*\*((?:(?!\*\*).)*?)$/,
+} as const satisfies Record<Exclude<RawStyle, 'plain'>, RegExp>;
+
 export const parseTextBodyStyleV2 = (input: string | undefined): TextBody[] => {
   if (!input) {
     return [];
   }
   const headSymbol = checkHeadSymbol(input);
   switch (headSymbol) {
-    case 'asteriskItalic': {
-      const regularPattern = /^\*{1}([^\*]+)\*{1}([\s\S]*)/;
-      const unclosedPattern = /^\*{1}([^*]+)$/;
+    case 'asteriskItalic':
+    case 'underscoreItalic':
+    case 'code':
+    case 'strong':
       const { result, rest } = lookupUntilClose(
         input,
-        regularPattern,
-        unclosedPattern,
-        'italic',
+        regularPattern[headSymbol],
+        unclosedPattern[headSymbol],
+        mergeItalic(headSymbol),
       );
       return [result, ...parseTextBodyStyleV2(rest)];
-    }
-    case 'underscoreItalic': {
-      const regularPattern = /^_{1}([^_]+)_{1}([\s\S]*)/;
-      const unclosedPattern = /^_{1}([^_]+)$/;
-      const { result, rest } = lookupUntilClose(
-        input,
-        regularPattern,
-        unclosedPattern,
-        'italic',
-      );
-      return [result, ...parseTextBodyStyleV2(rest)];
-    }
-    case 'code': {
-      const regularPattern = /^`([^`]+)`([\s\S]*)/;
-      const unclosedPattern = /^`([^`]+)$/;
-      const { result, rest } = lookupUntilClose(
-        input,
-        regularPattern,
-        unclosedPattern,
-        'code',
-      );
-      return [result, ...parseTextBodyStyleV2(rest)];
-    }
-    case 'strong': {
-      const regularPattern = /^\*{2}([^*]+)\*{2}([\s\S]*)/;
-      const unclosedPattern = /^\*\*((?:(?!\*\*).)*?)$/;
-      const { result, rest } = lookupUntilClose(
-        input,
-        regularPattern,
-        unclosedPattern,
-        'strong',
-      );
-      return [result, ...parseTextBodyStyleV2(rest)];
-    }
     case 'plain': {
       const match = input.match(/^([^*_`]+)([\s\S]*)$/);
       if (!match) {
