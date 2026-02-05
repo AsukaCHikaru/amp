@@ -697,85 +697,137 @@ describe('parseTextBodyStyleV2', () => {
   });
 
   describe('Unclosed markers', () => {
-    test('unclosed strong reverts to plain', () => {
+    test('unclosed strong is cut at end', () => {
       const input = 'text **unclosed';
       const expected = [
         {
           type: 'textBody',
           style: 'plain',
-          value: 'text **unclosed',
+          value: 'text ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '**unclosed',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
     });
 
-    test('unclosed italic (asterisk) reverts to plain', () => {
+    test('unclosed italic (asterisk) is cut at end', () => {
       const input = 'text *unclosed';
       const expected = [
         {
           type: 'textBody',
           style: 'plain',
-          value: 'text *unclosed',
+          value: 'text ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '*unclosed',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
     });
 
-    test('unclosed italic (underscore) reverts to plain', () => {
+    test('unclosed italic (underscore) is cut at end', () => {
       const input = 'text _unclosed';
       const expected = [
         {
           type: 'textBody',
           style: 'plain',
-          value: 'text _unclosed',
+          value: 'text ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '_unclosed',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
     });
 
-    test('unclosed code reverts to plain', () => {
+    test('unclosed code is cut at end', () => {
       const input = 'text `unclosed';
       const expected = [
         {
           type: 'textBody',
           style: 'plain',
-          value: 'text `unclosed',
+          value: 'text ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '`unclosed',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
     });
 
-    test('unclosed strong and unclosed italic', () => {
+    test('unclosed marker at the very start', () => {
+      const input = '**unclosed';
+      const expected = [
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '**unclosed',
+        },
+      ] satisfies TextBody[];
+      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+    });
+
+    test('unclosed strong cut at next unclosed italic', () => {
       const input = '**unclosed _also unclosed';
       const expected = [
         {
           type: 'textBody',
           style: 'plain',
-          value: '**unclosed _also unclosed',
+          value: '**unclosed ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '_also unclosed',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
     });
 
-    test('unclosed italic and unclosed code', () => {
+    test('unclosed italic cut at next unclosed code', () => {
       const input = '*unclosed `also unclosed';
       const expected = [
         {
           type: 'textBody',
           style: 'plain',
-          value: '*unclosed `also unclosed',
+          value: '*unclosed ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '`also unclosed',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
     });
 
-    test('three different unclosed markers', () => {
+    test('three different unclosed markers each cut at next', () => {
       const input = '_one **two `three';
       const expected = [
         {
           type: 'textBody',
           style: 'plain',
-          value: '_one **two `three',
+          value: '_one ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '**two ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '`three',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
@@ -792,7 +844,12 @@ describe('parseTextBodyStyleV2', () => {
         {
           type: 'textBody',
           style: 'plain',
-          value: ' then _unclosed',
+          value: ' then ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '_unclosed',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
@@ -810,6 +867,50 @@ describe('parseTextBodyStyleV2', () => {
           type: 'textBody',
           style: 'strong',
           value: 'bold',
+        },
+      ] satisfies TextBody[];
+      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+    });
+
+    test('unclosed underscore cut at next unclosed strong', () => {
+      const input = '_unclosed **strong';
+      const expected = [
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '_unclosed ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '**strong',
+        },
+      ] satisfies TextBody[];
+      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+    });
+
+    test('closed style between two unclosed markers', () => {
+      const input = '_unclosed **bold** `also unclosed';
+      const expected = [
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '_unclosed ',
+        },
+        {
+          type: 'textBody',
+          style: 'strong',
+          value: 'bold',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: ' ',
+        },
+        {
+          type: 'textBody',
+          style: 'plain',
+          value: '`also unclosed',
         },
       ] satisfies TextBody[];
       expect(parseTextBodyStyleV2(input)).toEqual(expected);
