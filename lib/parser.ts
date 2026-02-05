@@ -190,11 +190,14 @@ type TextBodyParseResult = {
 const lookupUntilClose = (
   input: string,
   regularPattern: RegExp,
-  unclosedPattern: RegExp,
+  unclosedPattern: RegExp | null,
   style: TextBodyStyle,
 ) => {
   const match = input.match(regularPattern);
   if (!match) {
+    if (!unclosedPattern) {
+      throw new Error();
+    }
     const unclosedMatch = input.match(unclosedPattern);
     if (!unclosedMatch) {
       throw new Error();
@@ -227,7 +230,8 @@ const unclosedPattern = {
   underscoreItalic: /^_{1}([^_]+)$/,
   code: /^`([^`]+)$/,
   strong: /^\*\*((?:(?!\*\*).)*?)$/,
-} as const satisfies Record<Exclude<RawStyle, 'plain'>, RegExp>;
+  plain: null,
+} as const satisfies Record<RawStyle, RegExp | null>;
 
 export const parseTextBodyStyleV2 = (input: string | undefined): TextBody[] => {
   if (!input) {
@@ -239,24 +243,13 @@ export const parseTextBodyStyleV2 = (input: string | undefined): TextBody[] => {
     case 'underscoreItalic':
     case 'code':
     case 'strong':
+    case 'plain': {
       const { result, rest } = lookupUntilClose(
         input,
         regularPattern[headSymbol],
         unclosedPattern[headSymbol],
         convertRawStyleToTextBodyStyle(headSymbol),
       );
-      return [result, ...parseTextBodyStyleV2(rest)];
-    case 'plain': {
-      const match = input.match(/^([^*_`]+)([\s\S]*)$/);
-      if (!match) {
-        throw new Error();
-      }
-      const [, value, rest] = match;
-      const result = {
-        type: 'textBody',
-        value,
-        style: 'plain',
-      } satisfies TextBody;
       return [result, ...parseTextBodyStyleV2(rest)];
     }
     default:
