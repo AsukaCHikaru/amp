@@ -1,11 +1,11 @@
 import type { TextBody } from '../dist';
-import { parseTextBodyStyleV2 } from '../lib/parser';
+import { parseTextBodyStyle } from '../lib/parser';
 import { describe, expect, test } from 'vitest';
 
 describe('parseTextBodyStyleV2', () => {
   // Empty input
   test('returns empty array for empty string', () => {
-    expect(parseTextBodyStyleV2('')).toEqual([]);
+    expect(parseTextBodyStyle('')).toEqual([]);
   });
 
   describe('Plain', () => {
@@ -18,7 +18,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'plaintext',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
     test('plain with space', () => {
       const input = 'plain text';
@@ -29,7 +29,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'plain text',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
   });
 
@@ -43,7 +43,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'strong',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('strong at start', () => {
@@ -60,7 +60,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' text follows',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('strong in middle', () => {
@@ -82,7 +82,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' in the middle',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('strong at end', () => {
@@ -99,7 +99,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'strong',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('strong with multiple words', () => {
@@ -111,7 +111,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'multiple words in strong',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
   });
 
@@ -125,7 +125,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'italic',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('italic at start', () => {
@@ -142,7 +142,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' text follows',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('italic in middle', () => {
@@ -164,7 +164,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' in the middle',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('italic at end', () => {
@@ -181,7 +181,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'italic',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('italic with multiple words', () => {
@@ -193,7 +193,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'multiple words in italic',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
   });
 
@@ -207,7 +207,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'italic',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('italic at start', () => {
@@ -224,7 +224,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' text follows',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('italic in middle', () => {
@@ -246,7 +246,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' in the middle',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('italic at end', () => {
@@ -263,7 +263,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'italic',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('italic with multiple words', () => {
@@ -275,7 +275,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'multiple words in italic',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
   });
 
@@ -289,7 +289,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'code',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code at start', () => {
@@ -306,7 +306,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' text follows',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code in middle', () => {
@@ -328,7 +328,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' in the middle',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code at end', () => {
@@ -345,7 +345,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'code',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with multiple words', () => {
@@ -357,7 +357,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'const x = function() { return true; }',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
   });
 
@@ -371,7 +371,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'text_with_underscore',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with asterisks inside', () => {
@@ -383,7 +383,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'text*with*asterisks',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with double asterisks inside (not bold)', () => {
@@ -395,7 +395,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '**not bold**',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with underscores inside (not italic)', () => {
@@ -407,7 +407,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '_not italic_',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with HTML tags', () => {
@@ -419,7 +419,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '<div>',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with single space', () => {
@@ -431,7 +431,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' ',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with multiple spaces', () => {
@@ -443,7 +443,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'code with   spaces',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
   });
 
@@ -487,7 +487,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' text',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('styled at start, middle, and end', () => {
@@ -525,7 +525,7 @@ describe('parseTextBodyStyleV2', () => {
           value: ' at the end',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code between italic (underscores)', () => {
@@ -557,7 +557,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'italic',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code between strong', () => {
@@ -589,7 +589,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'bold',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code adjacent to italic without spaces', () => {
@@ -611,7 +611,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'italic',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('multiple code spans with plain text and italic', () => {
@@ -643,7 +643,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'c',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with underscores surrounded by italic', () => {
@@ -680,7 +680,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'context',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('code with mixed markdown syntax inside', () => {
@@ -692,7 +692,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '**bold** and _italic_ and [link](url)',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
   });
 
@@ -711,7 +711,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '**unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('unclosed italic (asterisk) is cut at end', () => {
@@ -728,7 +728,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '*unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('unclosed italic (underscore) is cut at end', () => {
@@ -745,7 +745,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '_unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('unclosed code is cut at end', () => {
@@ -762,7 +762,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '`unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('unclosed marker at the very start', () => {
@@ -774,7 +774,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '**unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('unclosed strong cut at next unclosed italic', () => {
@@ -791,7 +791,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '_also unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('unclosed italic cut at next unclosed code', () => {
@@ -808,7 +808,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '`also unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('three different unclosed markers each cut at next', () => {
@@ -830,7 +830,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '`three',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('closed style followed by different unclosed marker', () => {
@@ -852,7 +852,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '_unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('different unclosed marker followed by closed style', () => {
@@ -869,7 +869,7 @@ describe('parseTextBodyStyleV2', () => {
           value: 'bold',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('unclosed underscore cut at next unclosed strong', () => {
@@ -886,7 +886,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '**strong',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
 
     test('closed style between two unclosed markers', () => {
@@ -913,7 +913,7 @@ describe('parseTextBodyStyleV2', () => {
           value: '`also unclosed',
         },
       ] satisfies TextBody[];
-      expect(parseTextBodyStyleV2(input)).toEqual(expected);
+      expect(parseTextBodyStyle(input)).toEqual(expected);
     });
   });
 });
