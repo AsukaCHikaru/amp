@@ -187,102 +187,82 @@ type TextBodyParseResult = {
   } | null;
   result: TextBody[];
 };
-export const parseTextBodyStyleV2 = (input: string): TextBody[] => {
+const lookupUntilClose = (
+  input: string,
+  regularPattern: RegExp,
+  unclosedPattern: RegExp,
+  style: TextBodyStyle,
+) => {
+  const match = input.match(regularPattern);
+  if (!match) {
+    const unclosedMatch = input.match(unclosedPattern);
+    if (!unclosedMatch) {
+      throw new Error();
+    }
+    const [value] = unclosedMatch;
+    const result = {
+      type: 'textBody',
+      value,
+      style: 'plain',
+    } satisfies TextBody;
+    return { result };
+  }
+  const [, value, rest] = match;
+  const result = {
+    type: 'textBody',
+    value,
+    style,
+  } satisfies TextBody;
+  return { result, rest };
+};
+export const parseTextBodyStyleV2 = (input: string | undefined): TextBody[] => {
   if (!input) {
     return [];
   }
   const headSymbol = checkHeadSymbol(input);
   switch (headSymbol) {
     case 'asteriskItalic': {
-      const match = input.match(/^\*{1}([^\*]+)\*{1}([\s\S]*)/);
-      if (!match) {
-        const unclosedMatch = input.match(/^\*{1}([^*]+)$/);
-        if (!unclosedMatch) {
-          throw new Error();
-        }
-        const [value] = unclosedMatch;
-        const result = {
-          type: 'textBody',
-          value,
-          style: 'plain',
-        } satisfies TextBody;
-        return [result];
-      }
-      const [, value, rest] = match;
-      const result = {
-        type: 'textBody',
-        value,
-        style: 'italic',
-      } satisfies TextBody;
+      const regularPattern = /^\*{1}([^\*]+)\*{1}([\s\S]*)/;
+      const unclosedPattern = /^\*{1}([^*]+)$/;
+      const { result, rest } = lookupUntilClose(
+        input,
+        regularPattern,
+        unclosedPattern,
+        'italic',
+      );
       return [result, ...parseTextBodyStyleV2(rest)];
     }
     case 'underscoreItalic': {
-      const match = input.match(/^_{1}([^_]+)_{1}([\s\S]*)/);
-      if (!match) {
-        const unclosedMatch = input.match(/^_{1}([^_]+)$/);
-        if (!unclosedMatch) {
-          throw new Error();
-        }
-        const [value] = unclosedMatch;
-        const result = {
-          type: 'textBody',
-          value,
-          style: 'plain',
-        } satisfies TextBody;
-        return [result];
-      }
-      const [, value, rest] = match;
-      const result = {
-        type: 'textBody',
-        value,
-        style: 'italic',
-      } satisfies TextBody;
+      const regularPattern = /^_{1}([^_]+)_{1}([\s\S]*)/;
+      const unclosedPattern = /^_{1}([^_]+)$/;
+      const { result, rest } = lookupUntilClose(
+        input,
+        regularPattern,
+        unclosedPattern,
+        'italic',
+      );
       return [result, ...parseTextBodyStyleV2(rest)];
     }
     case 'code': {
-      const match = input.match(/^`([^`]+)`([\s\S]*)/);
-      if (!match) {
-        const unclosedMatch = input.match(/^`([^`]+)$/);
-        if (!unclosedMatch) {
-          throw new Error();
-        }
-        const [value] = unclosedMatch;
-        const result = {
-          type: 'textBody',
-          value,
-          style: 'plain',
-        } satisfies TextBody;
-        return [result];
-      }
-      const [, value, rest] = match;
-      const result = {
-        type: 'textBody',
-        value,
-        style: 'code',
-      } satisfies TextBody;
+      const regularPattern = /^`([^`]+)`([\s\S]*)/;
+      const unclosedPattern = /^`([^`]+)$/;
+      const { result, rest } = lookupUntilClose(
+        input,
+        regularPattern,
+        unclosedPattern,
+        'code',
+      );
       return [result, ...parseTextBodyStyleV2(rest)];
     }
     case 'strong': {
-      const match = input.match(/^\*{2}([^*]+)\*{2}([\s\S]*)/);
-      if (!match) {
-        const unclosedMatch = input.match(/^\*\*((?:(?!\*\*).)*?)$/);
-        if (!unclosedMatch) {
-          throw new Error();
-        }
-        const [value] = unclosedMatch;
-        const result = {
-          type: 'textBody',
-          value,
-          style: 'plain',
-        } satisfies TextBody;
-        return [result];
-      }
-      const [, value, rest] = match;
-      const result = {
-        type: 'textBody',
-        value,
-        style: 'strong',
-      } satisfies TextBody;
+      const regularPattern = /^\*{2}([^*]+)\*{2}([\s\S]*)/;
+      const unclosedPattern = /^\*\*((?:(?!\*\*).)*?)$/;
+      const { result, rest } = lookupUntilClose(
+        input,
+        regularPattern,
+        unclosedPattern,
+        'strong',
+      );
       return [result, ...parseTextBodyStyleV2(rest)];
     }
     case 'plain': {
