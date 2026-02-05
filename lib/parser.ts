@@ -148,160 +148,106 @@ export const parseParagraphBlock = (input: string): ParagraphBlock => ({
 export const parseTextBody = (input: string): (TextBody | Link)[] => {
   const linkParsedTextList = parseLinkInText(input);
   return linkParsedTextList
-    .map((item) =>
-      typeof item === 'string'
-        ? parseTextBodyStyle({
-            text: item,
-            progress: null,
-            result: [],
-          }).result
-        : item,
-    )
+    .map((item) => (typeof item === 'string' ? parseTextBodyStyle(item) : item))
     .flat();
 };
 
-type TextBodyParseResult = {
-  text: string;
-  progress: { style: TextBodyStyle; text: string } | null;
-  result: TextBody[];
-};
-export const parseTextBodyStyle = ({
-  text,
-  progress,
-  result,
-}: TextBodyParseResult): TextBodyParseResult => {
-  if (text.length === 0) {
-    // TODO: improve this part
-    if (
-      progress &&
-      progress.style !== 'plain' &&
-      result[result.length - 1].style === 'plain'
-    ) {
-      const mark =
-        progress.style === 'code'
-          ? '`'
-          : progress.style === 'strong'
-            ? '**'
-            : '_';
-      return {
-        text,
-        result: [
-          ...result.slice(0, -1),
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: result[result.length - 1].value + mark + progress.text,
-          },
-        ],
-        progress: null,
-      };
-    }
-
-    return {
-      text,
-      result: progress
-        ? [
-            ...result,
-            {
-              type: 'textBody',
-              style: progress.style,
-              value: progress.text,
-            },
-          ]
-        : result,
-      progress: null,
-    };
-  }
-
-  const { style: headStyle, text: headText } = checkHeadStyle(text);
-  const progressStyle = progress?.style;
-  const first = headText[0];
-  const rest = headText.slice(1);
-
-  switch (progressStyle) {
-    case undefined:
-      return parseTextBodyStyle({
-        text: rest,
-        progress: { style: headStyle, text: first },
-        result,
-      });
-    case 'plain':
-      switch (headStyle) {
-        case 'plain':
-          return parseTextBodyStyle({
-            text: rest,
-            progress: { style: 'plain', text: (progress?.text ?? '') + first },
-            result,
-          });
-        case 'code':
-        case 'italic':
-        case 'strong':
-          return parseTextBodyStyle({
-            text: rest,
-            progress: { style: headStyle, text: first },
-            result: progress
-              ? [
-                  ...result,
-                  {
-                    type: 'textBody',
-                    style: progressStyle,
-                    value: progress.text,
-                  },
-                ]
-              : result,
-          });
-        default:
-          throw new Error(`Unexpected style: ${headStyle satisfies never}`);
-      }
+type RawStyle =
+  | 'plain'
+  | 'strong'
+  | 'code'
+  | 'asteriskItalic'
+  | 'underscoreItalic';
+const convertRawStyleToTextBodyStyle = (style: RawStyle): TextBodyStyle => {
+  switch (style) {
+    case 'asteriskItalic':
+    case 'underscoreItalic':
+      return 'italic';
     case 'code':
-    case 'italic':
+    case 'plain':
     case 'strong':
-      if (headStyle === progressStyle) {
-        return parseTextBodyStyle({
-          text: headText,
-          progress: null,
-          result: [
-            ...result,
-            {
-              type: 'textBody',
-              style: progressStyle,
-              value: progress?.text ?? '',
-            },
-          ],
-        });
-      }
-      return parseTextBodyStyle({
-        text: rest,
-        progress: {
-          style: progressStyle,
-          text: (progress?.text ?? '') + first,
-        },
-        result,
-      });
+      return style;
     default:
-      throw new Error(`Unexpected style: ${progressStyle satisfies never}`);
+      throw new Error(`Unknown style ${style satisfies never}`);
   }
 };
+const lookupUntilClose = (
+  input: string,
+  regularPattern: RegExp,
+  unclosedPattern: RegExp | null,
+  style: TextBodyStyle,
+) => {
+  const match = input.match(regularPattern);
+  if (!match) {
+    if (!unclosedPattern) {
+      throw new Error(
+        `Regular pattern not matched for style ${style} and unclosed pattern unknown`,
+      );
+    }
+    const unclosedMatch = input.match(unclosedPattern);
+    if (!unclosedMatch) {
+      throw new Error(
+        `Regular pattern and unclosed pattern not matched for style ${style}`,
+      );
+    }
+    const [, value, rest] = unclosedMatch;
+    const result = {
+      type: 'textBody',
+      value,
+      style: 'plain',
+    } satisfies TextBody;
+    return { result, rest };
+  }
+  const [, value, rest] = match;
+  const result = {
+    type: 'textBody',
+    value,
+    style,
+  } satisfies TextBody;
+  return { result, rest };
+};
+const regularPattern = {
+  asteriskItalic: /^\*{1}([^\*_`]+)\*{1}([\s\S]*)/,
+  underscoreItalic: /^_{1}([^\*_`]+)_{1}([\s\S]*)/,
+  code: /^`([^`]+)`([\s\S]*)/,
+  strong: /^\*{2}([^\*_`]+)\*{2}([\s\S]*)/,
+  plain: /^([^*_`]+)([\s\S]*)$/,
+} as const satisfies Record<RawStyle, RegExp>;
+const unclosedPattern = {
+  asteriskItalic: /^(\*{1}[^\*_`]+?)([\*_`][\s\S]+)*$/,
+  underscoreItalic: /^(_{1}[^\*_`]+?)([\*_`][\s\S]+)*$/,
+  code: /^(`[^`]+)$/,
+  strong: /^(\*{2}[^\*_`]+?)([\*_`][\s\S]+)*$/,
+  plain: null,
+} as const satisfies Record<RawStyle, RegExp | null>;
 
-const checkHeadStyle = (
-  text: string,
-): {
-  style: TextBodyStyle;
-  text: string;
-} => {
-  if (/^\*{2}/.test(text)) {
-    return { style: 'strong', text: text.slice(2) };
+export const parseTextBodyStyle = (input: string | undefined): TextBody[] => {
+  if (!input) {
+    return [];
   }
-  if (/^\*{1}/.test(text)) {
-    return { style: 'italic', text: text.slice(1) };
+  const headSymbol = checkHeadSymbol(input);
+  const { result, rest } = lookupUntilClose(
+    input,
+    regularPattern[headSymbol],
+    unclosedPattern[headSymbol],
+    convertRawStyleToTextBodyStyle(headSymbol),
+  );
+  return [result, ...parseTextBodyStyle(rest)];
+};
+export const checkHeadSymbol = (input: string): RawStyle => {
+  if (/^\*{2}/.test(input)) {
+    return 'strong';
   }
-  if (/^_{1}/.test(text)) {
-    return { style: 'italic', text: text.slice(1) };
+  if (/^\*{1}/.test(input)) {
+    return 'asteriskItalic';
   }
-  if (/^`{1}/.test(text)) {
-    return { style: 'code', text: text.slice(1) };
+  if (/^_{1}/.test(input)) {
+    return 'underscoreItalic';
   }
-  return { style: 'plain', text };
+  if (/^`{1}/.test(input)) {
+    return 'code';
+  }
+  return 'plain';
 };
 
 export const parseLinkInText = (input: string): (string | Link)[] => {
@@ -312,11 +258,7 @@ export const parseLinkInText = (input: string): (string | Link)[] => {
   }
 
   const [link] = linkMatch;
-  const body = parseTextBodyStyle({
-    text: link.match(/\[(.+)\]/)?.[1] ?? '',
-    progress: null,
-    result: [],
-  }).result;
+  const body = parseTextBodyStyle(link.match(/\[(.+)\]/)?.[1] ?? '');
   const url = link.match(/\((.+)\)/)?.[1] ?? '';
   const linkBlock = {
     type: 'link',
