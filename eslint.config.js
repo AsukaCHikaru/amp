@@ -11,5 +11,11 @@ export default tseslint.config(
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      '@typescript-eslint/no-empty-object-type': [
+        'error',
+        { allowObjectTypes: 'always' },
+      ],
+    },
   },
 );
