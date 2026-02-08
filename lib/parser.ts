@@ -250,6 +250,66 @@ export const checkHeadSymbol = (input: string): RawStyle => {
   return 'plain';
 };
 
+export const mergeSameTypeTextBody = (
+  input: (TextBody | Link)[],
+): (TextBody | Link)[] => {
+  let index = 0;
+  let mergeValue = '';
+  const result: (TextBody | Link)[] = [];
+
+  while (index < input.length) {
+    const current = input[index];
+    const next = input[index + 1];
+    index += 1;
+
+    if (!next) {
+      result.push(
+        current.type === 'link'
+          ? {
+              type: 'link',
+              body: mergeSameTypeTextBody(current.body) as TextBody[],
+              url: current.url,
+            }
+          : {
+              type: 'textBody',
+              style: current.style,
+              value: mergeValue + current.value,
+            },
+      );
+      break;
+    }
+    if (current.type === 'link' || next.type === 'link') {
+      result.push(
+        current.type === 'link'
+          ? {
+              type: 'link',
+              body: mergeSameTypeTextBody(current.body) as TextBody[],
+              url: current.url,
+            }
+          : {
+              type: 'textBody',
+              style: current.style,
+              value: mergeValue + current.value,
+            },
+      );
+      mergeValue = '';
+      continue;
+    }
+    if (current.style !== next.style) {
+      result.push({
+        type: 'textBody',
+        style: current.style,
+        value: mergeValue + current.value,
+      });
+      mergeValue = '';
+    } else {
+      mergeValue += current.value;
+    }
+  }
+
+  return result;
+};
+
 export const parseLinkInText = (input: string): (string | Link)[] => {
   const linkMatch = input.match(linkRegexp);
 
