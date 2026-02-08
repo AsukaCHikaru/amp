@@ -15,7 +15,8 @@
   "scripts": {
     "build": "bun run build.ts",
     "test": "bun test",
-    "format:check": "prettier -c ."
+    "format:check": "prettier -c .",
+    "lint": "eslint"
   },
   "keywords": [
     "markdown",
@@ -24,9 +25,11 @@
     "bun"
   ],
   "devDependencies": {
+    "@eslint/js": "^9.22.0",
     "@types/bun": "latest",
     "eslint": "^9.22.0",
     "prettier": "^3.5.3",
+    "typescript-eslint": "^8.54.0",
     "vitest": "^3.2.4"
   },
   "author": {
