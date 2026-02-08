@@ -251,28 +251,26 @@ export const checkHeadSymbol = (input: string): RawStyle => {
 };
 
 export const mergeSameTypeTextBody = (input: TextBody[]): TextBody[] => {
-  let index = 0;
-  let mergeValue = '';
-  const result: TextBody[] = [];
-
-  while (index < input.length) {
-    const current = input[index];
-    const next = input[index + 1];
-    index += 1;
-
-    if (!next || current.style !== next.style) {
-      result.push({
-        type: 'textBody',
-        style: current.style,
-        value: mergeValue + current.value,
-      });
-      mergeValue = '';
-    } else {
-      mergeValue += current.value;
-    }
+  if (input.length <= 1) {
+    return input;
   }
+  const [first] = input;
+  const cutIndex = input.find((item) => item.style !== first.style)
+    ? input.findIndex((item) => item.style !== first.style)
+    : input.length;
+  const mergedValue = input
+    .slice(0, cutIndex)
+    .map(({ value }) => value)
+    .join('');
 
-  return result;
+  return [
+    {
+      type: 'textBody',
+      style: first.style,
+      value: mergedValue,
+    },
+    ...mergeSameTypeTextBody(input.slice(cutIndex)),
+  ];
 };
 
 export const parseLinkInText = (input: string): (string | Link)[] => {
