@@ -169,7 +169,7 @@ Content`;
   it('should handle quotes in frontmatter values', () => {
     const input = `---
 title: "Title with quotes"
-description: 'Description with "quotes" and \'apostrophes\''
+description: 'Description with "quotes" and 'apostrophes''
 ---`;
     const result = parseFrontmatter(input);
     expect(result).toEqual({
