@@ -260,15 +260,7 @@ export const mergeSameTypeTextBody = (input: TextBody[]): TextBody[] => {
     const next = input[index + 1];
     index += 1;
 
-    if (!next) {
-      result.push({
-        type: 'textBody',
-        style: current.style,
-        value: mergeValue + current.value,
-      });
-      break;
-    }
-    if (current.style !== next.style) {
+    if (!next || current.style !== next.style) {
       result.push({
         type: 'textBody',
         style: current.style,
