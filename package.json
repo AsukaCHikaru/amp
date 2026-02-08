@@ -14,7 +14,8 @@
   ],
   "scripts": {
     "build": "bun run build.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "format:check": "prettier -c ."
   },
   "keywords": [
     "markdown",
