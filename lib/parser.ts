@@ -150,7 +150,11 @@ export const parseParagraphBlock = (input: string): ParagraphBlock => ({
 export const parseTextBody = (input: string): (TextBody | Link)[] => {
   const linkParsedTextList = parseLinkInText(input);
   return linkParsedTextList
-    .map((item) => (typeof item === 'string' ? parseTextBodyStyle(item) : item))
+    .map((item) =>
+      typeof item === 'string'
+        ? mergeSameTypeTextBody(parseTextBodyStyle(item))
+        : item,
+    )
     .flat();
 };
 
@@ -252,6 +256,29 @@ export const checkHeadSymbol = (input: string): RawStyle => {
   return 'plain';
 };
 
+export const mergeSameTypeTextBody = (input: TextBody[]): TextBody[] => {
+  if (input.length <= 1) {
+    return input;
+  }
+  const [first] = input;
+  const cutIndex = input.find((item) => item.style !== first.style)
+    ? input.findIndex((item) => item.style !== first.style)
+    : input.length;
+  const mergedValue = input
+    .slice(0, cutIndex)
+    .map(({ value }) => value)
+    .join('');
+
+  return [
+    {
+      type: 'textBody',
+      style: first.style,
+      value: mergedValue,
+    },
+    ...mergeSameTypeTextBody(input.slice(cutIndex)),
+  ];
+};
+
 export const parseLinkInText = (input: string): (string | Link)[] => {
   const linkMatch = input.match(linkRegexp);
 
@@ -260,7 +287,9 @@ export const parseLinkInText = (input: string): (string | Link)[] => {
   }
 
   const [link] = linkMatch;
-  const body = parseTextBodyStyle(link.match(/\[(.+)\]/)?.[1] ?? '');
+  const body = mergeSameTypeTextBody(
+    parseTextBodyStyle(link.match(/\[(.+)\]/)?.[1] ?? ''),
+  );
   const url = link.match(/\((.+)\)/)?.[1] ?? '';
   const linkBlock = {
     type: 'link',
