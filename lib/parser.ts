@@ -250,12 +250,10 @@ export const checkHeadSymbol = (input: string): RawStyle => {
   return 'plain';
 };
 
-export const mergeSameTypeTextBody = (
-  input: (TextBody | Link)[],
-): (TextBody | Link)[] => {
+export const mergeSameTypeTextBody = (input: TextBody[]): TextBody[] => {
   let index = 0;
   let mergeValue = '';
-  const result: (TextBody | Link)[] = [];
+  const result: TextBody[] = [];
 
   while (index < input.length) {
     const current = input[index];
@@ -263,37 +261,12 @@ export const mergeSameTypeTextBody = (
     index += 1;
 
     if (!next) {
-      result.push(
-        current.type === 'link'
-          ? {
-              type: 'link',
-              body: mergeSameTypeTextBody(current.body) as TextBody[],
-              url: current.url,
-            }
-          : {
-              type: 'textBody',
-              style: current.style,
-              value: mergeValue + current.value,
-            },
-      );
+      result.push({
+        type: 'textBody',
+        style: current.style,
+        value: mergeValue + current.value,
+      });
       break;
-    }
-    if (current.type === 'link' || next.type === 'link') {
-      result.push(
-        current.type === 'link'
-          ? {
-              type: 'link',
-              body: mergeSameTypeTextBody(current.body) as TextBody[],
-              url: current.url,
-            }
-          : {
-              type: 'textBody',
-              style: current.style,
-              value: mergeValue + current.value,
-            },
-      );
-      mergeValue = '';
-      continue;
     }
     if (current.style !== next.style) {
       result.push({

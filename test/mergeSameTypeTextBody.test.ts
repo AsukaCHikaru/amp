@@ -1,12 +1,12 @@
-import type { Link, TextBody } from '../dist';
+import type { TextBody } from '../dist';
 import { mergeSameTypeTextBody } from '../lib/parser';
 import { describe, expect, test } from 'vitest';
 
 describe('mergeSameTypeTextBody', () => {
   // 1. Empty input
   test('returns empty array for empty input', () => {
-    const input = [] satisfies (TextBody | Link)[];
-    const expected = [] satisfies (TextBody | Link)[];
+    const input = [] satisfies TextBody[];
+    const expected = [] satisfies TextBody[];
     expect(mergeSameTypeTextBody(input)).toEqual(expected);
   });
 
@@ -29,38 +29,7 @@ describe('mergeSameTypeTextBody', () => {
     expect(mergeSameTypeTextBody(input)).toEqual(expected);
   });
 
-  // 3. Single Link element
-  test('returns single Link element unchanged', () => {
-    const input = [
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'link text',
-          },
-        ],
-        url: 'https://example.com',
-      },
-    ] satisfies Link[];
-    const expected = [
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'link text',
-          },
-        ],
-        url: 'https://example.com',
-      },
-    ] satisfies Link[];
-    expect(mergeSameTypeTextBody(input)).toEqual(expected);
-  });
-
-  // 4. No adjacent same-style TextBody
+  // 3. No adjacent same-style TextBody
   test('returns array unchanged when no adjacent TextBody share the same style', () => {
     const input = [
       {
@@ -99,7 +68,7 @@ describe('mergeSameTypeTextBody', () => {
     expect(mergeSameTypeTextBody(input)).toEqual(expected);
   });
 
-  // 5. Two consecutive same-style TextBody
+  // 4. Two consecutive same-style TextBody
   test('merges two consecutive TextBody with the same style', () => {
     const input = [
       {
@@ -123,7 +92,7 @@ describe('mergeSameTypeTextBody', () => {
     expect(mergeSameTypeTextBody(input)).toEqual(expected);
   });
 
-  // 6. Three or more consecutive same-style
+  // 5. Three or more consecutive same-style
   test('merges three or more consecutive TextBody with the same style', () => {
     const input = [
       {
@@ -152,7 +121,7 @@ describe('mergeSameTypeTextBody', () => {
     expect(mergeSameTypeTextBody(input)).toEqual(expected);
   });
 
-  // 7. Multiple groups of same-style merged independently
+  // 6. Multiple groups of same-style merged independently
   test('merges multiple groups of same-style TextBody independently', () => {
     const input = [
       {
@@ -203,329 +172,6 @@ describe('mergeSameTypeTextBody', () => {
         value: 'ef',
       },
     ] satisfies TextBody[];
-    expect(mergeSameTypeTextBody(input)).toEqual(expected);
-  });
-
-  // 8. Link between two same-style TextBody prevents merging
-  test('does not merge same-style TextBody across a Link', () => {
-    const input = [
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'before',
-      },
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'link',
-          },
-        ],
-        url: 'https://example.com',
-      },
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'after',
-      },
-    ] satisfies (TextBody | Link)[];
-    const expected = [
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'before',
-      },
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'link',
-          },
-        ],
-        url: 'https://example.com',
-      },
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'after',
-      },
-    ] satisfies (TextBody | Link)[];
-    expect(mergeSameTypeTextBody(input)).toEqual(expected);
-  });
-
-  // 9. Multiple Links in a row preserved separately
-  test('preserves multiple consecutive Links separately', () => {
-    const input = [
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'first',
-          },
-        ],
-        url: 'https://example.com',
-      },
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'second',
-          },
-        ],
-        url: 'https://example.org',
-      },
-    ] satisfies Link[];
-    const expected = [
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'first',
-          },
-        ],
-        url: 'https://example.com',
-      },
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'second',
-          },
-        ],
-        url: 'https://example.org',
-      },
-    ] satisfies Link[];
-    expect(mergeSameTypeTextBody(input)).toEqual(expected);
-  });
-
-  // 10. Link body with consecutive same-style TextBody gets merged
-  test('merges consecutive same-style TextBody inside Link body', () => {
-    const input = [
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'hello',
-          },
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: ' world',
-          },
-        ],
-        url: 'https://example.com',
-      },
-    ] satisfies (TextBody | Link)[];
-    const expected = [
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'hello world',
-          },
-        ],
-        url: 'https://example.com',
-      },
-    ] satisfies (TextBody | Link)[];
-    expect(mergeSameTypeTextBody(input)).toEqual(expected);
-  });
-
-  // 11. Link body with different-style TextBody stays unchanged
-  test('does not merge different-style TextBody inside Link body', () => {
-    const input = [
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'strong',
-            value: 'bold',
-          },
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: ' text',
-          },
-        ],
-        url: 'https://example.com',
-      },
-    ] satisfies (TextBody | Link)[];
-    const expected = [
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'strong',
-            value: 'bold',
-          },
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: ' text',
-          },
-        ],
-        url: 'https://example.com',
-      },
-    ] satisfies (TextBody | Link)[];
-    expect(mergeSameTypeTextBody(input)).toEqual(expected);
-  });
-
-  // 12. Link body merge combined with top-level merge
-  test('merges both Link body TextBody and top-level TextBody', () => {
-    const input = [
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'before',
-      },
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: ' link',
-      },
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'italic',
-            value: 'a',
-          },
-          {
-            type: 'textBody',
-            style: 'italic',
-            value: 'b',
-          },
-        ],
-        url: 'https://example.com',
-      },
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: ' after',
-      },
-    ] satisfies (TextBody | Link)[];
-    const expected = [
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'before link',
-      },
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'italic',
-            value: 'ab',
-          },
-        ],
-        url: 'https://example.com',
-      },
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: ' after',
-      },
-    ] satisfies (TextBody | Link)[];
-    expect(mergeSameTypeTextBody(input)).toEqual(expected);
-  });
-
-  // 13. Mixed TextBody and Link complex scenario
-  test('handles mixed TextBody and Link in a complex scenario', () => {
-    const input = [
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'start ',
-      },
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'continue ',
-      },
-      {
-        type: 'textBody',
-        style: 'strong',
-        value: 'bold',
-      },
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'link',
-          },
-        ],
-        url: 'https://example.com',
-      },
-      {
-        type: 'textBody',
-        style: 'italic',
-        value: 'ital',
-      },
-      {
-        type: 'textBody',
-        style: 'italic',
-        value: 'ic',
-      },
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: ' end',
-      },
-    ] satisfies (TextBody | Link)[];
-    const expected = [
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: 'start continue ',
-      },
-      {
-        type: 'textBody',
-        style: 'strong',
-        value: 'bold',
-      },
-      {
-        type: 'link',
-        body: [
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: 'link',
-          },
-        ],
-        url: 'https://example.com',
-      },
-      {
-        type: 'textBody',
-        style: 'italic',
-        value: 'italic',
-      },
-      {
-        type: 'textBody',
-        style: 'plain',
-        value: ' end',
-      },
-    ] satisfies (TextBody | Link)[];
     expect(mergeSameTypeTextBody(input)).toEqual(expected);
   });
 });
