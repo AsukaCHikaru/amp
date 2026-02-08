@@ -148,7 +148,11 @@ export const parseParagraphBlock = (input: string): ParagraphBlock => ({
 export const parseTextBody = (input: string): (TextBody | Link)[] => {
   const linkParsedTextList = parseLinkInText(input);
   return linkParsedTextList
-    .map((item) => (typeof item === 'string' ? parseTextBodyStyle(item) : item))
+    .map((item) =>
+      typeof item === 'string'
+        ? mergeSameTypeTextBody(parseTextBodyStyle(item))
+        : item,
+    )
     .flat();
 };
 
@@ -281,7 +285,9 @@ export const parseLinkInText = (input: string): (string | Link)[] => {
   }
 
   const [link] = linkMatch;
-  const body = parseTextBodyStyle(link.match(/\[(.+)\]/)?.[1] ?? '');
+  const body = mergeSameTypeTextBody(
+    parseTextBodyStyle(link.match(/\[(.+)\]/)?.[1] ?? ''),
+  );
   const url = link.match(/\((.+)\)/)?.[1] ?? '';
   const linkBlock = {
     type: 'link',

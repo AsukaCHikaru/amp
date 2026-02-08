@@ -242,12 +242,7 @@ describe('parseTextBody', () => {
           {
             type: 'textBody',
             style: 'plain',
-            value: 'link',
-          },
-          {
-            type: 'textBody',
-            style: 'plain',
-            value: '_underscore',
+            value: 'link_underscore',
           },
         ],
         url: 'https://example.com',
