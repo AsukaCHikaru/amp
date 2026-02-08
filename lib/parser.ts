@@ -19,6 +19,8 @@ type RegexpToParserPair<C extends CustomBlock<string, {}> = never> = [
 ];
 
 export class Amp<C extends CustomBlock<string, {}> = never> {
+  // This any is intentional
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   #regexpToParserPairs: RegexpToParserPair<any>[] = [];
 
   constructor() {
@@ -97,7 +99,7 @@ export const parseFrontmatter = (input: string): Record<string, string> => {
     if (!match) {
       continue;
     }
-    const [_, key, value] = match;
+    const [, key, value] = match;
     if (!key || !value) {
       continue;
     }
@@ -207,17 +209,17 @@ const lookupUntilClose = (
   return { result, rest };
 };
 const regularPattern = {
-  asteriskItalic: /^\*{1}([^\*_`]+)\*{1}([\s\S]*)/,
-  underscoreItalic: /^_{1}([^\*_`]+)_{1}([\s\S]*)/,
+  asteriskItalic: /^\*{1}([^*_`]+)\*{1}([\s\S]*)/,
+  underscoreItalic: /^_{1}([^*_`]+)_{1}([\s\S]*)/,
   code: /^`([^`]+)`([\s\S]*)/,
-  strong: /^\*{2}([^\*_`]+)\*{2}([\s\S]*)/,
+  strong: /^\*{2}([^*_`]+)\*{2}([\s\S]*)/,
   plain: /^([^*_`]+)([\s\S]*)$/,
 } as const satisfies Record<RawStyle, RegExp>;
 const unclosedPattern = {
-  asteriskItalic: /^(\*{1}[^\*_`]+?)([\*_`][\s\S]+)*$/,
-  underscoreItalic: /^(_{1}[^\*_`]+?)([\*_`][\s\S]+)*$/,
+  asteriskItalic: /^(\*{1}[^*_`]+?)([*_`][\s\S]+)*$/,
+  underscoreItalic: /^(_{1}[^*_`]+?)([*_`][\s\S]+)*$/,
   code: /^(`[^`]+)$/,
-  strong: /^(\*{2}[^\*_`]+?)([\*_`][\s\S]+)*$/,
+  strong: /^(\*{2}[^*_`]+?)([*_`][\s\S]+)*$/,
   plain: null,
 } as const satisfies Record<RawStyle, RegExp | null>;
 
