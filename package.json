@@ -16,7 +16,9 @@
     "build": "bun run build.ts",
     "test": "bun test",
     "format:check": "prettier -c .",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:rust": "napi build --platform --release",
+    "build:rust:dev": "napi build --platform"
   },
   "keywords": [
     "markdown",
