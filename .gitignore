@@ -142,3 +142,4 @@ dist
 # Rust
 /target
 Cargo.lock
+*.node
