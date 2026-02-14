@@ -1,4 +1,9 @@
+use std::sync::LazyLock;
+
 use regex::Regex;
+
+static SPLIT_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(---\n[\s\S]*?---)\n*").expect("Invalid regex"));
 
 struct SplitResult {
     head: String,
@@ -7,9 +12,8 @@ struct SplitResult {
 
 fn split(input: &str) -> SplitResult {
     let trimmed = input.trim();
-    let pattern = Regex::new(r"^(---\n[\s\S]*?---)\n*").expect("Invalid regex");
 
-    match pattern.captures(trimmed) {
+    match SPLIT_PATTERN.captures(trimmed) {
         Some(captured) => {
             let head = captured.get(1).unwrap().as_str().to_string();
             SplitResult {
