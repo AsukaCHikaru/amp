@@ -1,12 +1,26 @@
+use regex::Regex;
+
 struct SplitResult {
     head: String,
     body: String,
 }
 
 fn split(input: &str) -> SplitResult {
-    SplitResult {
-        head: "head".to_string(),
-        body: "body".to_string(),
+    let trimmed = input.trim();
+    let pattern = Regex::new(r"^(---\n[\s\S]*?---)\n*").expect("Invalid regex");
+
+    match pattern.captures(trimmed) {
+        Some(captured) => {
+            let head = captured.get(1).unwrap().as_str().to_string();
+            SplitResult {
+                body: trimmed[captured.get(0).unwrap().end()..].trim().to_string(),
+                head,
+            }
+        }
+        None => SplitResult {
+            head: "".to_string(),
+            body: input.to_string(),
+        },
     }
 }
 
