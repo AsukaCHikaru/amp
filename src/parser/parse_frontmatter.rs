@@ -4,7 +4,7 @@ use std::{collections::HashMap, sync::LazyLock};
 static FRONTMATTER_PATTERN: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"---\n+([\s\S]+)---").expect("Invalid regex"));
 static LINE_PATTERN: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^(.+?):\s(.+)").expect("Invalid regex"));
+    LazyLock::new(|| Regex::new(r#"^([\s\S]+?):\s?["']?([\s\S]*?)["']?$"#).expect("Invalid regex"));
 
 fn parse_frontmatter(input: &str) -> HashMap<String, String> {
     let mut map = HashMap::new();
@@ -15,13 +15,12 @@ fn parse_frontmatter(input: &str) -> HashMap<String, String> {
             raw_frontmatter
                 .split("\n")
                 .filter(|line| !(line.is_empty()))
-                .map(|line| match LINE_PATTERN.captures(line) {
-                    Some(line_captured) => {
-                        let key = line_captured.get(1).unwrap().as_str().to_string();
-                        let value = line_captured.get(2).unwrap().as_str().to_string();
-                        (key, value)
-                    }
-                    None => ("".to_string(), "".to_string()),
+                .filter_map(|line| {
+                    let line_captured = LINE_PATTERN.captures(line)?;
+                    let key = line_captured.get(1)?.as_str().trim().to_string();
+                    let value = line_captured.get(2)?.as_str().trim().to_string();
+
+                    Some((key, value))
                 })
                 .for_each(|(key, value)| {
                     map.insert(key, value);
