@@ -1,5 +1,6 @@
 .vscode
 .clinerules
+CLAUDE.md
 
 # Logs
 logs
@@ -137,3 +138,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Rust
+/target
+Cargo.lock
+*.node

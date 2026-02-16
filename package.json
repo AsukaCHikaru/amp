@@ -16,7 +16,9 @@
     "build": "bun run build.ts",
     "test": "bun test",
     "format:check": "prettier -c .",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:rust": "napi build --platform --release",
+    "build:rust:dev": "napi build --platform"
   },
   "keywords": [
     "markdown",
@@ -26,6 +28,7 @@
   ],
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@napi-rs/cli": "^3.5.1",
     "@types/bun": "latest",
     "eslint": "^9.22.0",
     "prettier": "^3.5.3",
