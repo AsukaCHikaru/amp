@@ -15,7 +15,7 @@ pub struct TextBody {
     pub value: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Link {
     pub body: Vec<TextBody>,
     pub url: String,
