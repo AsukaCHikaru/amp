@@ -408,4 +408,511 @@ mod tests {
             assert_eq!(result.rest, "");
         }
     }
+
+    mod parse_text_body_style_tests {
+        use super::*;
+
+        fn tb(style: TextBodyStyle, value: &str) -> TextBody {
+            TextBody {
+                style,
+                value: value.to_string(),
+            }
+        }
+
+        // Empty input
+        #[test]
+        fn empty_string_returns_empty_vec() {
+            assert_eq!(parse_text_body_style(""), vec![]);
+        }
+
+        // Plain
+        #[test]
+        fn plain() {
+            assert_eq!(
+                parse_text_body_style("plaintext"),
+                vec![tb(TextBodyStyle::Plain, "plaintext")]
+            );
+        }
+        #[test]
+        fn plain_with_space() {
+            assert_eq!(
+                parse_text_body_style("plain text"),
+                vec![tb(TextBodyStyle::Plain, "plain text")]
+            );
+        }
+
+        // Strong
+        #[test]
+        fn strong_only() {
+            assert_eq!(
+                parse_text_body_style("**strong**"),
+                vec![tb(TextBodyStyle::Strong, "strong")]
+            );
+        }
+        #[test]
+        fn strong_at_start() {
+            assert_eq!(
+                parse_text_body_style("**strong** text follows"),
+                vec![
+                    tb(TextBodyStyle::Strong, "strong"),
+                    tb(TextBodyStyle::Plain, " text follows"),
+                ]
+            );
+        }
+        #[test]
+        fn strong_in_middle() {
+            assert_eq!(
+                parse_text_body_style("text with **strong** in the middle"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text with "),
+                    tb(TextBodyStyle::Strong, "strong"),
+                    tb(TextBodyStyle::Plain, " in the middle"),
+                ]
+            );
+        }
+        #[test]
+        fn strong_at_end() {
+            assert_eq!(
+                parse_text_body_style("text ends with **strong**"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text ends with "),
+                    tb(TextBodyStyle::Strong, "strong"),
+                ]
+            );
+        }
+        #[test]
+        fn strong_with_multiple_words() {
+            assert_eq!(
+                parse_text_body_style("**multiple words in strong**"),
+                vec![tb(TextBodyStyle::Strong, "multiple words in strong")]
+            );
+        }
+
+        // Italic (asterisks)
+        #[test]
+        fn asterisk_italic_only() {
+            assert_eq!(
+                parse_text_body_style("*italic*"),
+                vec![tb(TextBodyStyle::Italic, "italic")]
+            );
+        }
+        #[test]
+        fn asterisk_italic_at_start() {
+            assert_eq!(
+                parse_text_body_style("*italic* text follows"),
+                vec![
+                    tb(TextBodyStyle::Italic, "italic"),
+                    tb(TextBodyStyle::Plain, " text follows"),
+                ]
+            );
+        }
+        #[test]
+        fn asterisk_italic_in_middle() {
+            assert_eq!(
+                parse_text_body_style("text with *italic* in the middle"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text with "),
+                    tb(TextBodyStyle::Italic, "italic"),
+                    tb(TextBodyStyle::Plain, " in the middle"),
+                ]
+            );
+        }
+        #[test]
+        fn asterisk_italic_at_end() {
+            assert_eq!(
+                parse_text_body_style("text ends with *italic*"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text ends with "),
+                    tb(TextBodyStyle::Italic, "italic"),
+                ]
+            );
+        }
+        #[test]
+        fn asterisk_italic_with_multiple_words() {
+            assert_eq!(
+                parse_text_body_style("*multiple words in italic*"),
+                vec![tb(TextBodyStyle::Italic, "multiple words in italic")]
+            );
+        }
+
+        // Italic (underscores)
+        #[test]
+        fn underscore_italic_only() {
+            assert_eq!(
+                parse_text_body_style("_italic_"),
+                vec![tb(TextBodyStyle::Italic, "italic")]
+            );
+        }
+        #[test]
+        fn underscore_italic_at_start() {
+            assert_eq!(
+                parse_text_body_style("_italic_ text follows"),
+                vec![
+                    tb(TextBodyStyle::Italic, "italic"),
+                    tb(TextBodyStyle::Plain, " text follows"),
+                ]
+            );
+        }
+        #[test]
+        fn underscore_italic_in_middle() {
+            assert_eq!(
+                parse_text_body_style("text with _italic_ in the middle"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text with "),
+                    tb(TextBodyStyle::Italic, "italic"),
+                    tb(TextBodyStyle::Plain, " in the middle"),
+                ]
+            );
+        }
+        #[test]
+        fn underscore_italic_at_end() {
+            assert_eq!(
+                parse_text_body_style("text ends with _italic_"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text ends with "),
+                    tb(TextBodyStyle::Italic, "italic"),
+                ]
+            );
+        }
+        #[test]
+        fn underscore_italic_with_multiple_words() {
+            assert_eq!(
+                parse_text_body_style("_multiple words in italic_"),
+                vec![tb(TextBodyStyle::Italic, "multiple words in italic")]
+            );
+        }
+
+        // Code
+        #[test]
+        fn code_only() {
+            assert_eq!(
+                parse_text_body_style("`code`"),
+                vec![tb(TextBodyStyle::Code, "code")]
+            );
+        }
+        #[test]
+        fn code_at_start() {
+            assert_eq!(
+                parse_text_body_style("`code` text follows"),
+                vec![
+                    tb(TextBodyStyle::Code, "code"),
+                    tb(TextBodyStyle::Plain, " text follows"),
+                ]
+            );
+        }
+        #[test]
+        fn code_in_middle() {
+            assert_eq!(
+                parse_text_body_style("text with `code` in the middle"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text with "),
+                    tb(TextBodyStyle::Code, "code"),
+                    tb(TextBodyStyle::Plain, " in the middle"),
+                ]
+            );
+        }
+        #[test]
+        fn code_at_end() {
+            assert_eq!(
+                parse_text_body_style("text ends with `code`"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text ends with "),
+                    tb(TextBodyStyle::Code, "code"),
+                ]
+            );
+        }
+        #[test]
+        fn code_with_multiple_words() {
+            assert_eq!(
+                parse_text_body_style("`const x = function() { return true; }`"),
+                vec![tb(
+                    TextBodyStyle::Code,
+                    "const x = function() { return true; }"
+                )]
+            );
+        }
+
+        // Inline code edge cases
+        #[test]
+        fn code_with_underscores_inside() {
+            assert_eq!(
+                parse_text_body_style("`text_with_underscore`"),
+                vec![tb(TextBodyStyle::Code, "text_with_underscore")]
+            );
+        }
+        #[test]
+        fn code_with_asterisks_inside() {
+            assert_eq!(
+                parse_text_body_style("`text*with*asterisks`"),
+                vec![tb(TextBodyStyle::Code, "text*with*asterisks")]
+            );
+        }
+        #[test]
+        fn code_with_double_asterisks_inside_not_bold() {
+            assert_eq!(
+                parse_text_body_style("`**not bold**`"),
+                vec![tb(TextBodyStyle::Code, "**not bold**")]
+            );
+        }
+        #[test]
+        fn code_with_underscores_inside_not_italic() {
+            assert_eq!(
+                parse_text_body_style("`_not italic_`"),
+                vec![tb(TextBodyStyle::Code, "_not italic_")]
+            );
+        }
+        #[test]
+        fn code_with_html_tags() {
+            assert_eq!(
+                parse_text_body_style("`<div>`"),
+                vec![tb(TextBodyStyle::Code, "<div>")]
+            );
+        }
+        #[test]
+        fn code_with_single_space() {
+            assert_eq!(
+                parse_text_body_style("` `"),
+                vec![tb(TextBodyStyle::Code, " ")]
+            );
+        }
+        #[test]
+        fn code_with_multiple_spaces() {
+            assert_eq!(
+                parse_text_body_style("`code with   spaces`"),
+                vec![tb(TextBodyStyle::Code, "code with   spaces")]
+            );
+        }
+
+        // Mixed styles
+        #[test]
+        fn all_styles_mixed() {
+            assert_eq!(
+                parse_text_body_style("Plain **strong** and *italic* and `code` text"),
+                vec![
+                    tb(TextBodyStyle::Plain, "Plain "),
+                    tb(TextBodyStyle::Strong, "strong"),
+                    tb(TextBodyStyle::Plain, " and "),
+                    tb(TextBodyStyle::Italic, "italic"),
+                    tb(TextBodyStyle::Plain, " and "),
+                    tb(TextBodyStyle::Code, "code"),
+                    tb(TextBodyStyle::Plain, " text"),
+                ]
+            );
+        }
+        #[test]
+        fn styled_at_start_middle_and_end() {
+            assert_eq!(
+                parse_text_body_style(
+                    "**Strong** at start, *italic* in middle, and `code` at the end"
+                ),
+                vec![
+                    tb(TextBodyStyle::Strong, "Strong"),
+                    tb(TextBodyStyle::Plain, " at start, "),
+                    tb(TextBodyStyle::Italic, "italic"),
+                    tb(TextBodyStyle::Plain, " in middle, and "),
+                    tb(TextBodyStyle::Code, "code"),
+                    tb(TextBodyStyle::Plain, " at the end"),
+                ]
+            );
+        }
+        #[test]
+        fn code_between_italic_underscores() {
+            assert_eq!(
+                parse_text_body_style("_italic_ `code` _italic_"),
+                vec![
+                    tb(TextBodyStyle::Italic, "italic"),
+                    tb(TextBodyStyle::Plain, " "),
+                    tb(TextBodyStyle::Code, "code"),
+                    tb(TextBodyStyle::Plain, " "),
+                    tb(TextBodyStyle::Italic, "italic"),
+                ]
+            );
+        }
+        #[test]
+        fn code_between_strong() {
+            assert_eq!(
+                parse_text_body_style("**bold** `code` **bold**"),
+                vec![
+                    tb(TextBodyStyle::Strong, "bold"),
+                    tb(TextBodyStyle::Plain, " "),
+                    tb(TextBodyStyle::Code, "code"),
+                    tb(TextBodyStyle::Plain, " "),
+                    tb(TextBodyStyle::Strong, "bold"),
+                ]
+            );
+        }
+        #[test]
+        fn code_adjacent_to_italic_without_spaces() {
+            assert_eq!(
+                parse_text_body_style("*italic*`code`*italic*"),
+                vec![
+                    tb(TextBodyStyle::Italic, "italic"),
+                    tb(TextBodyStyle::Code, "code"),
+                    tb(TextBodyStyle::Italic, "italic"),
+                ]
+            );
+        }
+        #[test]
+        fn multiple_code_spans_with_plain_and_italic() {
+            assert_eq!(
+                parse_text_body_style("`a` and `b` with _c_"),
+                vec![
+                    tb(TextBodyStyle::Code, "a"),
+                    tb(TextBodyStyle::Plain, " and "),
+                    tb(TextBodyStyle::Code, "b"),
+                    tb(TextBodyStyle::Plain, " with "),
+                    tb(TextBodyStyle::Italic, "c"),
+                ]
+            );
+        }
+        #[test]
+        fn code_with_underscores_surrounded_by_italic() {
+            assert_eq!(
+                parse_text_body_style(
+                    "Use _emphasis_ with `snake_case_variable` in _context_"
+                ),
+                vec![
+                    tb(TextBodyStyle::Plain, "Use "),
+                    tb(TextBodyStyle::Italic, "emphasis"),
+                    tb(TextBodyStyle::Plain, " with "),
+                    tb(TextBodyStyle::Code, "snake_case_variable"),
+                    tb(TextBodyStyle::Plain, " in "),
+                    tb(TextBodyStyle::Italic, "context"),
+                ]
+            );
+        }
+        #[test]
+        fn code_with_mixed_markdown_syntax_inside() {
+            assert_eq!(
+                parse_text_body_style("`**bold** and _italic_ and [link](url)`"),
+                vec![tb(
+                    TextBodyStyle::Code,
+                    "**bold** and _italic_ and [link](url)"
+                )]
+            );
+        }
+
+        // Unclosed markers
+        #[test]
+        fn unclosed_strong_at_end() {
+            assert_eq!(
+                parse_text_body_style("text **unclosed"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text "),
+                    tb(TextBodyStyle::Plain, "**unclosed"),
+                ]
+            );
+        }
+        #[test]
+        fn unclosed_asterisk_italic_at_end() {
+            assert_eq!(
+                parse_text_body_style("text *unclosed"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text "),
+                    tb(TextBodyStyle::Plain, "*unclosed"),
+                ]
+            );
+        }
+        #[test]
+        fn unclosed_underscore_italic_at_end() {
+            assert_eq!(
+                parse_text_body_style("text _unclosed"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text "),
+                    tb(TextBodyStyle::Plain, "_unclosed"),
+                ]
+            );
+        }
+        #[test]
+        fn unclosed_code_at_end() {
+            assert_eq!(
+                parse_text_body_style("text `unclosed"),
+                vec![
+                    tb(TextBodyStyle::Plain, "text "),
+                    tb(TextBodyStyle::Plain, "`unclosed"),
+                ]
+            );
+        }
+        #[test]
+        fn unclosed_marker_at_very_start() {
+            assert_eq!(
+                parse_text_body_style("**unclosed"),
+                vec![tb(TextBodyStyle::Plain, "**unclosed")]
+            );
+        }
+        #[test]
+        fn unclosed_strong_cut_at_next_unclosed_italic() {
+            assert_eq!(
+                parse_text_body_style("**unclosed _also unclosed"),
+                vec![
+                    tb(TextBodyStyle::Plain, "**unclosed "),
+                    tb(TextBodyStyle::Plain, "_also unclosed"),
+                ]
+            );
+        }
+        #[test]
+        fn unclosed_italic_cut_at_next_unclosed_code() {
+            assert_eq!(
+                parse_text_body_style("*unclosed `also unclosed"),
+                vec![
+                    tb(TextBodyStyle::Plain, "*unclosed "),
+                    tb(TextBodyStyle::Plain, "`also unclosed"),
+                ]
+            );
+        }
+        #[test]
+        fn three_different_unclosed_markers() {
+            assert_eq!(
+                parse_text_body_style("_one **two `three"),
+                vec![
+                    tb(TextBodyStyle::Plain, "_one "),
+                    tb(TextBodyStyle::Plain, "**two "),
+                    tb(TextBodyStyle::Plain, "`three"),
+                ]
+            );
+        }
+        #[test]
+        fn closed_style_followed_by_unclosed_marker() {
+            assert_eq!(
+                parse_text_body_style("**bold** then _unclosed"),
+                vec![
+                    tb(TextBodyStyle::Strong, "bold"),
+                    tb(TextBodyStyle::Plain, " then "),
+                    tb(TextBodyStyle::Plain, "_unclosed"),
+                ]
+            );
+        }
+        #[test]
+        fn unclosed_marker_followed_by_closed_style() {
+            assert_eq!(
+                parse_text_body_style("_unclosed **bold**"),
+                vec![
+                    tb(TextBodyStyle::Plain, "_unclosed "),
+                    tb(TextBodyStyle::Strong, "bold"),
+                ]
+            );
+        }
+        #[test]
+        fn unclosed_underscore_cut_at_next_unclosed_strong() {
+            assert_eq!(
+                parse_text_body_style("_unclosed **strong"),
+                vec![
+                    tb(TextBodyStyle::Plain, "_unclosed "),
+                    tb(TextBodyStyle::Plain, "**strong"),
+                ]
+            );
+        }
+        #[test]
+        fn closed_style_between_two_unclosed_markers() {
+            assert_eq!(
+                parse_text_body_style("_unclosed **bold** `also unclosed"),
+                vec![
+                    tb(TextBodyStyle::Plain, "_unclosed "),
+                    tb(TextBodyStyle::Strong, "bold"),
+                    tb(TextBodyStyle::Plain, " "),
+                    tb(TextBodyStyle::Plain, "`also unclosed"),
+                ]
+            );
+        }
+    }
 }
