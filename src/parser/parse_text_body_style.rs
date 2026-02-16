@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::{sync::LazyLock, vec};
 
 use regex::Regex;
 
@@ -104,6 +104,18 @@ fn lookup_until_close(input: &str, style: &RawStyle) -> LookupResult {
             }
         }
     }
+}
+
+fn parse_text_body_style(input: &str) -> Vec<TextBody> {
+    if input.is_empty() {
+        return vec![];
+    }
+    let head_style = check_head_symbol(input);
+    let LookupResult { text_body, rest } = lookup_until_close(input, &head_style);
+
+    let mut result = vec![text_body];
+    result.extend(parse_text_body_style(rest.as_str()));
+    result
 }
 
 #[cfg(test)]
@@ -768,9 +780,7 @@ mod tests {
         #[test]
         fn code_with_underscores_surrounded_by_italic() {
             assert_eq!(
-                parse_text_body_style(
-                    "Use _emphasis_ with `snake_case_variable` in _context_"
-                ),
+                parse_text_body_style("Use _emphasis_ with `snake_case_variable` in _context_"),
                 vec![
                     tb(TextBodyStyle::Plain, "Use "),
                     tb(TextBodyStyle::Italic, "emphasis"),
