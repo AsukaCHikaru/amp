@@ -1,3 +1,7 @@
+use std::sync::LazyLock;
+
+use regex::Regex;
+
 use crate::types::{TextBody, TextBodyStyle};
 
 enum RawStyle {
@@ -18,7 +22,7 @@ fn check_head_symbol(input: &str) -> RawStyle {
     }
 }
 
-fn convert_raw_style_to_text_body_style(raw: RawStyle) -> TextBodyStyle {
+fn convert_raw_style_to_text_body_style(raw: &RawStyle) -> TextBodyStyle {
     match raw {
         RawStyle::Strong => TextBodyStyle::Strong,
         RawStyle::Code => TextBodyStyle::Code,
@@ -32,14 +36,73 @@ struct LookupResult {
     rest: String,
 }
 
+static STRONG_REGULAR_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^\*{2}([^*_`]+)\*{2}([\s\S]*)").expect("Invalid regex"));
+static ASTERISK_ITALIC_REGULAR_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^\*{1}([^*_`]+)\*{1}([\s\S]*)").expect("Invalid regex"));
+static UNDERSCORE_ITALIC_REGULAR_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^_{1}([^*_`]+)_{1}([\s\S]*)").expect("Invalid regex"));
+static CODE_REGULAR_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^`([^`]+)`([\s\S]*)").expect("Invalid regex"));
+static PLAIN_REGULAR_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^([^*_`]+)([\s\S]*)$").expect("Invalid regex"));
+
+static STRONG_UNCLOSED_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(\*{2}[^*_`]+?)([*_`][\s\S]+)*$").expect("Invalid regex"));
+static ASTERISK_ITALIC_UNCLOSED_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(\*{1}[^*_`]+?)([*_`][\s\S]+)*$").expect("Invalid regex"));
+static UNDERSCORE_ITALIC_UNCLOSED_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(_{1}[^*_`]+?)([*_`][\s\S]+)*$").expect("Invalid regex"));
+static CODE_UNCLOSED_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(`[^`]+)$").expect("Invalid regex"));
+
 fn lookup_until_close(input: &str, style: &RawStyle) -> LookupResult {
-    // placeholder
-    LookupResult {
-        text_body: TextBody {
-            style: TextBodyStyle::Plain,
-            value: "".to_string(),
-        },
-        rest: "".to_string(),
+    let regular_pattern = match style {
+        RawStyle::Strong => &STRONG_REGULAR_PATTERN,
+        RawStyle::AsteriskItalic => &ASTERISK_ITALIC_REGULAR_PATTERN,
+        RawStyle::UnderscoreItalic => &UNDERSCORE_ITALIC_REGULAR_PATTERN,
+        RawStyle::Code => &CODE_REGULAR_PATTERN,
+        RawStyle::Plain => &PLAIN_REGULAR_PATTERN,
+    };
+    match regular_pattern.captures(input) {
+        Some(reg_cap) => {
+            let value = reg_cap.get(1).unwrap().as_str().to_string();
+            let rest = reg_cap.get(2).unwrap().as_str().to_string();
+            LookupResult {
+                text_body: TextBody {
+                    style: convert_raw_style_to_text_body_style(&style),
+                    value,
+                },
+                rest,
+            }
+        }
+        None => {
+            let unclosed_pattern = match style {
+                RawStyle::Strong => &STRONG_UNCLOSED_PATTERN,
+                RawStyle::AsteriskItalic => &ASTERISK_ITALIC_UNCLOSED_PATTERN,
+                RawStyle::UnderscoreItalic => &UNDERSCORE_ITALIC_UNCLOSED_PATTERN,
+                RawStyle::Code => &CODE_UNCLOSED_PATTERN,
+                RawStyle::Plain => unreachable!("Regular pattern always matches"),
+            };
+            match unclosed_pattern.captures(input) {
+                Some(unclosed_cap) => {
+                    let value = unclosed_cap.get(1).unwrap().as_str().to_string();
+                    let rest = unclosed_cap
+                        .get(2)
+                        .map(|m| m.as_str())
+                        .unwrap_or("")
+                        .to_string();
+                    LookupResult {
+                        text_body: TextBody {
+                            style: TextBodyStyle::Plain,
+                            value,
+                        },
+                        rest,
+                    }
+                }
+                None => unreachable!("Regular pattern doesn't have unclosed match"),
+            }
+        }
     }
 }
 
