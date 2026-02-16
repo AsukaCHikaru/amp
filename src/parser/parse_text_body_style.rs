@@ -7,7 +7,13 @@ enum RawStyle {
 }
 
 fn check_head_symbol(input: &str) -> RawStyle {
-    RawStyle::Plain // placeholder
+    match input.as_bytes() {
+        [b'*', b'*', ..] => RawStyle::Strong,
+        [b'*', ..] => RawStyle::AsteriskItalic,
+        [b'_', ..] => RawStyle::UnderscoreItalic,
+        [b'`', ..] => RawStyle::Code,
+        _ => RawStyle::Plain,
+    }
 }
 
 #[cfg(test)]
