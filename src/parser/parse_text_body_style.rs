@@ -106,7 +106,7 @@ fn lookup_until_close(input: &str, style: &RawStyle) -> LookupResult {
     }
 }
 
-fn parse_text_body_style(input: &str) -> Vec<TextBody> {
+pub fn parse_text_body_style(input: &str) -> Vec<TextBody> {
     if input.is_empty() {
         return vec![];
     }
@@ -118,7 +118,7 @@ fn parse_text_body_style(input: &str) -> Vec<TextBody> {
     result
 }
 
-fn merge_same_type_text_body(input: Vec<TextBody>) -> Vec<TextBody> {
+pub fn merge_same_type_text_body(input: Vec<TextBody>) -> Vec<TextBody> {
     if input.len() <= 1 {
         return input;
     }

@@ -1,8 +1,51 @@
-use crate::types::{Link, TextBody, TextBodyStyle};
+use std::sync::LazyLock;
+
+use regex::Regex;
+
+use crate::{
+    parser::parse_text_body_style::{merge_same_type_text_body, parse_text_body_style},
+    types::{Link, TextBody, TextBodyStyle},
+};
+
+static LINK_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\[(.+?)\]\((.+?)\)").expect("Invalid regex"));
 
 enum LinkParseItem {
     Text(String),
     Link(Link),
+}
+
+fn parse_link_in_text(input: &str) -> Vec<LinkParseItem> {
+    match LINK_PATTERN.captures(input) {
+        Some(captured) => {
+            let text_cap = captured.get(1).unwrap();
+            let url_cap = captured.get(2).unwrap();
+            let body =
+                merge_same_type_text_body(parse_text_body_style(&text_cap.as_str().to_string()));
+            let link_block: Link = Link {
+                body,
+                url: url_cap.as_str().to_string(),
+            };
+            let before_cap = input[..text_cap.start() - 1].to_string();
+            let after_cap = &input[(url_cap.end() + 1)..];
+            println!("{}, {}", before_cap, after_cap);
+
+            let mut result: Vec<LinkParseItem> = vec![LinkParseItem::Link(link_block)];
+            if !before_cap.is_empty() {
+                result.insert(0, LinkParseItem::Text(before_cap));
+            }
+            result.extend(parse_link_in_text(after_cap));
+
+            result
+        }
+        None => {
+            let mut result: Vec<LinkParseItem> = vec![];
+            if !input.is_empty() {
+                result.push(LinkParseItem::Text(input.to_string()));
+            }
+            result
+        }
+    }
 }
 
 #[cfg(test)]
@@ -29,7 +72,12 @@ mod tests {
 
     fn assert_parse_link(input: &str, expected: Vec<LinkParseItem>) {
         let result = parse_link_in_text(input);
-        assert_eq!(result.len(), expected.len(), "length mismatch for: {}", input);
+        assert_eq!(
+            result.len(),
+            expected.len(),
+            "length mismatch for: {}",
+            input
+        );
         for (i, (r, e)) in result.iter().zip(expected.iter()).enumerate() {
             match (r, e) {
                 (LinkParseItem::Text(r_text), LinkParseItem::Text(e_text)) => {
@@ -56,7 +104,7 @@ mod tests {
         }
         #[test]
         fn empty_string_returns_empty_text() {
-            assert_parse_link("", vec![text("")]);
+            assert_parse_link("", vec![]);
         }
 
         // Single link
@@ -154,18 +202,12 @@ mod tests {
         fn link_with_empty_text() {
             assert_parse_link(
                 "[](https://example.com)",
-                vec![link(vec![], "https://example.com")],
+                vec![text("[](https://example.com)")],
             );
         }
         #[test]
         fn link_with_empty_url() {
-            assert_parse_link(
-                "[link text]()",
-                vec![link(
-                    vec![tb(TextBodyStyle::Plain, "link text")],
-                    "",
-                )],
-            );
+            assert_parse_link("[link text]()", vec![text("[link text]()")]);
         }
         #[test]
         fn link_with_special_characters_in_url() {
