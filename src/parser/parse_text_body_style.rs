@@ -118,9 +118,43 @@ fn parse_text_body_style(input: &str) -> Vec<TextBody> {
     result
 }
 
+fn merge_same_type_text_body(input: Vec<TextBody>) -> Vec<TextBody> {
+    if input.len() <= 1 {
+        return input;
+    }
+    let first_style = &input.first().unwrap().style;
+    let cut_index = match &input.iter().find(|tb| &tb.style != first_style) {
+        Some(_) => input
+            .iter()
+            .position(|tb| &tb.style != first_style)
+            .unwrap(),
+        None => input.len(),
+    };
+    let merged_value = input[..cut_index]
+        .iter()
+        .map(|tb| tb.value.as_str())
+        .collect::<String>();
+
+    let result_tb: TextBody = TextBody {
+        style: first_style.clone(),
+        value: merged_value,
+    };
+
+    let mut result: Vec<TextBody> = vec![result_tb];
+    result.extend(merge_same_type_text_body(input[cut_index..].to_vec()));
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn tb(style: TextBodyStyle, value: &str) -> TextBody {
+        TextBody {
+            style,
+            value: value.to_string(),
+        }
+    }
 
     mod check_head_symbol_tests {
         use super::*;
@@ -423,13 +457,6 @@ mod tests {
 
     mod parse_text_body_style_tests {
         use super::*;
-
-        fn tb(style: TextBodyStyle, value: &str) -> TextBody {
-            TextBody {
-                style,
-                value: value.to_string(),
-            }
-        }
 
         // Empty input
         #[test]
@@ -921,6 +948,87 @@ mod tests {
                     tb(TextBodyStyle::Strong, "bold"),
                     tb(TextBodyStyle::Plain, " "),
                     tb(TextBodyStyle::Plain, "`also unclosed"),
+                ]
+            );
+        }
+    }
+
+    mod merge_same_type_text_body_tests {
+        use super::*;
+
+        // Empty input
+        #[test]
+        fn empty_input_returns_empty() {
+            assert_eq!(merge_same_type_text_body(vec![]), vec![]);
+        }
+
+        // Single element
+        #[test]
+        fn single_element_unchanged() {
+            assert_eq!(
+                merge_same_type_text_body(vec![tb(TextBodyStyle::Plain, "hello")]),
+                vec![tb(TextBodyStyle::Plain, "hello")]
+            );
+        }
+
+        // No adjacent same style
+        #[test]
+        fn no_adjacent_same_style_unchanged() {
+            assert_eq!(
+                merge_same_type_text_body(vec![
+                    tb(TextBodyStyle::Strong, "bold"),
+                    tb(TextBodyStyle::Plain, " text"),
+                    tb(TextBodyStyle::Italic, "italic"),
+                ]),
+                vec![
+                    tb(TextBodyStyle::Strong, "bold"),
+                    tb(TextBodyStyle::Plain, " text"),
+                    tb(TextBodyStyle::Italic, "italic"),
+                ]
+            );
+        }
+
+        // Two consecutive same style
+        #[test]
+        fn merges_two_consecutive_same_style() {
+            assert_eq!(
+                merge_same_type_text_body(vec![
+                    tb(TextBodyStyle::Plain, "hello"),
+                    tb(TextBodyStyle::Plain, " world"),
+                ]),
+                vec![tb(TextBodyStyle::Plain, "hello world")]
+            );
+        }
+
+        // Three or more consecutive same style
+        #[test]
+        fn merges_three_consecutive_same_style() {
+            assert_eq!(
+                merge_same_type_text_body(vec![
+                    tb(TextBodyStyle::Strong, "one"),
+                    tb(TextBodyStyle::Strong, "two"),
+                    tb(TextBodyStyle::Strong, "three"),
+                ]),
+                vec![tb(TextBodyStyle::Strong, "onetwothree")]
+            );
+        }
+
+        // Multiple groups merged independently
+        #[test]
+        fn merges_multiple_groups_independently() {
+            assert_eq!(
+                merge_same_type_text_body(vec![
+                    tb(TextBodyStyle::Plain, "a"),
+                    tb(TextBodyStyle::Plain, "b"),
+                    tb(TextBodyStyle::Strong, "c"),
+                    tb(TextBodyStyle::Strong, "d"),
+                    tb(TextBodyStyle::Italic, "e"),
+                    tb(TextBodyStyle::Italic, "f"),
+                ]),
+                vec![
+                    tb(TextBodyStyle::Plain, "ab"),
+                    tb(TextBodyStyle::Strong, "cd"),
+                    tb(TextBodyStyle::Italic, "ef"),
                 ]
             );
         }
