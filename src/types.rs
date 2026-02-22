@@ -21,19 +21,19 @@ pub struct Link {
     pub url: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum InlineContent {
     TextBody(TextBody),
     Link(Link),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ParagraphBlock {
-    body: Vec<InlineContent>,
+    pub body: Vec<InlineContent>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HeadingLevel(u8);
 impl HeadingLevel {
     pub fn new(level: u8) -> Result<HeadingLevel, String> {
@@ -44,43 +44,43 @@ impl HeadingLevel {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HeadingBlock {
-    body: Vec<InlineContent>,
-    level: HeadingLevel,
+    pub body: Vec<InlineContent>,
+    pub level: HeadingLevel,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct QuoteBlock {
-    body: Vec<InlineContent>,
+    pub body: Vec<InlineContent>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ListItem {
-    body: Vec<InlineContent>,
+    pub body: Vec<InlineContent>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ListBlock {
-    body: Vec<ListItem>,
-    ordered: bool,
+    pub body: Vec<ListItem>,
+    pub ordered: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ImageBlock {
-    url: String,
-    alt_text: String,
-    caption: String,
+    pub url: String,
+    pub alt_text: String,
+    pub caption: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CodeBlock {
-    lang: Option<String>,
-    body: String,
+    pub lang: Option<String>,
+    pub body: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum Block {
     Paragraph(ParagraphBlock),
