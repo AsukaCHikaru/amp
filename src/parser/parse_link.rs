@@ -10,12 +10,12 @@ use crate::{
 static LINK_PATTERN: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\[(.+?)\]\((.+?)\)").expect("Invalid regex"));
 
-enum LinkParseItem {
+pub enum LinkParseItem {
     Text(String),
     Link(Link),
 }
 
-fn parse_link_in_text(input: &str) -> Vec<LinkParseItem> {
+pub fn parse_link_in_text(input: &str) -> Vec<LinkParseItem> {
     match LINK_PATTERN.captures(input) {
         Some(captured) => {
             let text_cap = captured.get(1).unwrap();
