@@ -6,7 +6,7 @@ use crate::{
     types::InlineContent,
 };
 
-fn parse_text_body(input: &str) -> Vec<InlineContent> {
+pub fn parse_text_body(input: &str) -> Vec<InlineContent> {
     let link_parsed = parse_link_in_text(input);
 
     link_parsed
