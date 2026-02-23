@@ -5,12 +5,12 @@ use regex::Regex;
 static SPLIT_PATTERN: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(---\n[\s\S]*?---)\n*").expect("Invalid regex"));
 
-struct SplitResult {
-    head: String,
-    body: String,
+pub struct SplitResult {
+    pub head: String,
+    pub body: String,
 }
 
-fn split(input: &str) -> SplitResult {
+pub fn split(input: &str) -> SplitResult {
     let trimmed = input.trim();
 
     match SPLIT_PATTERN.captures(trimmed) {

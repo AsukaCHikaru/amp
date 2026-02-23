@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -90,4 +92,9 @@ pub enum Block {
     Image(ImageBlock),
     Code(CodeBlock),
     ThematicBreak,
+}
+
+pub struct ParseResult {
+    pub frontmatter: HashMap<String, String>,
+    pub blocks: Vec<Block>,
 }

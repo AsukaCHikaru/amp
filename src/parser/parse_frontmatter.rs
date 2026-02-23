@@ -6,7 +6,7 @@ static FRONTMATTER_PATTERN: LazyLock<Regex> =
 static LINE_PATTERN: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"^([\s\S]+?):\s?["']?([\s\S]*?)["']?$"#).expect("Invalid regex"));
 
-fn parse_frontmatter(input: &str) -> HashMap<String, String> {
+pub fn parse_frontmatter(input: &str) -> HashMap<String, String> {
     let mut map = HashMap::new();
 
     match FRONTMATTER_PATTERN.captures(input.trim()) {

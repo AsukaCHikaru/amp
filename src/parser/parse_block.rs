@@ -22,7 +22,7 @@ static LIST_PATTERN: LazyLock<Regex> =
 static QUOTE_PATTERN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(>\s.*\n?)+").unwrap());
 static THEMATIC_BREAK_PATTERN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(-{3,})").unwrap());
 
-fn parse_blocks(input: &str) -> Vec<Block> {
+pub fn parse_blocks(input: &str) -> Vec<Block> {
     if input.trim().is_empty() {
         return vec![];
     }
