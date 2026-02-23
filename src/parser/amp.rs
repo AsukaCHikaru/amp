@@ -7,7 +7,7 @@ use crate::{
     types::ParseResult,
 };
 
-struct Amp {}
+pub struct Amp {}
 impl Amp {
     pub fn new() -> Self {
         Amp {}
