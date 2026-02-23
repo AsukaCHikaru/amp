@@ -31,37 +31,37 @@ pub fn parse_blocks(input: &str) -> Vec<Block> {
 
     if let Some(captured) = HEADING_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();
-        let rest = input[cap.end()..].to_string();
+        let rest = input[cap.end()..].trim().to_string();
         result.push(Block::Heading(parse_heading_block(input)));
         result.extend(parse_blocks(&rest));
     } else if let Some(captured) = QUOTE_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();
-        let rest = input[cap.end()..].to_string();
+        let rest = input[cap.end()..].trim().to_string();
         result.push(Block::Quote(parse_quote_block(cap.as_str())));
         result.extend(parse_blocks(&rest));
     } else if let Some(captured) = LIST_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();
-        let rest = input[cap.end()..].to_string();
+        let rest = input[cap.end()..].trim().to_string();
         result.push(Block::List(parse_list_block(cap.as_str())));
         result.extend(parse_blocks(&rest));
     } else if let Some(captured) = IMAGE_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();
-        let rest = input[cap.end()..].to_string();
+        let rest = input[cap.end()..].trim().to_string();
         result.push(Block::Image(parse_image_block(cap.as_str())));
         result.extend(parse_blocks(&rest));
     } else if let Some(captured) = CODE_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();
-        let rest = input[cap.end()..].to_string();
+        let rest = input[cap.end()..].trim().to_string();
         result.push(Block::Code(parse_code_block(cap.as_str())));
         result.extend(parse_blocks(&rest));
     } else if let Some(captured) = THEMATIC_BREAK_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();
-        let rest = input[cap.end()..].to_string();
+        let rest = input[cap.end()..].trim().to_string();
         result.push(Block::ThematicBreak);
         result.extend(parse_blocks(&rest));
     } else if let Some(captured) = PARAGRAPH_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();
-        let rest = input[cap.end()..].to_string();
+        let rest = input[cap.end()..].trim().to_string();
         result.push(Block::Paragraph(parse_paragraph_block(cap.as_str())));
         result.extend(parse_blocks(&rest));
     }
