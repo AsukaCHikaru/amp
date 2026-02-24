@@ -4,7 +4,7 @@ use regex::Regex;
 
 use crate::{
     parser::parse_text_body_style::{merge_same_type_text_body, parse_text_body_style},
-    types::{Link, TextBody, TextBodyStyle},
+    types::Link,
 };
 
 static LINK_PATTERN: LazyLock<Regex> =
@@ -50,6 +50,8 @@ pub fn parse_link_in_text(input: &str) -> Vec<LinkParseItem> {
 
 #[cfg(test)]
 mod tests {
+    use crate::types::{TextBody, TextBodyStyle};
+
     use super::*;
 
     fn text(s: &str) -> LinkParseItem {
