@@ -71,7 +71,7 @@ pub fn parse_blocks(input: &str) -> Vec<Block> {
 
 fn parse_paragraph_block(input: &str) -> ParagraphBlock {
     ParagraphBlock {
-        body: parse_text_body(input),
+        body: parse_text_body(input.trim()),
     }
 }
 
@@ -137,7 +137,11 @@ static QUOTE_START_PATTERN: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^>\s").expect("Invalid regex"));
 fn parse_quote_block(input: &str) -> QuoteBlock {
     let text = QUOTE_START_PATTERN
-        .replace(&QUOTE_STRIP_PATTERN.replace_all(input, "").to_string(), "")
+        .replace(
+            &QUOTE_STRIP_PATTERN.replace_all(input, "\n").to_string(),
+            "",
+        )
+        .trim()
         .to_string();
 
     QuoteBlock {
