@@ -1,3 +1,5 @@
+use napi_derive::napi;
+
 use crate::{
     parser::{
         parse_block::parse_blocks,
@@ -7,12 +9,11 @@ use crate::{
     types::ParseResult,
 };
 
+#[napi]
 pub struct Amp {}
+
 impl Amp {
-    pub fn new() -> Self {
-        Amp {}
-    }
-    pub fn parse(&self, input: &str) -> ParseResult {
+    fn internal_parse(input: &str) -> ParseResult {
         let SplitResult { head, body } = split(input);
         let frontmatter = parse_frontmatter(&head);
         let blocks = parse_blocks(&body);
@@ -23,10 +24,24 @@ impl Amp {
     }
 }
 
+#[napi]
+impl Amp {
+    #[napi(constructor)]
+    pub fn new() -> Self {
+        Amp {}
+    }
+
+    #[napi]
+    pub fn parse(&self, input: String) -> String {
+        let result = Self::internal_parse(&input);
+        serde_json::to_string(&result).unwrap()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::*;
+    use serde_json::json;
 
     #[test]
     fn instantiate() {
@@ -75,186 +90,65 @@ console.log(x);
 
 This is the final paragraph before we end."#;
 
-        let result = amp.parse(input);
+        let result: serde_json::Value = serde_json::from_str(&amp.parse(input.to_string())).unwrap();
 
         // Verify frontmatter
-        assert_eq!(result.frontmatter.get("title").unwrap(), "Test Document");
-        assert_eq!(result.frontmatter.get("author").unwrap(), "Test Author");
+        assert_eq!(result["frontmatter"]["title"], "Test Document");
+        assert_eq!(result["frontmatter"]["author"], "Test Author");
 
         // Verify block count
-        assert!(result.blocks.len() > 10);
+        let blocks = result["blocks"].as_array().unwrap();
+        assert!(blocks.len() > 10);
 
         // Verify headings
-        let headings: Vec<_> = result
-            .blocks
-            .iter()
-            .filter(|b| matches!(b, Block::Heading(_)))
-            .collect();
+        let headings: Vec<_> = blocks.iter().filter(|b| b["type"] == "heading").collect();
         assert!(headings.len() >= 5);
-        assert_eq!(
-            headings[0],
-            &Block::Heading(HeadingBlock {
-                level: HeadingLevel::new(1).unwrap(),
-                body: vec![InlineContent::TextBody(TextBody {
-                    style: TextBodyStyle::Plain,
-                    value: "Main Heading".to_string()
-                })],
-            })
-        );
-        assert_eq!(
-            headings[1],
-            &Block::Heading(HeadingBlock {
-                level: HeadingLevel::new(2).unwrap(),
-                body: vec![InlineContent::TextBody(TextBody {
-                    style: TextBodyStyle::Plain,
-                    value: "Features Section".to_string()
-                })],
-            })
-        );
+        assert_eq!(headings[0]["level"], 1);
+        assert_eq!(headings[0]["body"][0], json!({"type": "textBody", "style": "plain", "value": "Main Heading"}));
+        assert_eq!(headings[1]["level"], 2);
+        assert_eq!(headings[1]["body"][0], json!({"type": "textBody", "style": "plain", "value": "Features Section"}));
 
         // Verify quote
-        let quotes: Vec<_> = result
-            .blocks
-            .iter()
-            .filter(|b| matches!(b, Block::Quote(_)))
-            .collect();
+        let quotes: Vec<_> = blocks.iter().filter(|b| b["type"] == "quote").collect();
         assert_eq!(quotes.len(), 1);
-        assert_eq!(quotes[0], &Block::Quote(QuoteBlock {
-            body: vec![InlineContent::TextBody(TextBody { style: TextBodyStyle::Plain, value: "This is a quote block with some important information.\nIt spans multiple lines.".to_string() })],
-        }));
+        assert_eq!(quotes[0]["body"][0], json!({"type": "textBody", "style": "plain", "value": "This is a quote block with some important information.\nIt spans multiple lines."}));
 
         // Verify lists
-        let lists: Vec<_> = result
-            .blocks
-            .iter()
-            .filter(|b| matches!(b, Block::List(_)))
-            .collect();
+        let lists: Vec<_> = blocks.iter().filter(|b| b["type"] == "list").collect();
         assert_eq!(lists.len(), 2);
-        assert_eq!(
-            lists[0],
-            &Block::List(ListBlock {
-                ordered: false,
-                body: vec![
-                    ListItem {
-                        body: vec![InlineContent::TextBody(TextBody {
-                            style: TextBodyStyle::Plain,
-                            value: "First item".to_string()
-                        })]
-                    },
-                    ListItem {
-                        body: vec![InlineContent::TextBody(TextBody {
-                            style: TextBodyStyle::Plain,
-                            value: "Second item".to_string()
-                        })]
-                    },
-                    ListItem {
-                        body: vec![InlineContent::TextBody(TextBody {
-                            style: TextBodyStyle::Plain,
-                            value: "Third item".to_string()
-                        })]
-                    },
-                ],
-            })
-        );
-        assert_eq!(
-            lists[1],
-            &Block::List(ListBlock {
-                ordered: true,
-                body: vec![
-                    ListItem {
-                        body: vec![InlineContent::TextBody(TextBody {
-                            style: TextBodyStyle::Plain,
-                            value: "Numbered item one".to_string()
-                        })]
-                    },
-                    ListItem {
-                        body: vec![InlineContent::TextBody(TextBody {
-                            style: TextBodyStyle::Plain,
-                            value: "Numbered item two".to_string()
-                        })]
-                    },
-                    ListItem {
-                        body: vec![InlineContent::TextBody(TextBody {
-                            style: TextBodyStyle::Plain,
-                            value: "Numbered item three".to_string()
-                        })]
-                    },
-                ],
-            })
-        );
+        assert_eq!(lists[0]["ordered"], false);
+        assert_eq!(lists[0]["body"][0]["body"][0]["value"], "First item");
+        assert_eq!(lists[0]["body"][1]["body"][0]["value"], "Second item");
+        assert_eq!(lists[0]["body"][2]["body"][0]["value"], "Third item");
+        assert_eq!(lists[1]["ordered"], true);
+        assert_eq!(lists[1]["body"][0]["body"][0]["value"], "Numbered item one");
+        assert_eq!(lists[1]["body"][1]["body"][0]["value"], "Numbered item two");
+        assert_eq!(lists[1]["body"][2]["body"][0]["value"], "Numbered item three");
 
         // Verify code
-        let codes: Vec<_> = result
-            .blocks
-            .iter()
-            .filter(|b| matches!(b, Block::Code(_)))
-            .collect();
+        let codes: Vec<_> = blocks.iter().filter(|b| b["type"] == "code").collect();
         assert_eq!(codes.len(), 1);
-        assert_eq!(
-            codes[0],
-            &Block::Code(CodeBlock {
-                lang: Some("javascript".to_string()),
-                body: "const x = 5;\nconsole.log(x);".to_string()
-            })
-        );
+        assert_eq!(codes[0]["lang"], "javascript");
+        assert_eq!(codes[0]["body"], "const x = 5;\nconsole.log(x);");
 
         // Verify image
-        let images: Vec<_> = result
-            .blocks
-            .iter()
-            .filter(|b| matches!(b, Block::Image(_)))
-            .collect();
+        let images: Vec<_> = blocks.iter().filter(|b| b["type"] == "image").collect();
         assert_eq!(images.len(), 1);
-        assert_eq!(
-            images[0],
-            &Block::Image(ImageBlock {
-                url: "image.jpg".to_string(),
-                alt_text: "Alt text".to_string(),
-                caption: "This is a caption".to_string()
-            })
-        );
+        assert_eq!(images[0], &json!({"type": "image", "url": "image.jpg", "altText": "Alt text", "caption": "This is a caption"}));
 
         // Verify thematic break
-        let breaks: Vec<_> = result
-            .blocks
-            .iter()
-            .filter(|b| matches!(b, Block::ThematicBreak))
-            .collect();
+        let breaks: Vec<_> = blocks.iter().filter(|b| b["type"] == "thematicBreak").collect();
         assert_eq!(breaks.len(), 1);
 
         // Verify paragraph with styled text
-        let paragraphs: Vec<_> = result
-            .blocks
-            .iter()
-            .filter(|b| matches!(b, Block::Paragraph(_)))
-            .collect();
+        let paragraphs: Vec<_> = blocks.iter().filter(|b| b["type"] == "paragraph").collect();
         assert!(paragraphs.len() >= 2);
-        assert_eq!(
-            paragraphs[0],
-            &Block::Paragraph(ParagraphBlock {
-                body: vec![
-                    InlineContent::TextBody(TextBody {
-                        style: TextBodyStyle::Plain,
-                        value: "This is an introductory paragraph with ".to_string()
-                    }),
-                    InlineContent::TextBody(TextBody {
-                        style: TextBodyStyle::Strong,
-                        value: "bold".to_string()
-                    }),
-                    InlineContent::TextBody(TextBody {
-                        style: TextBodyStyle::Plain,
-                        value: " and ".to_string()
-                    }),
-                    InlineContent::TextBody(TextBody {
-                        style: TextBodyStyle::Italic,
-                        value: "italic".to_string()
-                    }),
-                    InlineContent::TextBody(TextBody {
-                        style: TextBodyStyle::Plain,
-                        value: " text.".to_string()
-                    }),
-                ],
-            })
-        );
+        assert_eq!(paragraphs[0]["body"], json!([
+            {"type": "textBody", "style": "plain", "value": "This is an introductory paragraph with "},
+            {"type": "textBody", "style": "strong", "value": "bold"},
+            {"type": "textBody", "style": "plain", "value": " and "},
+            {"type": "textBody", "style": "italic", "value": "italic"},
+            {"type": "textBody", "style": "plain", "value": " text."}
+        ]));
     }
 }

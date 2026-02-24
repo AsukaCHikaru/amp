@@ -94,6 +94,7 @@ pub enum Block {
     ThematicBreak,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct ParseResult {
     pub frontmatter: HashMap<String, String>,
     pub blocks: Vec<Block>,
