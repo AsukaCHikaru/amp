@@ -6,7 +6,7 @@ use crate::{
     parser::parse_text_body::parse_text_body,
     types::{
         Block, CodeBlock, HeadingBlock, HeadingLevel, ImageBlock, ListBlock, ListItem,
-        ParagraphBlock, QuoteBlock,
+        ParagraphBlock, QuoteBlock, ThematicBreak,
     },
 };
 
@@ -57,7 +57,7 @@ pub fn parse_blocks(input: &str) -> Vec<Block> {
     } else if let Some(captured) = THEMATIC_BREAK_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();
         let rest = input[cap.end()..].trim().to_string();
-        result.push(Block::ThematicBreak);
+        result.push(Block::ThematicBreak(ThematicBreak {}));
         result.extend(parse_blocks(&rest));
     } else if let Some(captured) = PARAGRAPH_PATTERN.captures(input) {
         let cap = captured.get(0).unwrap();

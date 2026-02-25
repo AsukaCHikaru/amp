@@ -12,18 +12,6 @@ use crate::{
 #[wasm_bindgen]
 pub struct Amp {}
 
-impl Amp {
-    fn internal_parse(input: &str) -> ParseResult {
-        let SplitResult { head, body } = split(input);
-        let frontmatter = parse_frontmatter(&head);
-        let blocks = parse_blocks(&body);
-        ParseResult {
-            frontmatter,
-            blocks,
-        }
-    }
-}
-
 #[wasm_bindgen]
 impl Amp {
     #[wasm_bindgen(constructor)]
@@ -32,9 +20,14 @@ impl Amp {
     }
 
     #[wasm_bindgen]
-    pub fn parse(&self, input: String) -> String {
-        let result = Self::internal_parse(&input);
-        serde_json::to_string(&result).unwrap()
+    pub fn parse(&self, input: &str) -> ParseResult {
+        let SplitResult { head, body } = split(input);
+        let frontmatter = parse_frontmatter(&head);
+        let blocks = parse_blocks(&body);
+        ParseResult {
+            frontmatter,
+            blocks,
+        }
     }
 }
 
