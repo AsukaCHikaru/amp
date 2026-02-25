@@ -1,4 +1,4 @@
-use napi_derive::napi;
+use wasm_bindgen::prelude::*;
 
 use crate::{
     parser::{
@@ -9,7 +9,7 @@ use crate::{
     types::ParseResult,
 };
 
-#[napi]
+#[wasm_bindgen]
 pub struct Amp {}
 
 impl Amp {
@@ -24,14 +24,14 @@ impl Amp {
     }
 }
 
-#[napi]
+#[wasm_bindgen]
 impl Amp {
-    #[napi(constructor)]
+    #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Amp {}
     }
 
-    #[napi]
+    #[wasm_bindgen]
     pub fn parse(&self, input: String) -> String {
         let result = Self::internal_parse(&input);
         serde_json::to_string(&result).unwrap()
@@ -90,7 +90,8 @@ console.log(x);
 
 This is the final paragraph before we end."#;
 
-        let result: serde_json::Value = serde_json::from_str(&amp.parse(input.to_string())).unwrap();
+        let result: serde_json::Value =
+            serde_json::from_str(&amp.parse(input.to_string())).unwrap();
 
         // Verify frontmatter
         assert_eq!(result["frontmatter"]["title"], "Test Document");
@@ -104,14 +105,23 @@ This is the final paragraph before we end."#;
         let headings: Vec<_> = blocks.iter().filter(|b| b["type"] == "heading").collect();
         assert!(headings.len() >= 5);
         assert_eq!(headings[0]["level"], 1);
-        assert_eq!(headings[0]["body"][0], json!({"type": "textBody", "style": "plain", "value": "Main Heading"}));
+        assert_eq!(
+            headings[0]["body"][0],
+            json!({"type": "textBody", "style": "plain", "value": "Main Heading"})
+        );
         assert_eq!(headings[1]["level"], 2);
-        assert_eq!(headings[1]["body"][0], json!({"type": "textBody", "style": "plain", "value": "Features Section"}));
+        assert_eq!(
+            headings[1]["body"][0],
+            json!({"type": "textBody", "style": "plain", "value": "Features Section"})
+        );
 
         // Verify quote
         let quotes: Vec<_> = blocks.iter().filter(|b| b["type"] == "quote").collect();
         assert_eq!(quotes.len(), 1);
-        assert_eq!(quotes[0]["body"][0], json!({"type": "textBody", "style": "plain", "value": "This is a quote block with some important information.\nIt spans multiple lines."}));
+        assert_eq!(
+            quotes[0]["body"][0],
+            json!({"type": "textBody", "style": "plain", "value": "This is a quote block with some important information.\nIt spans multiple lines."})
+        );
 
         // Verify lists
         let lists: Vec<_> = blocks.iter().filter(|b| b["type"] == "list").collect();
@@ -123,7 +133,10 @@ This is the final paragraph before we end."#;
         assert_eq!(lists[1]["ordered"], true);
         assert_eq!(lists[1]["body"][0]["body"][0]["value"], "Numbered item one");
         assert_eq!(lists[1]["body"][1]["body"][0]["value"], "Numbered item two");
-        assert_eq!(lists[1]["body"][2]["body"][0]["value"], "Numbered item three");
+        assert_eq!(
+            lists[1]["body"][2]["body"][0]["value"],
+            "Numbered item three"
+        );
 
         // Verify code
         let codes: Vec<_> = blocks.iter().filter(|b| b["type"] == "code").collect();
@@ -134,21 +147,30 @@ This is the final paragraph before we end."#;
         // Verify image
         let images: Vec<_> = blocks.iter().filter(|b| b["type"] == "image").collect();
         assert_eq!(images.len(), 1);
-        assert_eq!(images[0], &json!({"type": "image", "url": "image.jpg", "altText": "Alt text", "caption": "This is a caption"}));
+        assert_eq!(
+            images[0],
+            &json!({"type": "image", "url": "image.jpg", "altText": "Alt text", "caption": "This is a caption"})
+        );
 
         // Verify thematic break
-        let breaks: Vec<_> = blocks.iter().filter(|b| b["type"] == "thematicBreak").collect();
+        let breaks: Vec<_> = blocks
+            .iter()
+            .filter(|b| b["type"] == "thematicBreak")
+            .collect();
         assert_eq!(breaks.len(), 1);
 
         // Verify paragraph with styled text
         let paragraphs: Vec<_> = blocks.iter().filter(|b| b["type"] == "paragraph").collect();
         assert!(paragraphs.len() >= 2);
-        assert_eq!(paragraphs[0]["body"], json!([
-            {"type": "textBody", "style": "plain", "value": "This is an introductory paragraph with "},
-            {"type": "textBody", "style": "strong", "value": "bold"},
-            {"type": "textBody", "style": "plain", "value": " and "},
-            {"type": "textBody", "style": "italic", "value": "italic"},
-            {"type": "textBody", "style": "plain", "value": " text."}
-        ]));
+        assert_eq!(
+            paragraphs[0]["body"],
+            json!([
+                {"type": "textBody", "style": "plain", "value": "This is an introductory paragraph with "},
+                {"type": "textBody", "style": "strong", "value": "bold"},
+                {"type": "textBody", "style": "plain", "value": " and "},
+                {"type": "textBody", "style": "italic", "value": "italic"},
+                {"type": "textBody", "style": "plain", "value": " text."}
+            ])
+        );
     }
 }
