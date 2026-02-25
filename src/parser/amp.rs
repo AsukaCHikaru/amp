@@ -34,7 +34,21 @@ impl Amp {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::json;
+    use crate::types::*;
+
+    fn plain(value: &str) -> InlineContent {
+        InlineContent::TextBody(TextBody {
+            style: TextBodyStyle::Plain,
+            value: value.to_string(),
+        })
+    }
+
+    fn tb(style: TextBodyStyle, value: &str) -> InlineContent {
+        InlineContent::TextBody(TextBody {
+            style,
+            value: value.to_string(),
+        })
+    }
 
     #[test]
     fn instantiate() {
@@ -83,87 +97,120 @@ console.log(x);
 
 This is the final paragraph before we end."#;
 
-        let result: serde_json::Value =
-            serde_json::from_str(&amp.parse(input.to_string())).unwrap();
+        let result = amp.parse(input);
 
         // Verify frontmatter
-        assert_eq!(result["frontmatter"]["title"], "Test Document");
-        assert_eq!(result["frontmatter"]["author"], "Test Author");
+        assert_eq!(result.frontmatter.get("title").unwrap(), "Test Document");
+        assert_eq!(result.frontmatter.get("author").unwrap(), "Test Author");
 
         // Verify block count
-        let blocks = result["blocks"].as_array().unwrap();
-        assert!(blocks.len() > 10);
+        assert!(result.blocks.len() > 10);
 
         // Verify headings
-        let headings: Vec<_> = blocks.iter().filter(|b| b["type"] == "heading").collect();
+        let headings: Vec<_> = result
+            .blocks
+            .iter()
+            .filter_map(|b| match b {
+                Block::Heading(h) => Some(h),
+                _ => None,
+            })
+            .collect();
         assert!(headings.len() >= 5);
-        assert_eq!(headings[0]["level"], 1);
-        assert_eq!(
-            headings[0]["body"][0],
-            json!({"type": "textBody", "style": "plain", "value": "Main Heading"})
-        );
-        assert_eq!(headings[1]["level"], 2);
-        assert_eq!(
-            headings[1]["body"][0],
-            json!({"type": "textBody", "style": "plain", "value": "Features Section"})
-        );
+        assert_eq!(headings[0].level, HeadingLevel::new(1).unwrap());
+        assert_eq!(headings[0].body[0], plain("Main Heading"));
+        assert_eq!(headings[1].level, HeadingLevel::new(2).unwrap());
+        assert_eq!(headings[1].body[0], plain("Features Section"));
 
         // Verify quote
-        let quotes: Vec<_> = blocks.iter().filter(|b| b["type"] == "quote").collect();
+        let quotes: Vec<_> = result
+            .blocks
+            .iter()
+            .filter_map(|b| match b {
+                Block::Quote(q) => Some(q),
+                _ => None,
+            })
+            .collect();
         assert_eq!(quotes.len(), 1);
         assert_eq!(
-            quotes[0]["body"][0],
-            json!({"type": "textBody", "style": "plain", "value": "This is a quote block with some important information.\nIt spans multiple lines."})
+            quotes[0].body[0],
+            plain(
+                "This is a quote block with some important information.\nIt spans multiple lines."
+            )
         );
 
         // Verify lists
-        let lists: Vec<_> = blocks.iter().filter(|b| b["type"] == "list").collect();
+        let lists: Vec<_> = result
+            .blocks
+            .iter()
+            .filter_map(|b| match b {
+                Block::List(l) => Some(l),
+                _ => None,
+            })
+            .collect();
         assert_eq!(lists.len(), 2);
-        assert_eq!(lists[0]["ordered"], false);
-        assert_eq!(lists[0]["body"][0]["body"][0]["value"], "First item");
-        assert_eq!(lists[0]["body"][1]["body"][0]["value"], "Second item");
-        assert_eq!(lists[0]["body"][2]["body"][0]["value"], "Third item");
-        assert_eq!(lists[1]["ordered"], true);
-        assert_eq!(lists[1]["body"][0]["body"][0]["value"], "Numbered item one");
-        assert_eq!(lists[1]["body"][1]["body"][0]["value"], "Numbered item two");
-        assert_eq!(
-            lists[1]["body"][2]["body"][0]["value"],
-            "Numbered item three"
-        );
+        assert_eq!(lists[0].ordered, false);
+        assert_eq!(lists[0].body[0].body[0], plain("First item"));
+        assert_eq!(lists[0].body[1].body[0], plain("Second item"));
+        assert_eq!(lists[0].body[2].body[0], plain("Third item"));
+        assert_eq!(lists[1].ordered, true);
+        assert_eq!(lists[1].body[0].body[0], plain("Numbered item one"));
+        assert_eq!(lists[1].body[1].body[0], plain("Numbered item two"));
+        assert_eq!(lists[1].body[2].body[0], plain("Numbered item three"));
 
         // Verify code
-        let codes: Vec<_> = blocks.iter().filter(|b| b["type"] == "code").collect();
+        let codes: Vec<_> = result
+            .blocks
+            .iter()
+            .filter_map(|b| match b {
+                Block::Code(c) => Some(c),
+                _ => None,
+            })
+            .collect();
         assert_eq!(codes.len(), 1);
-        assert_eq!(codes[0]["lang"], "javascript");
-        assert_eq!(codes[0]["body"], "const x = 5;\nconsole.log(x);");
+        assert_eq!(codes[0].lang, Some("javascript".to_string()));
+        assert_eq!(codes[0].body, "const x = 5;\nconsole.log(x);");
 
         // Verify image
-        let images: Vec<_> = blocks.iter().filter(|b| b["type"] == "image").collect();
+        let images: Vec<_> = result
+            .blocks
+            .iter()
+            .filter_map(|b| match b {
+                Block::Image(i) => Some(i),
+                _ => None,
+            })
+            .collect();
         assert_eq!(images.len(), 1);
-        assert_eq!(
-            images[0],
-            &json!({"type": "image", "url": "image.jpg", "altText": "Alt text", "caption": "This is a caption"})
-        );
+        assert_eq!(images[0].url, "image.jpg");
+        assert_eq!(images[0].alt_text, "Alt text");
+        assert_eq!(images[0].caption, "This is a caption");
 
         // Verify thematic break
-        let breaks: Vec<_> = blocks
+        let breaks: Vec<_> = result
+            .blocks
             .iter()
-            .filter(|b| b["type"] == "thematicBreak")
+            .filter(|b| matches!(b, Block::ThematicBreak(_)))
             .collect();
         assert_eq!(breaks.len(), 1);
 
         // Verify paragraph with styled text
-        let paragraphs: Vec<_> = blocks.iter().filter(|b| b["type"] == "paragraph").collect();
+        let paragraphs: Vec<_> = result
+            .blocks
+            .iter()
+            .filter_map(|b| match b {
+                Block::Paragraph(p) => Some(p),
+                _ => None,
+            })
+            .collect();
         assert!(paragraphs.len() >= 2);
         assert_eq!(
-            paragraphs[0]["body"],
-            json!([
-                {"type": "textBody", "style": "plain", "value": "This is an introductory paragraph with "},
-                {"type": "textBody", "style": "strong", "value": "bold"},
-                {"type": "textBody", "style": "plain", "value": " and "},
-                {"type": "textBody", "style": "italic", "value": "italic"},
-                {"type": "textBody", "style": "plain", "value": " text."}
-            ])
+            paragraphs[0].body,
+            vec![
+                plain("This is an introductory paragraph with "),
+                tb(TextBodyStyle::Strong, "bold"),
+                plain(" and "),
+                tb(TextBodyStyle::Italic, "italic"),
+                plain(" text."),
+            ]
         );
     }
 }

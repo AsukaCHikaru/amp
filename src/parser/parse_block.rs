@@ -415,11 +415,17 @@ mod tests {
 
         #[test]
         fn three_hyphens() {
-            assert_eq!(parse_blocks("---"), vec![Block::ThematicBreak]);
+            assert_eq!(
+                parse_blocks("---"),
+                vec![Block::ThematicBreak(ThematicBreak {})]
+            );
         }
         #[test]
         fn more_than_three_hyphens() {
-            assert_eq!(parse_blocks("-----"), vec![Block::ThematicBreak]);
+            assert_eq!(
+                parse_blocks("-----"),
+                vec![Block::ThematicBreak(ThematicBreak {})]
+            );
         }
         #[test]
         fn fewer_than_three_hyphens_is_paragraph() {
@@ -602,7 +608,10 @@ mod tests {
         }
         #[test]
         fn parses_thematic_break() {
-            assert_eq!(parse_blocks("---"), vec![Block::ThematicBreak]);
+            assert_eq!(
+                parse_blocks("---"),
+                vec![Block::ThematicBreak(ThematicBreak {})]
+            );
         }
     }
 }
