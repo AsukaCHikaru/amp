@@ -149,13 +149,13 @@ This is the final paragraph before we end."#;
             .collect();
         assert_eq!(lists.len(), 2);
         assert_eq!(lists[0].ordered, false);
-        assert_eq!(lists[0].body[0].body[0], plain("First item"));
-        assert_eq!(lists[0].body[1].body[0], plain("Second item"));
-        assert_eq!(lists[0].body[2].body[0], plain("Third item"));
+        assert_eq!(lists[0].items[0].body[0], plain("First item"));
+        assert_eq!(lists[0].items[1].body[0], plain("Second item"));
+        assert_eq!(lists[0].items[2].body[0], plain("Third item"));
         assert_eq!(lists[1].ordered, true);
-        assert_eq!(lists[1].body[0].body[0], plain("Numbered item one"));
-        assert_eq!(lists[1].body[1].body[0], plain("Numbered item two"));
-        assert_eq!(lists[1].body[2].body[0], plain("Numbered item three"));
+        assert_eq!(lists[1].items[0].body[0], plain("Numbered item one"));
+        assert_eq!(lists[1].items[1].body[0], plain("Numbered item two"));
+        assert_eq!(lists[1].items[2].body[0], plain("Numbered item three"));
 
         // Verify code
         let codes: Vec<_> = result

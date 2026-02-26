@@ -380,23 +380,23 @@ mod list_tests {
     #[test]
     fn should_parse_list_items_correctly() {
         let lists = get_list_blocks();
-        assert_eq!(lists[0].body.len(), 1);
-        assert_eq!(lists[1].body.len(), 1);
-        assert_eq!(lists[2].body.len(), 5);
-        assert_eq!(lists[3].body.len(), 5);
-        assert_eq!(lists[4].body.len(), 6);
+        assert_eq!(lists[0].items.len(), 1);
+        assert_eq!(lists[1].items.len(), 1);
+        assert_eq!(lists[2].items.len(), 5);
+        assert_eq!(lists[3].items.len(), 5);
+        assert_eq!(lists[4].items.len(), 6);
     }
 
     #[test]
     fn single_unordered_list_content() {
         let lists = get_list_blocks();
-        assert_eq!(lists[0].body[0].body, vec![plain("single unordered")]);
+        assert_eq!(lists[0].items[0].body, vec![plain("single unordered")]);
     }
 
     #[test]
     fn single_ordered_list_content() {
         let lists = get_list_blocks();
-        assert_eq!(lists[1].body[0].body, vec![plain("single ordered")]);
+        assert_eq!(lists[1].items[0].body, vec![plain("single ordered")]);
     }
 
     #[test]
@@ -412,7 +412,7 @@ mod list_tests {
         .iter()
         .enumerate()
         {
-            assert_eq!(lists[2].body[i].body, vec![plain(expected)]);
+            assert_eq!(lists[2].items[i].body, vec![plain(expected)]);
         }
     }
 
@@ -429,14 +429,14 @@ mod list_tests {
         .iter()
         .enumerate()
         {
-            assert_eq!(lists[3].body[i].body, vec![plain(expected)]);
+            assert_eq!(lists[3].items[i].body, vec![plain(expected)]);
         }
     }
 
     #[test]
     fn styled_text_list_content() {
         let lists = get_list_blocks();
-        let styled = &lists[4].body;
+        let styled = &lists[4].items;
 
         // Plain
         assert_eq!(
