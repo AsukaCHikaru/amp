@@ -1,16 +1,8 @@
-export { Amp } from './lib/parser';
+import { readFileSync } from 'fs';
+import { initSync } from './pkg/amp';
+export { Amp } from './pkg/amp';
 
-export type {
-  Block,
-  TextBody,
-  TextBodyStyle,
-  Link,
-  ParagraphBlock,
-  HeadingBlock,
-  QuoteBlock,
-  ListBlock,
-  ImageBlock,
-  CodeBlock,
-  ThematicBreakBlock,
-  CustomBlock,
-} from './lib/definition';
+const WASM_URL = new URL('./pkg/amp_bg.wasm', import.meta.url);
+
+const wasmBytes = readFileSync(WASM_URL);
+initSync(wasmBytes);
