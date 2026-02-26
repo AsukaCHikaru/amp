@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'vitest';
 import { join } from 'path';
-import { Amp } from '../lib/parser';
+import { Amp } from '../index';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/paragraph.test.md'),

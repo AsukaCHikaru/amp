@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { Amp } from '../lib/parser';
+import { Amp } from '../index';
 import { describe, expect, test } from 'vitest';
 
 describe('Parser Integration Test', () => {
