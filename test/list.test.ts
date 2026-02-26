@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { describe, expect, test } from 'vitest';
 import { join } from 'path';
-import { Amp } from '../lib/parser';
+import { Amp } from '../index';
 
 const markdownContent = readFileSync(
   join(process.cwd(), 'test/list.test.md'),
@@ -44,7 +44,7 @@ describe('list', () => {
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
         (block) => block.type === 'list',
-      ) as import('../lib/definition').ListBlock[];
+      ) as import('../pkg/amp').ListBlock[];
 
       // Single unordered list
       expect(listBlocks[0].ordered).toBe(false);
@@ -69,7 +69,7 @@ describe('list', () => {
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
         (block) => block.type === 'list',
-      ) as import('../lib/definition').ListBlock[];
+      ) as import('../pkg/amp').ListBlock[];
 
       // Single unordered list should have 1 item
       expect(listBlocks[0].items).toHaveLength(1);
@@ -94,7 +94,7 @@ describe('list', () => {
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
         (block) => block.type === 'list',
-      ) as import('../lib/definition').ListBlock[];
+      ) as import('../pkg/amp').ListBlock[];
 
       // Single unordered list item content
       expect(listBlocks[0].items[0]).toMatchObject({
@@ -116,7 +116,7 @@ describe('list', () => {
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
         (block) => block.type === 'list',
-      ) as import('../lib/definition').ListBlock[];
+      ) as import('../pkg/amp').ListBlock[];
 
       // Single ordered list item content
       expect(listBlocks[1].items[0]).toMatchObject({
@@ -138,7 +138,7 @@ describe('list', () => {
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
         (block) => block.type === 'list',
-      ) as import('../lib/definition').ListBlock[];
+      ) as import('../pkg/amp').ListBlock[];
 
       // Multi-item unordered list content
       expect(listBlocks[2].items[0]).toMatchObject({
@@ -204,7 +204,7 @@ describe('list', () => {
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
         (block) => block.type === 'list',
-      ) as import('../lib/definition').ListBlock[];
+      ) as import('../pkg/amp').ListBlock[];
 
       // Multi-item ordered list content
       expect(listBlocks[3].items[0]).toMatchObject({
@@ -270,7 +270,7 @@ describe('list', () => {
       // Type assertion for blocks to access list properties
       const listBlocks = blocks.filter(
         (block) => block.type === 'list',
-      ) as import('../lib/definition').ListBlock[];
+      ) as import('../pkg/amp').ListBlock[];
 
       // Plain text item
       expect(listBlocks[4].items[0]).toMatchObject({
