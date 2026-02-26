@@ -73,6 +73,7 @@ pub struct QuoteBlock {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Tsify)]
 #[tsify(into_wasm_abi)]
+#[serde(tag = "type", rename = "listItem")]
 pub struct ListItem {
     pub body: Vec<InlineContent>,
 }
@@ -81,7 +82,7 @@ pub struct ListItem {
 #[tsify(into_wasm_abi)]
 #[serde(tag = "type", rename = "list")]
 pub struct ListBlock {
-    pub body: Vec<ListItem>,
+    pub items: Vec<ListItem>,
     pub ordered: bool,
 }
 

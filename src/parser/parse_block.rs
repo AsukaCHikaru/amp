@@ -125,10 +125,7 @@ fn parse_list_block(input: &str) -> ListBlock {
     let lines: Vec<&str> = input.split('\n').filter(|line| !line.is_empty()).collect();
     let items = lines.iter().map(|line| parse_list_item(line)).collect();
     let ordered = lines.iter().all(|line| LIST_ORDERED_PATTERN.is_match(line));
-    ListBlock {
-        body: items,
-        ordered,
-    }
+    ListBlock { items, ordered }
 }
 
 static QUOTE_STRIP_PATTERN: LazyLock<Regex> =
@@ -303,7 +300,7 @@ mod tests {
                 parse_list_block("- Item 1"),
                 ListBlock {
                     ordered: false,
-                    body: vec![ListItem {
+                    items: vec![ListItem {
                         body: vec![plain("Item 1")],
                     }],
                 }
@@ -315,7 +312,7 @@ mod tests {
                 parse_list_block("- Item 1\n- Item 2"),
                 ListBlock {
                     ordered: false,
-                    body: vec![
+                    items: vec![
                         ListItem {
                             body: vec![plain("Item 1")],
                         },
@@ -332,7 +329,7 @@ mod tests {
                 parse_list_block("1. Item 1"),
                 ListBlock {
                     ordered: true,
-                    body: vec![ListItem {
+                    items: vec![ListItem {
                         body: vec![plain("Item 1")],
                     }],
                 }
@@ -344,7 +341,7 @@ mod tests {
                 parse_list_block("1. Item 1\n2. Item 2"),
                 ListBlock {
                     ordered: true,
-                    body: vec![
+                    items: vec![
                         ListItem {
                             body: vec![plain("Item 1")],
                         },
@@ -361,7 +358,7 @@ mod tests {
                 parse_list_block("- Item with **strong** and *italic* text"),
                 ListBlock {
                     ordered: false,
-                    body: vec![ListItem {
+                    items: vec![ListItem {
                         body: vec![
                             plain("Item with "),
                             tb(TextBodyStyle::Strong, "strong"),
@@ -379,7 +376,7 @@ mod tests {
                 parse_list_block("- Item with [link](https://example.com)\n- Item with [link2](https://example.com)"),
                 ListBlock {
                     ordered: false,
-                    body: vec![
+                    items: vec![
                         ListItem {
                             body: vec![
                                 plain("Item with "),
@@ -533,7 +530,7 @@ mod tests {
                 parse_blocks("- List item 1\n- List item 2"),
                 vec![Block::List(ListBlock {
                     ordered: false,
-                    body: vec![
+                    items: vec![
                         ListItem {
                             body: vec![plain("List item 1")],
                         },
@@ -550,7 +547,7 @@ mod tests {
                 parse_blocks("1. List item 1\n2. List item 2"),
                 vec![Block::List(ListBlock {
                     ordered: true,
-                    body: vec![
+                    items: vec![
                         ListItem {
                             body: vec![plain("List item 1")],
                         },
