@@ -1,13 +1,7 @@
 import { readFileSync } from 'fs';
 import { bench, describe } from 'vitest';
 import { Amp as TsAmp } from '../lib/parser';
-import { initSync, Amp as RustAmp } from '../pkg/amp';
-
-// Initialize WASM module
-const wasmBytes = readFileSync(
-  new URL('../pkg/amp_bg.wasm', import.meta.url),
-);
-initSync(wasmBytes);
+import { Amp as RustAmp } from '../index';
 
 // Load fixtures
 const small = readFileSync(
