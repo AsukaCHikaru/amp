@@ -28,7 +28,6 @@ pub fn parse_link_in_text(input: &str) -> Vec<LinkParseItem> {
             };
             let before_cap = input[..text_cap.start() - 1].to_string();
             let after_cap = &input[(url_cap.end() + 1)..];
-            println!("{}, {}", before_cap, after_cap);
 
             let mut result: Vec<LinkParseItem> = vec![LinkParseItem::Link(link_block)];
             if !before_cap.is_empty() {

@@ -19,3 +19,10 @@ regex = "1"
 [profile.release]
 lto = true
 strip = "symbols"
+
+[dev-dependencies]
+criterion = {version = "0.5", features=["html_reports"]}
+
+[[bench]]
+name = "parser_bench"
+harness = false
