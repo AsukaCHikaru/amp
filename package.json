@@ -17,7 +17,8 @@
     "test": "bun test",
     "format:check": "prettier -c .",
     "lint": "eslint",
-    "build:rust": "wasm-pack build --target web --out-dir pkg"
+    "build:rust": "wasm-pack build --target web --out-dir pkg",
+    "bench": "npx vitest bench"
   },
   "keywords": [
     "markdown",
