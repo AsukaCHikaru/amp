@@ -2,8 +2,11 @@ import type { CustomBlock } from '../dist';
 import type {
   Block,
   CodeBlock,
+  FootnoteBlock,
+  FootnoteReference,
   HeadingBlock,
   ImageBlock,
+  InlineContent,
   Link,
   ListBlock,
   ParagraphBlock,
@@ -25,6 +28,7 @@ export class Amp<C extends CustomBlock<string, {}> = never> {
 
   constructor() {
     this.extend([paragraphRegexp, parseParagraphBlock])
+      .extend([footnoteRegexp, parseFootnoteBlock])
       .extend([thematicBreakRegexp, parseThematicBreakBlock])
       .extend([codeRegexp, parseCodeBlock])
       .extend([imageRegexp, parseImageBlock])
@@ -140,6 +144,9 @@ const imageRegexp = new RegExp(/^!\[(.*)\]\((.+?)\)(.*)/);
 const codeRegexp = new RegExp(/^```(\w+)?\n([\s\S]*?)\n```/);
 const thematicBreakRegexp = new RegExp(/^-{3,}/);
 const linkRegexp = new RegExp(/\[.+?\]\(.+?\)/);
+const footnoteReferenceRegexp = new RegExp(/\[\^(\d+)\]/);
+const footnoteRegexp = new RegExp(/^(?:\[\^\d+\]:.*\n?)+/);
+const footnoteItemRegexp = new RegExp(/^\[\^(\d+)\]:[ ]?(.*)/);
 const paragraphRegexp = new RegExp(/^([\s\S]+?)(?:\n|$)/);
 
 export const parseParagraphBlock = (input: string): ParagraphBlock => ({
@@ -147,16 +154,16 @@ export const parseParagraphBlock = (input: string): ParagraphBlock => ({
   body: parseTextBody(input),
 });
 
-export const parseTextBody = (input: string): (TextBody | Link)[] => {
-  const linkParsedTextList = parseLinkInText(input);
-  return linkParsedTextList
-    .map((item) =>
+export const parseTextBody = (input: string): InlineContent[] =>
+  parseLinkInText(input)
+    .flatMap<string | Link | FootnoteReference>((item) =>
+      typeof item === 'string' ? parseFootnoteReferenceInText(item) : item,
+    )
+    .flatMap<InlineContent>((item) =>
       typeof item === 'string'
         ? mergeSameTypeTextBody(parseTextBodyStyle(item))
         : item,
-    )
-    .flat();
-};
+    );
 
 type RawStyle =
   | 'plain'
@@ -304,6 +311,27 @@ export const parseLinkInText = (input: string): (string | Link)[] => {
   return [before, linkBlock, ...parseLinkInText(after)].filter(Boolean);
 };
 
+export const parseFootnoteReferenceInText = (
+  input: string,
+): (string | FootnoteReference)[] => {
+  const match = input.match(footnoteReferenceRegexp);
+
+  if (!match) {
+    return [input];
+  }
+
+  const [reference, label] = match;
+  const referenceStartIndex = input.indexOf(reference);
+  const before = input.slice(0, referenceStartIndex);
+  const after = input.slice(referenceStartIndex + reference.length);
+
+  return [
+    before,
+    { type: 'footnoteReference', label } satisfies FootnoteReference,
+    ...parseFootnoteReferenceInText(after),
+  ].filter(Boolean);
+};
+
 export const splitLinkFromText = (input: string): string[] => {
   const linkMatch = input.match(linkRegexp);
 
@@ -409,6 +437,31 @@ export const parseThematicBreakBlock = (): ThematicBreakBlock => ({
   type: 'thematicBreak',
 });
 
+export const parseFootnoteBlock = (input: string): FootnoteBlock => {
+  const lines = input.split(/\n+/).filter((line) => line.trim() !== '');
+  const items = lines.map((line) => parseFootnoteItem(line));
+
+  return {
+    type: 'footnote',
+    items,
+  };
+};
+
+const parseFootnoteItem = (line: string): FootnoteBlock['items'][number] => {
+  const match = footnoteItemRegexp.exec(line);
+  if (!match) {
+    throw new Error('Invalid footnote item');
+  }
+  const label = match[1];
+  const body = parseTextBody(match[2]);
+
+  return {
+    type: 'footnoteItem',
+    label,
+    body,
+  };
+};
+
 const regexpToParserPairs = [
   [headingRegexp, parseHeadingBlock],
   [quoteRegexp, parseQuoteBlock],
@@ -416,5 +469,6 @@ const regexpToParserPairs = [
   [imageRegexp, parseImageBlock],
   [codeRegexp, parseCodeBlock],
   [thematicBreakRegexp, parseThematicBreakBlock],
+  [footnoteRegexp, parseFootnoteBlock],
   [paragraphRegexp, parseParagraphBlock],
 ] satisfies [RegExp, (input: string) => Block][];

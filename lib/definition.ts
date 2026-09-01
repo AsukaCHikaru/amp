@@ -10,25 +10,32 @@ export type Link = {
   url: string;
 };
 
+export type FootnoteReference = {
+  type: 'footnoteReference';
+  label: string;
+};
+
+export type InlineContent = TextBody | Link | FootnoteReference;
+
 export type ParagraphBlock = {
   type: 'paragraph';
-  body: (TextBody | Link)[];
+  body: InlineContent[];
 };
 
 export type HeadingBlock = {
   type: 'heading';
-  body: (TextBody | Link)[];
+  body: InlineContent[];
   level: 1 | 2 | 3 | 4 | 5 | 6;
 };
 
 export type QuoteBlock = {
   type: 'quote';
-  body: (TextBody | Link)[];
+  body: InlineContent[];
 };
 
 type ListItem = {
   type: 'listItem';
-  body: (TextBody | Link)[];
+  body: InlineContent[];
 };
 
 export type ListBlock = {
@@ -54,6 +61,16 @@ export type ThematicBreakBlock = {
   type: 'thematicBreak';
 };
 
+type FootnoteItem = {
+  type: 'footnoteItem';
+  label: string;
+  body: InlineContent[];
+};
+export type FootnoteBlock = {
+  type: 'footnote';
+  items: FootnoteItem[];
+};
+
 export type CustomBlock<
   CustomType extends string,
   Body extends Record<string, string | number | boolean | object>,
@@ -70,4 +87,5 @@ export type Block<TCustom extends CustomBlock<string, {}> = never> =
   | ImageBlock
   | CodeBlock
   | ThematicBreakBlock
+  | FootnoteBlock
   | TCustom;
