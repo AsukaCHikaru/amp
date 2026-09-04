@@ -88,10 +88,13 @@ type MultipleExtendedBlock = ReturnType<typeof amp.parse>['blocks'][number];
 ### Paragraph
 
 ```ts
+// Some text with **strong**, a [link](https://example.com) and a footnote[^1].
 {
   type: 'paragraph';
-  body: (TextBody | Link)[];
+  body: InlineContent[];
 }
+
+type InlineContent = TextBody | Link | FootnoteReference;
 ```
 
 #### TextBody
@@ -120,9 +123,20 @@ type MultipleExtendedBlock = ReturnType<typeof amp.parse>['blocks'][number];
 }
 ```
 
+#### FootnoteReference
+
+```ts
+{
+  type: 'footnoteReference';
+  label: string;
+}
+```
+
 ### Heading
 
 ```ts
+// # Heading 1
+// ###### Heading 6
 {
   type: 'heading';
   body: TextBody[];
@@ -133,6 +147,11 @@ type MultipleExtendedBlock = ReturnType<typeof amp.parse>['blocks'][number];
 ### List
 
 ```ts
+// - item one
+// - item two
+//
+// 1. item one
+// 2. item two
 {
   type: 'list';
   items: ListItem[];
@@ -154,6 +173,8 @@ For unordered list, only hyphen is supported (asterisks unsupported.)
 ### Quote
 
 ```ts
+// > quoted text
+// > more quoted text
 {
   type: 'quote';
   body: (TextBody | Link)[];
@@ -163,6 +184,7 @@ For unordered list, only hyphen is supported (asterisks unsupported.)
 ### Image
 
 ```ts
+// ![alt text](image url)(caption)
 {
   type: 'image';
   url: string;
@@ -173,19 +195,42 @@ For unordered list, only hyphen is supported (asterisks unsupported.)
 
 ### Code
 
-```ts
+````ts
+// ```js
+// const foo = 'bar';
+// ```
 {
   type: 'code';
   lang?: string;
   body: string;
 }
-```
+````
 
 ### Thematic break
 
 ```ts
+// ---
 {
   type: 'thematicBreak';
+}
+```
+
+### Footnote
+
+```ts
+// [^1]: footnote text
+// [^2]: another footnote
+{
+  type: 'footnote';
+  items: FootnoteItem[];
+}
+```
+#### FootnoteItem
+```ts
+{
+  type: 'footnoteItem';
+  label: string;
+  body: InlineContent[];
 }
 ```
 
