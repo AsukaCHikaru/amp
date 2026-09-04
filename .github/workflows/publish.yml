@@ -29,7 +29,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24.x'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Ensure npm supports trusted publishing
         run: npm install -g npm@latest
